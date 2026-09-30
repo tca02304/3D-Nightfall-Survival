@@ -50,7 +50,12 @@ namespace DucThanh
         public float CurrentStamina => currentStamina;
         public float StaminaPercent => Mathf.Clamp01(currentStamina / maxStamina);
 
-        public bool CanSprint => currentStamina > 5f;
+        public bool CanSprint => !isDead && currentStamina > 5f;
+        public bool IsDead => isDead;
+
+        public event System.Action OnPlayerDied;
+
+        private bool isDead = false;
 
         private void Awake()
         {
@@ -59,11 +64,15 @@ namespace DucThanh
             currentHealth = maxHealth;
             currentHunger = maxHunger;
             currentStamina = maxStamina;
+            isDead = false;
         }
 
         private void Update()
         {
             HandleDebugInput();
+
+            if (isDead) return;
+
             HandleHunger();
             HandleStamina();
         }
@@ -153,26 +162,45 @@ namespace DucThanh
 
         public void ModifyHealth(float amount)
         {
+            if (isDead && amount <= 0f) return;
+
             currentHealth = Mathf.Clamp(currentHealth + amount, 0f, maxHealth);
-            if (currentHealth <= 0f)
+            
+            if (!isDead && currentHealth <= 0f)
             {
-                OnDeath();
+                Die();
+            }
+            else if (isDead && currentHealth > 0f)
+            {
+                Revive();
             }
         }
 
         public void ModifyHunger(float amount)
         {
+            if (isDead) return;
             currentHunger = Mathf.Clamp(currentHunger + amount, 0f, maxHunger);
         }
 
         public void ModifyStamina(float amount)
         {
+            if (isDead) return;
             currentStamina = Mathf.Clamp(currentStamina + amount, 0f, maxStamina);
         }
 
-        private void OnDeath()
+        private void Die()
         {
-            Debug.Log("[PlayerStats] Player đã cạn máu!");
+            isDead = true;
+            currentHealth = 0f;
+            Debug.Log("<color=red><b>[Player] Player đã chết!</b></color>");
+            OnPlayerDied?.Invoke();
+        }
+
+        public void Revive(float healthPercent = 1f)
+        {
+            isDead = false;
+            currentHealth = Mathf.Clamp(maxHealth * healthPercent, 1f, maxHealth);
+            Debug.Log($"[Player] Player đã hồi sinh với {currentHealth} máu!");
         }
     }
 }

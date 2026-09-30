@@ -24,15 +24,13 @@ namespace DucThanh
         [Tooltip("Trọng lực")]
         [SerializeField] private float gravity = -19.62f;
 
-        [Header("Camera & Visual")]
+        [Header("Camera")]
         [Tooltip("Camera tham chiếu hướng di chuyển. Nếu để trống sẽ tự lấy Camera.main")]
         [SerializeField] private Transform cameraTransform;
 
-        [Tooltip("Transform chứa visual/model/mesh (ví dụ Cube hoặc Model 3D sau này) để tách biệt với logic gốc")]
-        [SerializeField] private Transform visualTransform;
-
-        [Tooltip("Có xoay toàn bộ GameObject hay chỉ xoay visualTransform")]
-        [SerializeField] private bool rotateVisualOnly = false;
+        [Header("Animation")]
+        [Tooltip("Animator điều khiển hoạt ảnh nhân vật. Nếu để trống sẽ tự tìm trên chính GameObject hoặc con")]
+        [SerializeField] private Animator animator;
 
         private CharacterController characterController;
         private PlayerStats playerStats;
@@ -46,6 +44,7 @@ namespace DucThanh
         public Vector3 Velocity => characterController != null ? characterController.velocity : Vector3.zero;
         public bool IsMoving => moveInput.sqrMagnitude > 0.01f;
         public bool IsSprinting => isSprinting;
+        public Animator Animator => animator;
 
         private void Awake()
         {
@@ -57,10 +56,30 @@ namespace DucThanh
                 cameraTransform = Camera.main.transform;
             }
 
-            // Nếu chưa gán visualTransform và có con bên trong, có thể tự động tìm hoặc mặc định dùng chính transform này
-            if (visualTransform == null)
+            if (animator == null)
             {
-                visualTransform = transform;
+                animator = GetComponentInChildren<Animator>();
+            }
+
+            if (playerStats != null)
+            {
+                playerStats.OnPlayerDied += StopAnimationOnDeath;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (playerStats != null)
+            {
+                playerStats.OnPlayerDied -= StopAnimationOnDeath;
+            }
+        }
+
+        private void StopAnimationOnDeath()
+        {
+            if (animator != null)
+            {
+                animator.speed = 0f;
             }
         }
 
@@ -72,6 +91,20 @@ namespace DucThanh
 
         private void GatherInput()
         {
+            if (playerStats == null)
+            {
+                playerStats = GetComponent<PlayerStats>();
+            }
+
+            // Nếu player đã chết thì khóa toàn bộ phím di chuyển, chạy nhanh, nhảy
+            if (playerStats != null && playerStats.IsDead)
+            {
+                moveInput = Vector2.zero;
+                isSprinting = false;
+                jumpTriggered = false;
+                return;
+            }
+
             // Hỗ trợ cả New Input System lẫn Legacy Input Manager mượt mà và không gây lỗi
             float horizontal = 0f;
             float vertical = 0f;
@@ -145,6 +178,24 @@ namespace DucThanh
         {
             if (characterController == null) return;
 
+            // Khi player đã chết: không di chuyển ngang, không nhảy, chỉ chịu tác động trọng lực rơi
+            if (playerStats != null && playerStats.IsDead)
+            {
+                jumpTriggered = false;
+                if (characterController.isGrounded)
+                {
+                    if (verticalVelocity.y < 0f) verticalVelocity.y = -2f;
+                }
+                else
+                {
+                    verticalVelocity.y += gravity * Time.deltaTime;
+                }
+
+                characterController.Move(verticalVelocity * Time.deltaTime);
+                UpdateAnimation();
+                return;
+            }
+
             // Kiểm tra chạm đất
             if (characterController.isGrounded)
             {
@@ -174,12 +225,11 @@ namespace DucThanh
 
             Vector3 horizontalMove = moveDirection * currentSpeed;
 
-            // Xoay nhân vật theo hướng di chuyển
+            // Xoay nhân vật trực tiếp theo hướng di chuyển
             if (moveDirection.sqrMagnitude > 0.001f)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
-                Transform targetTransform = rotateVisualOnly && visualTransform != null ? visualTransform : transform;
-                targetTransform.rotation = Quaternion.Slerp(targetTransform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             }
 
             // Áp dụng trọng lực
@@ -188,15 +238,73 @@ namespace DucThanh
             // Tổng hợp di chuyển
             Vector3 finalMotion = (horizontalMove + verticalVelocity) * Time.deltaTime;
             characterController.Move(finalMotion);
+
+            // Cập nhật Animation
+            UpdateAnimation();
+        }
+
+        private void UpdateAnimation()
+        {
+            if (animator == null) return;
+
+            // Dừng toàn bộ hoạt ảnh khi player đã chết
+            if (playerStats != null && playerStats.IsDead)
+            {
+                animator.speed = 0f;
+                return;
+            }
+
+            // Khôi phục tốc độ chạy hoạt ảnh khi còn sống
+            if (animator.speed == 0f)
+            {
+                animator.speed = 1f;
+            }
+
+            // OnlinePlayer controller:
+            // - Speed (Float): 0 = Idle, 1 = Walk, >1 = Run/Sprint
+            float targetSpeed = 0f;
+            if (moveInput.sqrMagnitude > 0.01f)
+            {
+                targetSpeed = isSprinting ? 1.5f : 1.0f;
+            }
+
+            animator.SetFloat("Speed", targetSpeed, 0.1f, Time.deltaTime);
+            animator.SetBool("Grounded", characterController.isGrounded);
+            animator.SetBool("Jumping", !characterController.isGrounded && verticalVelocity.y > 0f);
+            animator.SetFloat("FallSpeed", verticalVelocity.y);
+            animator.SetFloat("AnimationSpeed", isSprinting ? 1.3f : 1.0f);
+        }
+
+        #region Animation Events Receiver
+        /// <summary>
+        /// Được gọi từ AnimationEvent trong Jump.anim và Land.anim
+        /// </summary>
+        public void SpawnSmoke()
+        {
+            // Placeholder cho hiệu ứng khói/bụi khi nhảy và tiếp đất
         }
 
         /// <summary>
-        /// Cho phép thay đổi model hiển thị sau này một cách dễ dàng
+        /// Được gọi từ AnimationEvent trong Attack.anim và các đòn đánh
         /// </summary>
-        /// <param name="newVisual">Transform của model 3D mới</param>
-        public void SetVisualTransform(Transform newVisual)
+        public void SpawnFx()
         {
-            visualTransform = newVisual;
+            // Placeholder cho hiệu ứng chém/tấn công
         }
+
+        /// <summary>
+        /// Được gọi từ AnimationEvent trong các đòn đánh hitbox
+        /// </summary>
+        public void UseHitbox()
+        {
+            // Placeholder cho hitbox tấn công
+        }
+
+        /// <summary>
+        /// Được gọi từ AnimationEvent bước chân
+        /// </summary>
+        public void LeftStep() { }
+        public void RightStep() { }
+        #endregion
     }
 }
