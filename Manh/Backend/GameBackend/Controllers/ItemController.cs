@@ -21,7 +21,7 @@ namespace GameBackend.Controllers
         {
             var items = await _context.Items.ToListAsync();
 
-            var re = new ResponseModel<List<Item>>
+            var re = new ResponseModel<List<Items>>
             {
                 Success = true,
                 Message = "Get all items successfully",

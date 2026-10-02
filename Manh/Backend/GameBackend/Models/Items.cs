@@ -1,6 +1,6 @@
 ﻿namespace GameBackend.Models
 {
-    public class Item
+    public class Items
     {
         public int Id { get; set; }
         public string ItemCode { get; set; } = null!;
