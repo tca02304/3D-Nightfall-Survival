@@ -188,6 +188,20 @@ namespace DucThanh
             currentStamina = Mathf.Clamp(currentStamina + amount, 0f, maxStamina);
         }
 
+        /// <summary>
+        /// Tiêu hao thể lực (stamina). Trả về true nếu đủ thể lực và tiêu hao thành công.
+        /// </summary>
+        public bool ConsumeStamina(float amount)
+        {
+            if (isDead) return false;
+            if (amount <= 0f) return true;
+            if (currentStamina < amount) return false;
+
+            currentStamina = Mathf.Clamp(currentStamina - amount, 0f, maxStamina);
+            staminaCooldownTimer = regenDelay;
+            return true;
+        }
+
         private void Die()
         {
             isDead = true;

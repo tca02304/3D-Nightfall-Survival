@@ -32,19 +32,47 @@ namespace DucThanh
         [Tooltip("Animator điều khiển hoạt ảnh nhân vật. Nếu để trống sẽ tự tìm trên chính GameObject hoặc con")]
         [SerializeField] private Animator animator;
 
+        [Header("Combat Settings")]
+        [Tooltip("Thời gian hồi giữa các lần tấn công (giây)")]
+        [SerializeField] private float attackCooldown = 0.8f;
+
+        [Tooltip("Lượng thể lực tiêu hao cho mỗi đòn tấn công (0 = không tốn)")]
+        [SerializeField] private float attackStaminaCost = 10f;
+
+        [Tooltip("Lượng sát thương gây ra mỗi đòn chém")]
+        [SerializeField] private float attackDamage = 25f;
+
+        [Tooltip("Khoảng cách tấn công")]
+        [SerializeField] private float attackRange = 2.2f;
+
+        [Tooltip("Bán kính vùng quét va chạm đòn đánh")]
+        [SerializeField] private float attackRadius = 1.2f;
+
+        [Tooltip("Độ trễ trước khi kiểm tra va chạm (khớp thời điểm tay vung đòn)")]
+        [SerializeField] private float attackHitDelay = 0.15f;
+
+        [Tooltip("LayerMask các đối tượng có thể bị tấn công")]
+        [SerializeField] private LayerMask targetLayer = ~0;
+
         private CharacterController characterController;
         private PlayerStats playerStats;
         private Vector3 verticalVelocity;
         private Vector2 moveInput;
         private bool isSprinting;
         private bool jumpTriggered;
+        private bool attackTriggered;
+        private float nextAttackTime;
+        private float attackEndTime;
 
         public CharacterController CharacterController => characterController;
         public bool IsGrounded => characterController != null && characterController.isGrounded;
         public Vector3 Velocity => characterController != null ? characterController.velocity : Vector3.zero;
         public bool IsMoving => moveInput.sqrMagnitude > 0.01f;
         public bool IsSprinting => isSprinting;
+        public bool IsAttacking => Time.time < attackEndTime;
         public Animator Animator => animator;
+
+        public event System.Action OnAttack;
 
         private void Awake()
         {
@@ -77,6 +105,7 @@ namespace DucThanh
 
         private void StopAnimationOnDeath()
         {
+            attackTriggered = false;
             if (animator != null)
             {
                 animator.speed = 0f;
@@ -87,6 +116,7 @@ namespace DucThanh
         {
             GatherInput();
             HandleMovement();
+            HandleAttack();
         }
 
         private void GatherInput()
@@ -172,6 +202,132 @@ namespace DucThanh
             {
                 jumpTriggered = true;
             }
+
+            // Thu thập input tấn công chuột trái (Left Mouse Click)
+            bool attackPressed = false;
+#if ENABLE_INPUT_SYSTEM
+            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                attackPressed = true;
+            }
+#endif
+            if (!attackPressed)
+            {
+                try
+                {
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        attackPressed = true;
+                    }
+                }
+                catch
+                {
+                    // Tránh lỗi nếu Legacy Input bị tắt hoàn toàn trong Unity settings
+                }
+            }
+
+            // Bỏ qua nếu con trỏ chuột đang click lên giao diện UI
+            if (attackPressed)
+            {
+                if (UnityEngine.EventSystems.EventSystem.current != null &&
+                    UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+                {
+                    attackPressed = false;
+                }
+            }
+
+            if (attackPressed)
+            {
+                attackTriggered = true;
+            }
+        }
+
+        private void HandleAttack()
+        {
+            if (!attackTriggered) return;
+            attackTriggered = false;
+
+            // Không thể tấn công nếu player đã chết
+            if (playerStats != null && playerStats.IsDead) return;
+
+            // Kiểm tra thời gian hồi giữa các đòn đánh
+            if (Time.time < nextAttackTime) return;
+
+            // Kiểm tra và tiêu hao thể lực nếu có thiết lập
+            if (playerStats != null && attackStaminaCost > 0f)
+            {
+                if (!playerStats.ConsumeStamina(attackStaminaCost))
+                {
+                    return; // Không đủ thể lực để tấn công
+                }
+            }
+
+            nextAttackTime = Time.time + attackCooldown;
+            attackEndTime = Time.time + attackCooldown;
+
+            if (animator != null)
+            {
+                animator.SetTrigger("Attack");
+            }
+
+            StartCoroutine(PerformAttackHitCheck());
+
+            OnAttack?.Invoke();
+        }
+
+        private System.Collections.IEnumerator PerformAttackHitCheck()
+        {
+            if (attackHitDelay > 0f)
+            {
+                yield return new WaitForSeconds(attackHitDelay);
+            }
+
+            CheckHitAndDamageEnemies();
+        }
+
+        private void CheckHitAndDamageEnemies()
+        {
+            Vector3 origin = transform.position + Vector3.up * 1f;
+            Vector3 forward = transform.forward;
+            Vector3 center = origin + forward * (attackRange * 0.5f);
+
+            Collider[] hits = Physics.OverlapSphere(center, attackRadius, targetLayer, QueryTriggerInteraction.Ignore);
+            var damagedEnemies = new System.Collections.Generic.HashSet<EnemyTest>();
+
+            foreach (var hit in hits)
+            {
+                if (hit.gameObject == gameObject) continue;
+
+                EnemyTest enemy = hit.GetComponentInParent<EnemyTest>();
+                if (enemy != null && !damagedEnemies.Contains(enemy) && !enemy.IsDead)
+                {
+                    damagedEnemies.Add(enemy);
+                    enemy.TakeDamage(attackDamage);
+                }
+            }
+
+            // Bổ sung kiểm tra bằng SphereCast nếu OverlapSphere bị hụt góc
+            if (damagedEnemies.Count == 0)
+            {
+                Ray ray = new Ray(origin, forward);
+                if (Physics.SphereCast(ray, 0.5f, out RaycastHit hitInfo, attackRange, targetLayer, QueryTriggerInteraction.Ignore))
+                {
+                    EnemyTest enemy = hitInfo.collider.GetComponentInParent<EnemyTest>();
+                    if (enemy != null && !enemy.IsDead)
+                    {
+                        damagedEnemies.Add(enemy);
+                        enemy.TakeDamage(attackDamage);
+                    }
+                }
+            }
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            Vector3 origin = transform.position + Vector3.up * 1f;
+            Vector3 center = origin + transform.forward * (attackRange * 0.5f);
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(center, attackRadius);
         }
 
         private void HandleMovement()
@@ -297,7 +453,7 @@ namespace DucThanh
         /// </summary>
         public void UseHitbox()
         {
-            // Placeholder cho hitbox tấn công
+            CheckHitAndDamageEnemies();
         }
 
         /// <summary>
