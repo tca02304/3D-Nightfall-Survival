@@ -277,7 +277,7 @@ public class NavMeshEnemyAI : MonoBehaviour
                     animator.Play(stName);
                     break;
                 }
-                catch {}
+                catch { }
             }
         }
     }
