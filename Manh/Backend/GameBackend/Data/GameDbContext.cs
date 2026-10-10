@@ -10,6 +10,6 @@ namespace GameBackend.Data
         {
         }
 
-        public DbSet<Item> Items { get; set; }
+        public DbSet<Items> Items { get; set; }
     }
 }
