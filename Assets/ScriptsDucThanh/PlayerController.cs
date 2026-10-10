@@ -64,15 +64,25 @@ namespace DucThanh
         private float nextAttackTime;
         private float attackEndTime;
 
+        [Header("Weapon & Equipment")]
+        [Tooltip("Trạng thái đã nhặt vũ khí (Katana) hay chưa")]
+        [SerializeField] private bool hasWeapon = false;
+
         public CharacterController CharacterController => characterController;
         public bool IsGrounded => characterController != null && characterController.isGrounded;
         public Vector3 Velocity => characterController != null ? characterController.velocity : Vector3.zero;
         public bool IsMoving => moveInput.sqrMagnitude > 0.01f;
         public bool IsSprinting => isSprinting;
         public bool IsAttacking => Time.time < attackEndTime;
+        public bool HasWeapon => hasWeapon;
         public Animator Animator => animator;
 
         public event System.Action OnAttack;
+
+        public void SetHasWeapon(bool value)
+        {
+            hasWeapon = value;
+        }
 
         private void Awake()
         {
@@ -92,6 +102,41 @@ namespace DucThanh
             if (playerStats != null)
             {
                 playerStats.OnPlayerDied += StopAnimationOnDeath;
+            }
+        }
+
+        private void Start()
+        {
+            EnsureKatanaSetup();
+        }
+
+        private void EnsureKatanaSetup()
+        {
+            KatanaPickup katana = FindAnyObjectByType<KatanaPickup>();
+            if (katana == null)
+            {
+                GameObject katanaObj = GameObject.Find("Katana");
+                if (katanaObj == null)
+                {
+                    Transform[] allChildren = GetComponentsInChildren<Transform>(true);
+                    foreach (var child in allChildren)
+                    {
+                        if (child.name == "Katana")
+                        {
+                            katanaObj = child.gameObject;
+                            break;
+                        }
+                    }
+                }
+
+                if (katanaObj != null)
+                {
+                    katana = katanaObj.GetComponent<KatanaPickup>();
+                    if (katana == null)
+                    {
+                        katana = katanaObj.AddComponent<KatanaPickup>();
+                    }
+                }
             }
         }
 
