@@ -4,11 +4,10 @@ public class TreeSpawner : MonoBehaviour
 {
     [Header("Terrain & Prefabs")]
     public Terrain terrain;
-    public GameObject[] treePrefabs; // Danh sách các loại cây (Phong, Birch, Oak...)
-
+    public GameObject[] treePrefabs; 
     [Header("Spawn Settings")]
-    public int numberOfTrees = 100;    // Tổng số lượng cây muốn rải
-    public LayerMask groundLayer;     // Layer của Terrain (Ví dụ: "Ground")
+    public int numberOfTrees = 100;    
+    public LayerMask groundLayer;     
 
     void Start()
     {
