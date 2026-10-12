@@ -31,15 +31,34 @@ public class ItemAPI : MonoBehaviour
         ItemResponse response =
             JsonUtility.FromJson<ItemResponse>(json);
 
+        ItemDatabase.Instance.SetItems(response.data);
+
         if (response.success)
         {
+            ItemDatabase.Instance.SetItems(response.data);
+
             foreach(ItemData item in response.data)
             {
                 Debug.Log(
                     item.id + "-" +
-                    item.name + " - MaxStack: " +
-                    item.maxStack
+                    item.name
                 );
+
+                if(item.weaponStat != null)
+                {
+                    Debug.Log(
+                        "Damage: " + item.weaponStat.damage +
+                        " | Range: " + item.weaponStat.attackRange
+                        );
+                }
+
+                if(item.toolStat != null)
+                {
+                    Debug.Log(
+                        "Tool: " + item.toolStat.toolType +
+                        " | Power: " + item.toolStat.toolPower
+                        );
+                }
             }
         }
     }

@@ -11,5 +11,7 @@ namespace GameBackend.Data
         }
 
         public DbSet<Items> Items { get; set; }
+        public DbSet<WeaponStat> WeaponStats { get; set; }
+        public DbSet<ToolStat> ToolStats { get; set; }
     }
 }
