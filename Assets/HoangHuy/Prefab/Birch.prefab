@@ -102,11 +102,11 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1.7271813
-  m_Height: 9.587354
+  m_Radius: 0.63897383
+  m_Height: 9.322814
   m_Direction: 1
-  m_Center: {x: -0.55676854, y: 4.793617, z: -0.09828982}
+  m_Center: {x: 0, y: 4.69, z: 0.06}

@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: 641b781cad112c75d0008dfa8d76c639
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 19288
+  packageName: Free Rocks
+  packageVersion: 1.1
+  assetPath: Assets/Free_Rocks/Standard Assets/Effects/ImageEffects/Shaders/TwirlEffect.shader
+  uploadId: 152148

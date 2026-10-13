@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: f4901f25d4e1542589348bbb89563d8e
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 19288
+  packageName: Free Rocks
+  packageVersion: 1.1
+  assetPath: Assets/Free_Rocks/Standard Assets/Effects/ImageEffects/Shaders/Contrast
+    Stretch/Apply.shader
+  uploadId: 152148

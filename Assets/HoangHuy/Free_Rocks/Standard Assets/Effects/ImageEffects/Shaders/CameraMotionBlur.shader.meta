@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: 85a88efa8c871af4a9d17c64791b6f4f
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 19288
+  packageName: Free Rocks
+  packageVersion: 1.1
+  assetPath: Assets/Free_Rocks/Standard Assets/Effects/ImageEffects/Shaders/CameraMotionBlur.shader
+  uploadId: 152148

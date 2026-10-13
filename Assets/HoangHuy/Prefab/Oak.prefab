@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6562661280480535278}
   - component: {fileID: 3352169168877836053}
   - component: {fileID: 8693600471617852857}
-  - component: {fileID: -6266976358772050210}
+  - component: {fileID: 696628101047065137}
   m_Layer: 0
   m_Name: Oak
   m_TagString: Untagged
@@ -87,7 +87,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &-6266976358772050210
+--- !u!136 &696628101047065137
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -106,7 +106,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 7.0092916
+  m_Radius: 1.4717002
   m_Height: 15.87581
   m_Direction: 1
-  m_Center: {x: -1.4759274, y: 7.9404197, z: 0.60899353}
+  m_Center: {x: 0.07, y: 7.9404197, z: 0.20000005}

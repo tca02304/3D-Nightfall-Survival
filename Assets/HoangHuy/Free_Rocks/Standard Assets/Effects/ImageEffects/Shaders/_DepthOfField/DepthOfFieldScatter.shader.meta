@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: acd613035ff3e455e8abf23fdc8c8c24
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 19288
+  packageName: Free Rocks
+  packageVersion: 1.1
+  assetPath: Assets/Free_Rocks/Standard Assets/Effects/ImageEffects/Shaders/_DepthOfField/DepthOfFieldScatter.shader
+  uploadId: 152148

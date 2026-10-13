@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 77d1791c5184445148dcec73977bfe27
+timeCreated: 1482087217
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 19288
+  packageName: Free Rocks
+  packageVersion: 1.1
+  assetPath: Assets/Free_Rocks/demo/OcclusionCullingData.asset
+  uploadId: 152148
