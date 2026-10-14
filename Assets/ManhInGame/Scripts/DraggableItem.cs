@@ -21,7 +21,6 @@ public class DraggableItem : MonoBehaviour,
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        Debug.Log("Begin Drag");
         oldParent = transform.parent;
 
         transform.SetParent(canvas.transform);

@@ -237,4 +237,12 @@ public class InventoryManager : MonoBehaviour
 
         return droppedItem;
     }
+
+    public ItemData GetItemData(int itemId)
+    {
+        if (ItemDatabase.Instance == null)
+            return null;
+
+        return ItemDatabase.Instance.GetItemById(itemId);
+    }
 }

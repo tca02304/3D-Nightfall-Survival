@@ -21,7 +21,7 @@ namespace GameBackend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("GameBackend.Models.Item", b =>
+            modelBuilder.Entity("GameBackend.Models.Items", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -30,6 +30,9 @@ namespace GameBackend.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("IconKey")
                         .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
@@ -56,6 +59,74 @@ namespace GameBackend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Items");
+                });
+
+            modelBuilder.Entity("GameBackend.Models.ToolStat", b =>
+                {
+                    b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ToolPower")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ToolType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("ItemId");
+
+                    b.ToTable("ToolStats");
+                });
+
+            modelBuilder.Entity("GameBackend.Models.WeaponStat", b =>
+                {
+                    b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<float>("AttackRange")
+                        .HasColumnType("real");
+
+                    b.Property<float>("AttackSpeed")
+                        .HasColumnType("real");
+
+                    b.Property<int>("Damage")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Durability")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ItemId");
+
+                    b.ToTable("WeaponStats");
+                });
+
+            modelBuilder.Entity("GameBackend.Models.ToolStat", b =>
+                {
+                    b.HasOne("GameBackend.Models.Items", "Item")
+                        .WithOne("ToolStat")
+                        .HasForeignKey("GameBackend.Models.ToolStat", "ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+                });
+
+            modelBuilder.Entity("GameBackend.Models.WeaponStat", b =>
+                {
+                    b.HasOne("GameBackend.Models.Items", "Item")
+                        .WithOne("WeaponStat")
+                        .HasForeignKey("GameBackend.Models.WeaponStat", "ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+                });
+
+            modelBuilder.Entity("GameBackend.Models.Items", b =>
+                {
+                    b.Navigation("ToolStat");
+
+                    b.Navigation("WeaponStat");
                 });
 #pragma warning restore 612, 618
         }
