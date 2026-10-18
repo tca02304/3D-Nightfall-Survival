@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: 7856cbff0a0ca45c787d5431eb805bb0
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 19288
+  packageName: Free Rocks
+  packageVersion: 1.1
+  assetPath: Assets/Free_Rocks/Standard Assets/Effects/ImageEffects/Shaders/_BloomAndFlares/BlendForBloom.shader
+  uploadId: 152148
