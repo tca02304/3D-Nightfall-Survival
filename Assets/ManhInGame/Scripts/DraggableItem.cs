@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+[RequireComponent(typeof(CanvasGroup))]
 public class DraggableItem : MonoBehaviour,
     IBeginDragHandler,
     IDragHandler,
@@ -19,6 +20,11 @@ public class DraggableItem : MonoBehaviour,
         canvasGroup = GetComponent<CanvasGroup>();
     }
 
+    public void OnInitializePotentialDrag(PointerEventData eventData)
+    {
+        eventData.useDragThreshold = false;
+    }
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         oldParent = transform.parent;
@@ -31,8 +37,16 @@ public class DraggableItem : MonoBehaviour,
 
     public void OnDrag(PointerEventData eventData)
     {
-        rectTransform.anchoredPosition +=
-            eventData.delta / canvas.scaleFactor;
+        RectTransform canvasRect = canvas.transform as RectTransform;
+
+        if(RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvasRect,
+            eventData.position,
+            eventData.pressEventCamera,
+            out Vector2 localPoint))
+        {
+            rectTransform.localPosition = localPoint;
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)

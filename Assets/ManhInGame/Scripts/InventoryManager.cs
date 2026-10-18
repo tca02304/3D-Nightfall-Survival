@@ -6,8 +6,8 @@ public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;
 
-    [SerializeField] private int inventorySize = 28;
-    [SerializeField] private int hotbarSize = 7;
+    [SerializeField] private int inventorySize = 32;
+    [SerializeField] private int hotbarSize = 8;
 
     public List<InventorySlotData> Slots = new();
 

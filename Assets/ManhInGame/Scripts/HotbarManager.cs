@@ -40,6 +40,8 @@ public class HotbarManager : MonoBehaviour
             SelectSlot(5);
         if (Keyboard.current.digit7Key.wasPressedThisFrame)
             SelectSlot(6);
+        if (Keyboard.current.digit8Key.wasPressedThisFrame)
+            SelectSlot(7);
     }
 
     public void NotifyHotbarChanged()
@@ -65,9 +67,9 @@ public class HotbarManager : MonoBehaviour
 
         if (newSlot < 0)
         {
-            newSlot = 6;
+            newSlot = 7;
         }
-        else if (newSlot > 6)
+        else if (newSlot > 7)
         {
             newSlot = 0;
         }

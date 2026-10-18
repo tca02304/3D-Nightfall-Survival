@@ -1,90 +1,120 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class InventoryUI : MonoBehaviour
 {
-    [SerializeField] private GameObject slotPrefab;
-    [SerializeField] private GameObject itemPrefab;
-
     [SerializeField] private Transform inventoryGrid;
-    [SerializeField] private Transform hotbarGrid;
 
-    [SerializeField] private int inventorySlotCount = 28;
-    [SerializeField] private int hotbarSlotCount = 7;
+    private readonly List<ItemSlot> inventorySlots = new();
 
-    private List<Transform> inventorySlots = new();
+    private bool isSubscribed;
+
+    private void Awake()
+    {
+        CacheInventorySlots();
+    }
 
     void Start()
     {
-        CreateInventorySlots();
-        CreateHotbarSlots();
-
-        InventoryManager.Instance.OnInventoryChanged += RefreshInventory;
-
+        SubscribeInventoryEvent();
         RefreshInventory();
     }
 
-    private void CreateInventorySlots()
+    private void OnEnable()
     {
-        for(int i = 0; i < inventorySlotCount; i++)
+        SubscribeInventoryEvent();
+
+        if(InventoryManager.Instance != null)
         {
-            GameObject slot = Instantiate(slotPrefab, inventoryGrid);
-
-            ItemSlot itemSlot = slot.GetComponent<ItemSlot>();
-            itemSlot.SetIndex(i);
-
-            inventorySlots.Add(slot.transform);
+            RefreshInventory();
         }
     }
 
-    private void CreateHotbarSlots()
+    private void OnDisable()
     {
-        for(int i = 0; i < hotbarSlotCount; i++)
+        UnsubscribeInventoryEvent();
+    }
+
+    private void CacheInventorySlots()
+    {
+        inventorySlots.Clear();
+
+        for (int i = 0; i < inventoryGrid.childCount; i++)
         {
-            GameObject slot = Instantiate(slotPrefab, hotbarGrid);
+            Transform child = inventoryGrid.GetChild(i);
 
-            ItemSlot itemSlot = slot.GetComponent<ItemSlot>();
+            ItemSlot itemSlot = child.GetComponent<ItemSlot>();
 
-            int slotIndex = inventorySlotCount + i;
+            if (itemSlot == null)
+                continue;
+
+            int slotIndex = inventorySlots.Count;
 
             itemSlot.SetIndex(slotIndex);
+
+            inventorySlots.Add(itemSlot);
         }
+
+        Debug.Log("Inventory UI found: " + inventorySlots.Count + "slot");
+    }
+
+    private void SubscribeInventoryEvent()
+    {
+        if (InventoryManager.Instance == null || isSubscribed)
+            return;
+
+        InventoryManager.Instance.OnInventoryChanged += RefreshInventory;
+
+        isSubscribed = true;
+    }
+
+    private void UnsubscribeInventoryEvent()
+    {
+        if (InventoryManager.Instance == null || !isSubscribed)
+            return;
+
+        InventoryManager.Instance.OnInventoryChanged -= RefreshInventory;
+
+        isSubscribed = false;
     }
 
     private void RefreshInventory()
     {
+        if (InventoryManager.Instance == null)
+            return; 
+
         for(int i = 0; i < inventorySlots.Count; i++)
         {
-            InventorySlotData data = InventoryManager.Instance.Slots[i];
-            Transform slotUI = inventorySlots[i];
+            ItemSlot slot = inventorySlots[i];
 
-            foreach(Transform child in slotUI)
+            ItemUI itemUI = slot.GetComponentInChildren<ItemUI>(true);
+            
+            if(itemUI == null)
             {
-                if (child.GetComponent<DraggableItem>() != null)
-                {
-                    Destroy(child.gameObject);
-                }
+                Debug.LogWarning("Không tìm thấy ItemUI trong slot: " + slot.name);
+
+                continue;
             }
 
-            if (data.isEmpty())
+            GameObject itemIcon = itemUI.gameObject;
+
+            if (i >= InventoryManager.Instance.Slots.Count)
+            {
+                itemIcon.SetActive(false);
                 continue;
+            }
 
-            GameObject item = Instantiate(itemPrefab, slotUI);
+            InventorySlotData data = InventoryManager.Instance.Slots[i];
 
-            RectTransform rect = item.GetComponent<RectTransform>();
-            rect.anchoredPosition = Vector2.zero;
+            if (data.isEmpty())
+            {
+                itemIcon.SetActive(false);
+                continue;
+            }
 
-            ItemUI itemUI = item.GetComponent<ItemUI>();
+            itemIcon.SetActive(true);
+
             itemUI.SetAmount(data.Amount);
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if(InventoryManager.Instance != null)
-        {
-            InventoryManager.Instance.OnInventoryChanged += RefreshInventory;
         }
     }
 }
