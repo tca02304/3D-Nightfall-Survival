@@ -29,12 +29,26 @@ namespace DucThanh
         [SerializeField] private bool smoothTransition = true;
         [SerializeField] private float smoothSpeed = 10f;
 
+        [Header("Disable UI Option")]
+        [Tooltip("Tắt bỏ hoàn toàn giao diện HUD ở scene DucThanh")]
+        [SerializeField] private bool hideHUD = true;
+
         private float currentHealthRatio = 1f;
         private float currentHungerRatio = 1f;
         private float currentStaminaRatio = 1f;
 
+        private void Awake()
+        {
+            if (hideHUD)
+            {
+                gameObject.SetActive(false);
+            }
+        }
+
         private void Start()
         {
+            if (hideHUD) return;
+
             if (playerStats == null)
             {
                 playerStats = Object.FindFirstObjectByType<PlayerStats>();
@@ -51,6 +65,8 @@ namespace DucThanh
 
         private void Update()
         {
+            if (hideHUD) return;
+
             if (playerStats == null)
             {
                 playerStats = Object.FindFirstObjectByType<PlayerStats>();
@@ -80,17 +96,29 @@ namespace DucThanh
             }
 
             // Cập nhật thanh Máu (Health)
-            if (healthBarFill != null) healthBarFill.fillAmount = currentHealthRatio;
+            if (healthBarFill != null)
+            {
+                if (healthBarFill.type != Image.Type.Filled) healthBarFill.type = Image.Type.Filled;
+                healthBarFill.fillAmount = currentHealthRatio;
+            }
             if (healthSlider != null) healthSlider.value = currentHealthRatio;
             if (healthText != null) healthText.text = $"{Mathf.CeilToInt(playerStats.CurrentHealth)} / {Mathf.CeilToInt(playerStats.MaxHealth)}";
 
             // Cập nhật thanh Đói (Hunger)
-            if (hungerBarFill != null) hungerBarFill.fillAmount = currentHungerRatio;
+            if (hungerBarFill != null)
+            {
+                if (hungerBarFill.type != Image.Type.Filled) hungerBarFill.type = Image.Type.Filled;
+                hungerBarFill.fillAmount = currentHungerRatio;
+            }
             if (hungerSlider != null) hungerSlider.value = currentHungerRatio;
             if (hungerText != null) hungerText.text = $"{Mathf.CeilToInt(playerStats.CurrentHunger)} / {Mathf.CeilToInt(playerStats.MaxHunger)}";
 
             // Cập nhật thanh Thể lực (Stamina)
-            if (staminaBarFill != null) staminaBarFill.fillAmount = currentStaminaRatio;
+            if (staminaBarFill != null)
+            {
+                if (staminaBarFill.type != Image.Type.Filled) staminaBarFill.type = Image.Type.Filled;
+                staminaBarFill.fillAmount = currentStaminaRatio;
+            }
             if (staminaSlider != null) staminaSlider.value = currentStaminaRatio;
             if (staminaText != null) staminaText.text = $"{Mathf.CeilToInt(playerStats.CurrentStamina)} / {Mathf.CeilToInt(playerStats.MaxStamina)}";
         }

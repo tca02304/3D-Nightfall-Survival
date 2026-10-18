@@ -50,7 +50,7 @@ namespace DucThanh
         public float CurrentStamina => currentStamina;
         public float StaminaPercent => Mathf.Clamp01(currentStamina / maxStamina);
 
-        public bool CanSprint => !isDead && currentStamina > 5f;
+        public bool CanSprint => !isDead;
         public bool IsDead => isDead;
 
         public event System.Action OnPlayerDied;
@@ -73,8 +73,7 @@ namespace DucThanh
 
             if (isDead) return;
 
-            HandleHunger();
-            HandleStamina();
+            // Đã bỏ tính năng tự trừ thức ăn và trừ thể lực theo yêu cầu
         }
 
         private void HandleDebugInput()
@@ -105,59 +104,17 @@ namespace DucThanh
             if (kPressed)
             {
                 ModifyHealth(-10f);
-                Debug.Log($"[PlayerStats] Phím K được nhấn: -10 Máu (Còn lại: {currentHealth}/{maxHealth})");
             }
         }
 
         private void HandleHunger()
         {
-            hungerTimer += Time.deltaTime;
-            if (hungerTimer >= hungerInterval)
-            {
-                hungerTimer = 0f;
-                ModifyHunger(-1f);
-            }
-
-            // Nếu đói bằng 0 thì bị trừ máu dần
-            if (takeDamageWhenStarving && currentHunger <= 0f)
-            {
-                ModifyHealth(-starvingDamageRate * Time.deltaTime);
-            }
+            // Đã vô hiệu hóa tự giảm thức ăn
         }
 
         private void HandleStamina()
         {
-            bool isMoving = false;
-            bool isSprinting = false;
-
-            if (playerController != null)
-            {
-                isMoving = playerController.IsMoving;
-                isSprinting = playerController.IsSprinting && isMoving;
-            }
-
-            if (isSprinting)
-            {
-                ModifyStamina(-sprintDrainRate * Time.deltaTime);
-                staminaCooldownTimer = regenDelay;
-            }
-            else if (isMoving)
-            {
-                ModifyStamina(-walkDrainRate * Time.deltaTime);
-                staminaCooldownTimer = regenDelay;
-            }
-            else
-            {
-                // Khi đứng yên thì hồi phục thể lực sau khoảng delay
-                if (staminaCooldownTimer > 0f)
-                {
-                    staminaCooldownTimer -= Time.deltaTime;
-                }
-                else
-                {
-                    ModifyStamina(staminaRegenRate * Time.deltaTime);
-                }
-            }
+            // Không tiêu hao thể lực khi chạy/di chuyển
         }
 
         public void ModifyHealth(float amount)
@@ -165,6 +122,16 @@ namespace DucThanh
             if (isDead && amount <= 0f) return;
 
             currentHealth = Mathf.Clamp(currentHealth + amount, 0f, maxHealth);
+
+            // In rõ ràng ra Console mỗi khi Player mất/thay đổi máu
+            if (amount < 0f)
+            {
+                Debug.Log($"<color=red><b>[Player Health]</b> Player bị đánh trúng! Mất {-amount:F1} máu. <b>Máu hiện tại: {currentHealth:F0} / {maxHealth:F0} HP</b></color>");
+            }
+            else if (amount > 0f)
+            {
+                Debug.Log($"<color=green><b>[Player Health]</b> Player được hồi {amount:F1} máu. Máu hiện tại: {currentHealth:F0} / {maxHealth:F0} HP</color>");
+            }
             
             if (!isDead && currentHealth <= 0f)
             {
