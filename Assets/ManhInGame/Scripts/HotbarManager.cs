@@ -8,6 +8,7 @@ public class HotbarManager : MonoBehaviour
 
     public event Action OnHotbarChanged;
     public event Action<int> OnItemSelected;
+    public event Action<ItemData> OnSelectedItemChanged;
 
     private int currentSlot = 0;
 
@@ -44,9 +45,37 @@ public class HotbarManager : MonoBehaviour
             SelectSlot(7);
     }
 
+    private void OnEnable()
+    {
+        if(InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.OnInventoryChanged += HandleInventoryChanged;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if(InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.OnInventoryChanged -= HandleInventoryChanged;
+        }
+    }
+
+    private void HandleInventoryChanged()
+    {
+        NotifySelectedItemChanged();
+    }
+
     public void NotifyHotbarChanged()
     {
         OnHotbarChanged?.Invoke();
+    }
+
+    private void NotifySelectedItemChanged()
+    {
+        ItemData selectedItem = GetSelectedItem();
+
+        OnSelectedItemChanged?.Invoke(selectedItem);
     }
 
     public void SelectSlot(int index)
@@ -57,6 +86,8 @@ public class HotbarManager : MonoBehaviour
         currentSlot = index;
 
         OnItemSelected?.Invoke(currentSlot);
+
+        NotifySelectedItemChanged();
 
         Debug.Log("Selected Hotbar Slot: " + (currentSlot + 1));
     }
@@ -75,5 +106,33 @@ public class HotbarManager : MonoBehaviour
         }
 
         SelectSlot(newSlot);
+    }
+
+    public InventorySlotData GetSelectedSlotData()
+    {
+        if (InventoryManager.Instance == null)
+            return null;
+
+        int dataIndex = InventoryManager.Instance.InventorySize + currentSlot;
+
+        if (dataIndex < 0 || dataIndex >= InventoryManager.Instance.Slots.Count)
+        {
+            return null;
+        }
+
+        return InventoryManager.Instance.Slots[dataIndex];
+    }
+
+    public ItemData GetSelectedItem()
+    {
+        InventorySlotData slotData = GetSelectedSlotData();
+
+        if (slotData == null || slotData.isEmpty())
+            return null;
+
+        if (ItemDatabase.Instance == null)
+            return null;
+
+        return ItemDatabase.Instance.GetItemById(slotData.ItemId);
     }
 }

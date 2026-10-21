@@ -18,22 +18,11 @@ public class ItemSlot : MonoBehaviour, IDropHandler
         if (draggedItem == null)
             return;
 
-        Transform oldSlot = draggedItem.GetOldParent();
+        ItemSlot sourceSlot = draggedItem.SourceSlot;
 
-        DraggableItem currentItem =
-            GetComponentInChildren<DraggableItem>();
+        if (sourceSlot == null)
+            return;
 
-        if (currentItem != null)
-        {
-            currentItem.transform.SetParent(oldSlot);
-            currentItem.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-
-            currentItem.SetNewParent(oldSlot);
-        }
-
-        draggedItem.transform.SetParent(transform);
-        draggedItem.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-
-        draggedItem.SetNewParent(transform);
+        draggedItem.CompleteDrop(SlotIndex);
     }
 }
