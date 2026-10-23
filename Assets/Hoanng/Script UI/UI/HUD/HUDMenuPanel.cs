@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class HUDMenuPanel : MonoBehaviour
+public class HUDMenuPanel : UiBase
 {
     [Header("1. Status Bars")]
     public Slider healthBar;
@@ -82,13 +82,13 @@ public class HUDMenuPanel : MonoBehaviour
         if (powerupPrefab == null || powerupsGrid == null) return;
 
         // ?úc ra m?t Prefab m?i và ném vào khung Grid
-        //GameObject newPowerup = Instantiate(powerupPrefab, powerupsGrid);
+        GameObject newPowerup = Instantiate(powerupPrefab, powerupsGrid);
 
         // C?p nh?t d? li?u cho Prefab v?a ?úc
-    //    PowerupSlotUI slotScript = newPowerup.GetComponent<PowerupSlotUI>();
-    //    if (slotScript != null)
-    //    {
-    //        slotScript.SetupSlot(itemIcon, rarity, stackAmount);
-    //    }
+        PowerupSlotUI slotScript = newPowerup.GetComponent<PowerupSlotUI>();
+        if (slotScript != null)
+        {
+            slotScript.SetupSlot(itemIcon, rarity, stackAmount);
+        }
     }
 }
