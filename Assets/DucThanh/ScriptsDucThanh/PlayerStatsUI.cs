@@ -29,26 +29,12 @@ namespace DucThanh
         [SerializeField] private bool smoothTransition = true;
         [SerializeField] private float smoothSpeed = 10f;
 
-        [Header("Disable UI Option")]
-        [Tooltip("Tắt bỏ hoàn toàn giao diện HUD ở scene DucThanh")]
-        [SerializeField] private bool hideHUD = true;
-
         private float currentHealthRatio = 1f;
         private float currentHungerRatio = 1f;
         private float currentStaminaRatio = 1f;
 
-        private void Awake()
-        {
-            if (hideHUD)
-            {
-                gameObject.SetActive(false);
-            }
-        }
-
         private void Start()
         {
-            if (hideHUD) return;
-
             if (playerStats == null)
             {
                 playerStats = Object.FindFirstObjectByType<PlayerStats>();
@@ -65,8 +51,6 @@ namespace DucThanh
 
         private void Update()
         {
-            if (hideHUD) return;
-
             if (playerStats == null)
             {
                 playerStats = Object.FindFirstObjectByType<PlayerStats>();
