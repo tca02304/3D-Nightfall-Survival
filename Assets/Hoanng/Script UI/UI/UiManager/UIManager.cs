@@ -8,6 +8,8 @@ public class UIManager : MonoBehaviour
     public UiBase uiSetting;
     public UiBase uiInventory;
     public HUDMenuPanel uiHud; // Kéo object HUD vào đây trong Inspector
+    public UiPauseGame uiPause;     // Kéo object UiPause vào đây
+    public UiGameOver uiGameOver;   // Kéo object UiGameOver vào đây
 
     private void Awake()
     {
@@ -39,6 +41,23 @@ public class UIManager : MonoBehaviour
             {
                 if (uiInventory.gameObject.activeInHierarchy) uiInventory.Hide();
                 else uiInventory.Show();
+            }
+        }
+
+        // Bật tắt nút Tạm dừng (Pause) bằng phím ESC
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            // Không cho bật Pause nếu đang ở màn hình Game Over
+            if (uiGameOver != null && uiGameOver.gameObject.activeInHierarchy) return;
+
+            if (uiPause.gameObject.activeInHierarchy)
+            {
+                // Nếu đang bật thì giả lập bấm nút Resume
+                uiPause.resumeButton.onClick.Invoke();
+            }
+            else
+            {
+                uiPause.Show();
             }
         }
     }

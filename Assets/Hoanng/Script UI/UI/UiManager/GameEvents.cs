@@ -26,4 +26,23 @@ public static class GameEvents
     // Kênh cập nhật bảng Chỉ số (HP, Shield, Armor, Speed, Attack)
     public static Action<int, int, int, int, int> OnPlayerStatsUpdated;
 
+    // --- SỰ KIỆN CHO PAUSE & GAME OVER ---
+
+    // Member 1 (Player) sẽ phát sóng sự kiện này khi máu <= 0
+    public static Action OnPlayerDied;
+
+    // UI của bạn sẽ phát các sự kiện này khi người chơi bấm nút, Member 1 sẽ lắng nghe
+    public static Action OnResumeGame;
+    public static Action OnRestartGame;
+    public static Action OnReturnToMainMenu;
+
+    // Kênh báo cho UI hiện/ẩn phím tương tác (Ví dụ: "Nhấn F để nhặt Gỗ")
+    public static Action<bool, string> OnInteractionStateChanged;
+
+    // Kênh cập nhật tiến độ nhiệm vụ (Ví dụ: "Tiêu diệt Slime", "2/5")
+    public static Action<string, string> OnQuestProgressUpdated;
+
+    // Kênh báo hoàn thành nhiệm vụ để hiện Popup chúc mừng
+    public static Action<string> OnQuestCompleted;
+
 }
