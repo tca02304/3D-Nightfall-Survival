@@ -33,11 +33,11 @@ namespace DucThanh
         [SerializeField] private Animator animator;
 
         [Header("Combat Settings")]
-        [Tooltip("Thời gian hồi giữa các lần tấn công (giây)")]
-        [SerializeField] private float attackCooldown = 0.8f;
+        [Tooltip("Bộ giới hạn tốc độ đánh và phạm vi (Nếu để trống sẽ tự lấy trên Player)")]
+        [SerializeField] private AttackRateLimiter attackLimiter;
 
         [Tooltip("Lượng thể lực tiêu hao cho mỗi đòn tấn công (0 = không tốn)")]
-        [SerializeField] private float attackStaminaCost = 10f;
+        [SerializeField] private float attackStaminaCost = 0f;
 
         [Tooltip("Lượng sát thương gây ra mỗi đòn chém")]
         [SerializeField] private float attackDamage = 25f;
@@ -88,6 +88,11 @@ namespace DucThanh
         {
             characterController = GetComponent<CharacterController>();
             playerStats = GetComponent<PlayerStats>();
+            attackLimiter = GetComponent<AttackRateLimiter>();
+            if (attackLimiter == null)
+            {
+                attackLimiter = gameObject.AddComponent<AttackRateLimiter>();
+            }
 
             if (cameraTransform == null && Camera.main != null)
             {
@@ -295,20 +300,17 @@ namespace DucThanh
             // Không thể tấn công nếu player đã chết
             if (playerStats != null && playerStats.IsDead) return;
 
-            // Kiểm tra thời gian hồi giữa các đòn đánh
-            if (Time.time < nextAttackTime) return;
-
-            // Kiểm tra và tiêu hao thể lực nếu có thiết lập
-            if (playerStats != null && attackStaminaCost > 0f)
+            // Kiểm tra và thực hiện đòn đánh thông qua AttackRateLimiter
+            if (attackLimiter != null)
             {
-                if (!playerStats.ConsumeStamina(attackStaminaCost))
+                if (!attackLimiter.TryAttack())
                 {
-                    return; // Không đủ thể lực để tấn công
+                    return; // Bị chặn bởi Cooldown hoặc điều kiện mục tiêu
                 }
             }
 
-            nextAttackTime = Time.time + attackCooldown;
-            attackEndTime = Time.time + attackCooldown;
+            float cooldownDuration = attackLimiter != null ? attackLimiter.AttackCooldown : 0.8f;
+            attackEndTime = Time.time + cooldownDuration;
 
             if (animator != null)
             {
@@ -332,38 +334,18 @@ namespace DucThanh
 
         private void CheckHitAndDamageEnemies()
         {
-            Vector3 origin = transform.position + Vector3.up * 1f;
-            Vector3 forward = transform.forward;
-            Vector3 center = origin + forward * (attackRange * 0.5f);
+            if (attackLimiter == null) return;
 
-            Collider[] hits = Physics.OverlapSphere(center, attackRadius, targetLayer, QueryTriggerInteraction.Ignore);
-            var damagedEnemies = new System.Collections.Generic.HashSet<EnemyTest>();
-
-            foreach (var hit in hits)
+            var targets = attackLimiter.GetTargetsToDamage();
+            foreach (var enemy in targets)
             {
-                if (hit.gameObject == gameObject) continue;
-
-                EnemyTest enemy = hit.GetComponentInParent<EnemyTest>();
-                if (enemy != null && !damagedEnemies.Contains(enemy) && !enemy.IsDead)
+                    EnemyTest enemy = hitInfo.collider.GetComponentInParent<EnemyTest>();
+                if (enemy != null && !enemy.IsDead)
                 {
-                    damagedEnemies.Add(enemy);
+                        damagedEnemies.Add(enemy);
                     enemy.TakeDamage(attackDamage);
                 }
             }
-
-            // Bổ sung kiểm tra bằng SphereCast nếu OverlapSphere bị hụt góc
-            if (damagedEnemies.Count == 0)
-            {
-                Ray ray = new Ray(origin, forward);
-                if (Physics.SphereCast(ray, 0.5f, out RaycastHit hitInfo, attackRange, targetLayer, QueryTriggerInteraction.Ignore))
-                {
-                    EnemyTest enemy = hitInfo.collider.GetComponentInParent<EnemyTest>();
-                    if (enemy != null && !enemy.IsDead)
-                    {
-                        damagedEnemies.Add(enemy);
-                        enemy.TakeDamage(attackDamage);
-                    }
-                }
             }
         }
 

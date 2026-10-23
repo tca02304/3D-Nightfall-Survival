@@ -19,7 +19,10 @@ namespace GameBackend.Controllers
         [HttpGet("getallitem")]
         public async Task<IActionResult> GetAll()
         {
-            var items = await _context.Items.ToListAsync();
+            var items = await _context.Items
+                .Include(i => i.WeaponStat)
+                .Include(i => i.ToolStat)
+                .ToListAsync();
 
             var re = new ResponseModel<List<Items>>
             {
