@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: 017ca72b9e8a749058d13ebd527e98fa
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 19288
+  packageName: Free Rocks
+  packageVersion: 1.1
+  assetPath: Assets/Free_Rocks/Standard Assets/Effects/ImageEffects/Shaders/_Antialiasing/DLAA.shader
+  uploadId: 152148

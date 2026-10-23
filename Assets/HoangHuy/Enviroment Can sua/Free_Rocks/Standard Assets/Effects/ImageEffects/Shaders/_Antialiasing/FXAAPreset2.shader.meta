@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: 6f1418cffd12146f2a83be795f6fa5a7
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 19288
+  packageName: Free Rocks
+  packageVersion: 1.1
+  assetPath: Assets/Free_Rocks/Standard Assets/Effects/ImageEffects/Shaders/_Antialiasing/FXAAPreset2.shader
+  uploadId: 152148

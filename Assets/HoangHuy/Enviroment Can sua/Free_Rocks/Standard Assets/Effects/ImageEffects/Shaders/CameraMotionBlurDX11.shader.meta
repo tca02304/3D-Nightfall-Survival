@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: f1b13d7a80660504a858ea24cfa418c6
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 19288
+  packageName: Free Rocks
+  packageVersion: 1.1
+  assetPath: Assets/Free_Rocks/Standard Assets/Effects/ImageEffects/Shaders/CameraMotionBlurDX11.shader
+  uploadId: 152148

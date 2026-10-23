@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: 43ca18288c424f645aaa1e9e07f04c50
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 19288
+  packageName: Free Rocks
+  packageVersion: 1.1
+  assetPath: Assets/Free_Rocks/Standard Assets/Effects/ImageEffects/Shaders/SSAOShader.shader
+  uploadId: 152148
