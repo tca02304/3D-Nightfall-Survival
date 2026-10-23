@@ -1,55 +1,134 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
+[RequireComponent(typeof(CanvasGroup))]
 public class DraggableItem : MonoBehaviour,
     IBeginDragHandler,
     IDragHandler,
-    IEndDragHandler
+    IEndDragHandler,
+    IInitializePotentialDragHandler
 {
-    private RectTransform rectTransform;
     private Canvas canvas;
     private CanvasGroup canvasGroup;
 
-    private Transform oldParent;
+    private GameObject dragGhost;
+    private RectTransform dragGhostRect;
+
+    private ItemSlot sourceSlot;
+
+    public ItemSlot SourceSlot => sourceSlot;
 
     private void Awake()
     {
-        rectTransform = GetComponent<RectTransform>();
         canvas = GetComponentInParent<Canvas>();
         canvasGroup = GetComponent<CanvasGroup>();
     }
 
+    public void OnInitializePotentialDrag(PointerEventData eventData)
+    {
+        eventData.useDragThreshold = false;
+    }
+
     public void OnBeginDrag(PointerEventData eventData)
     {
-        oldParent = transform.parent;
+        sourceSlot = GetComponentInParent<ItemSlot>();
 
-        transform.SetParent(canvas.transform);
-        transform.SetAsLastSibling();
+        if (sourceSlot == null)
+            return;
+
+        CreateDragGhost();
+        UpdateGhostPosition(eventData);
 
         canvasGroup.blocksRaycasts = false;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        rectTransform.anchoredPosition +=
-            eventData.delta / canvas.scaleFactor;
+        UpdateGhostPosition(eventData);
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        CleanupDrag();
+
+        sourceSlot = null;
+    }
+
+    private void UpdateGhostPosition(PointerEventData evnetData)
+    {
+        if (dragGhostRect == null || canvas == null)
+            return;
+
+        RectTransform canvasRect = canvas.transform as RectTransform;
+
+        if(RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvasRect,
+            evnetData.position,
+            evnetData.pressEventCamera,
+            out Vector2 localPoint))
+        {
+            dragGhostRect.localPosition = localPoint;
+        }
+    }
+
+    private void CreateDragGhost()
+    {
+        dragGhost = Instantiate(gameObject, canvas.transform);
+
+        dragGhost.name = "DragGhost";
+
+        dragGhostRect = dragGhost.GetComponent<RectTransform>();
+
+        dragGhost.transform.SetAsLastSibling();
+
+        DraggableItem ghostDraggable = dragGhost.GetComponent<DraggableItem>();
+
+        if(ghostDraggable != null)
+        {
+            ghostDraggable.enabled = false;
+        }
+
+        CanvasGroup ghostCanvasGroup = dragGhost.GetComponent<CanvasGroup>();
+
+        if(ghostCanvasGroup != null)
+        {
+            ghostCanvasGroup.blocksRaycasts = false;
+            ghostCanvasGroup.interactable = false;
+        }
+
+        Graphic[] graphics = dragGhost.GetComponentsInChildren<Graphic>(true);
+
+        foreach(Graphic graphic in graphics)
+        {
+            graphic.raycastTarget = false;
+        }
+    }
+
+    public void CompleteDrop(int targetSlotIndex)
+    {
+        if (sourceSlot == null)
+            return;
+
+        int sourceSlotIndex = sourceSlot.SlotIndex;
+
+        CleanupDrag();
+
+        InventoryManager.Instance.MoveSwapOrMergeItem(sourceSlotIndex, targetSlotIndex);
+
+        sourceSlot = null;
+    }
+
+    private void CleanupDrag()
+    {
         canvasGroup.blocksRaycasts = true;
 
-        transform.SetParent(oldParent);
-        rectTransform.anchoredPosition = Vector2.zero;
-    }
+        if(dragGhost != null)
+        {
+            Destroy(dragGhost);
+        }
 
-    public void SetNewParent(Transform newParent)
-    {
-        oldParent = newParent;
-    }
-
-    public Transform GetOldParent()
-    {
-        return oldParent;
+        dragGhost = null;
+        dragGhostRect = null;
     }
 }

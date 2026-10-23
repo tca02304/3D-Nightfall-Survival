@@ -43,5 +43,13 @@ public class InventoryTest : MonoBehaviour
 
         Debug.Log("Damage: " + itemData.weaponStat.damage);
         Debug.Log("Range: " + itemData.weaponStat.attackRange);
+
+        Debug.Log("BEFORE: " + InventoryManager.Instance.Slots[0].ItemName +
+            " | " + InventoryManager.Instance.Slots[1].ItemName);
+
+        InventoryManager.Instance.MoveSwapOrMergeItem(0, 3);
+
+        Debug.Log("AFTER: " + InventoryManager.Instance.Slots[0].ItemName +
+            " | " + InventoryManager.Instance.Slots[1].ItemName);
     }
 }

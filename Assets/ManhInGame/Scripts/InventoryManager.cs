@@ -6,8 +6,11 @@ public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;
 
-    [SerializeField] private int inventorySize = 28;
+    [SerializeField] private int inventorySize = 32;
     [SerializeField] private int hotbarSize = 7;
+
+    public int InventorySize => inventorySize;
+    public int HotbarSize => hotbarSize;
 
     public List<InventorySlotData> Slots = new();
 
@@ -45,7 +48,7 @@ public class InventoryManager : MonoBehaviour
         int remainingAmount = amount;
         int originalAmount = amount;
 
-        for(int i = 0; i < Slots.Count; i++)
+        for(int i = 0; i < inventorySize; i++)
         {
             InventorySlotData slot = Slots[i];
 
@@ -69,7 +72,7 @@ public class InventoryManager : MonoBehaviour
             }
         }
 
-        for(int i = 0; i < Slots.Count; i++)
+        for(int i = 0; i < inventorySize; i++)
         {
             if (Slots[i].isEmpty())
             {
@@ -101,6 +104,60 @@ public class InventoryManager : MonoBehaviour
         }
 
         return remainingAmount;
+    }
+
+    public bool MoveSwapOrMergeItem(int fromIndex, int toIndex)
+    {
+        if (fromIndex < 0 || fromIndex >= Slots.Count ||
+            toIndex < 0 || toIndex >= Slots.Count)
+        {
+            return false;
+        }
+
+        if (fromIndex == toIndex)
+            return false;
+
+        InventorySlotData source = Slots[fromIndex];
+        InventorySlotData target = Slots[toIndex];
+
+        if (source.isEmpty())
+            return false;
+
+        if (target.isEmpty())
+        {
+            Slots[toIndex] = source;
+            Slots[fromIndex] = new InventorySlotData();
+
+            OnInventoryChanged?.Invoke();
+            return true;
+        }
+
+        if (source.ItemId == target.ItemId)
+        {
+            if (target.Amount >= target.MaxStack)
+                return false;
+
+            int availableSpace = target.MaxStack - target.Amount;
+
+            int amountToMove = Mathf.Min(source.Amount, availableSpace);
+
+            target.Amount += amountToMove;
+            source.Amount -= amountToMove;
+
+            if (source.Amount <= 0)
+            {
+                source.Clear();
+            }
+
+            OnInventoryChanged?.Invoke();
+            return true;
+        }
+
+        Slots[fromIndex] = target;
+        Slots[toIndex] = source;
+
+        OnInventoryChanged?.Invoke();
+        return true;
     }
 
     public bool RemoveItemAt(int slotIndex, int amount = 1)
