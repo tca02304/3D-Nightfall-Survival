@@ -349,3 +349,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   iconImage: {fileID: 2694174176363938860}
   amountText: {fileID: 3409370417734548756}
+  backgroundImage: {fileID: 3721997782701762729}
+  slotButton: {fileID: 3096606521204049931}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0.8, g: 0.8, b: 0.8, a: 0.5}

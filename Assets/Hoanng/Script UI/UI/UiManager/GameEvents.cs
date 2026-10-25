@@ -44,5 +44,9 @@ public static class GameEvents
 
     // Kênh báo hoàn thành nhiệm vụ để hiện Popup chúc mừng
     public static Action<string> OnQuestCompleted;
+    // Khai báo kênh sự kiện cho Hotbar: Truyền đi 1 số nguyên (int) là vị trí ô được click
+    public static Action<int> OnHotbarSlotSelected;
+    // Sự kiện truyền đi tiến độ tải (float từ 0.0f đến 1.0f)
+    public static System.Action<float> OnLoadingProgressUpdated;
 
 }
