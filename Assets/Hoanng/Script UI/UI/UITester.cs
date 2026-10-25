@@ -23,10 +23,10 @@ public class UITester : MonoBehaviour
         // 3. Giả lập nhặt được Powerup khi bấm phím P
         if (Input.GetKeyDown(KeyCode.P))
         {
-            if (UIManager.Instance != null && UIManager.Instance.uiHud != null)
-            {
-                UIManager.Instance.uiHud.AddPowerupUI(testPowerupIcon, Color.magenta, 5);
-            }
+            //if (UIManager.Instance != null && UIManager.Instance.uiHud != null)
+            //{
+            //    UIManager.Instance.uiHud.AddPowerupUI(testPowerupIcon, Color.magenta, 5);
+            //}
         }
     }
 }
