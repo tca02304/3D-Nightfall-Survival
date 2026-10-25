@@ -78,34 +78,34 @@ namespace DucThanh
 
         private void HandleDebugInput()
         {
-            bool kPressed = false;
+//            bool kPressed = false;
 
-#if ENABLE_INPUT_SYSTEM
-            if (Keyboard.current != null && Keyboard.current.kKey.wasPressedThisFrame)
-            {
-                kPressed = true;
-            }
-#endif
-            if (!kPressed)
-            {
-                try
-                {
-                    if (Input.GetKeyDown(KeyCode.K))
-                    {
-                        kPressed = true;
-                    }
-                }
-                catch
-                {
-                    // Tránh lỗi nếu Legacy Input bị tắt trong ProjectSettings
-                }
-            }
+//#if ENABLE_INPUT_SYSTEM
+//            if (Keyboard.current != null && Keyboard.current.kKey.wasPressedThisFrame)
+//            {
+//                kPressed = true;
+//            }
+//#endif
+//            if (!kPressed)
+//            {
+//                try
+//                {
+//                    if (Input.GetKeyDown(KeyCode.K))
+//                    {
+//                        kPressed = true;
+//                    }
+//                }
+//                catch
+//                {
+//                    // Tránh lỗi nếu Legacy Input bị tắt trong ProjectSettings
+//                }
+//            }
 
-            if (kPressed)
-            {
-                ModifyHealth(-10f);
-                Debug.Log($"[PlayerStats] Phím K được nhấn: -10 Máu (Còn lại: {currentHealth}/{maxHealth})");
-            }
+//            if (kPressed)
+//            {
+//                ModifyHealth(-10f);
+//                Debug.Log($"[PlayerStats] Phím K được nhấn: -10 Máu (Còn lại: {currentHealth}/{maxHealth})");
+//            }
         }
 
         private void HandleHunger()
@@ -117,7 +117,7 @@ namespace DucThanh
         {
             // Không tiêu hao thể lực khi chạy/di chuyển
         }
-        }
+
 
         public void ModifyHealth(float amount)
         {
@@ -134,8 +134,9 @@ namespace DucThanh
             {
                 Debug.Log($"<color=green><b>[Player Health]</b> Player được hồi {amount:F1} máu. Máu hiện tại: {currentHealth:F0} / {maxHealth:F0} HP</color>");
             }
+        }
             
-        public void ModifyHealth(float amount)
+        public void ModifyHealths(float amount)
         {
             if (isDead && amount <= 0f) return;
 

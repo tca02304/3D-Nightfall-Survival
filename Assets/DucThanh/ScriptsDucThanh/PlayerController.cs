@@ -334,19 +334,19 @@ namespace DucThanh
 
         private void CheckHitAndDamageEnemies()
         {
-            if (attackLimiter == null) return;
+            //if (attackLimiter == null) return;
 
-            var targets = attackLimiter.GetTargetsToDamage();
-            foreach (var enemy in targets)
-            {
-                    EnemyTest enemy = hitInfo.collider.GetComponentInParent<EnemyTest>();
-                if (enemy != null && !enemy.IsDead)
-                {
-                        damagedEnemies.Add(enemy);
-                    enemy.TakeDamage(attackDamage);
-                }
-            }
-            }
+            //var targets = attackLimiter.GetTargetsToDamage();
+            //foreach (var enemy in targets)
+            //{
+            //        EnemyTest enemy = hitInfo.collider.GetComponentInParent<EnemyTest>();
+            //    if (enemy != null && !enemy.IsDead)
+            //    {
+            //            damagedEnemies.Add(enemy);
+            //        enemy.TakeDamage(attackDamage);
+            //    }
+            //}
+            
         }
 
         private void OnDrawGizmosSelected()
