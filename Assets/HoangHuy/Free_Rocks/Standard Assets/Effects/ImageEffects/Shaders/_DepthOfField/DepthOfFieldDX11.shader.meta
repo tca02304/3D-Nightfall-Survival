@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: d8e82664aa8686642a424c88ab10164a
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 19288
+  packageName: Free Rocks
+  packageVersion: 1.1
+  assetPath: Assets/Free_Rocks/Standard Assets/Effects/ImageEffects/Shaders/_DepthOfField/DepthOfFieldDX11.shader
+  uploadId: 152148
