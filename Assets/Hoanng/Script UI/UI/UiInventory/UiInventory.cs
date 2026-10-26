@@ -25,7 +25,7 @@ public class UiInventory : UiBase
 
     [Header("5. Thông báo Chế tạo")]
     public TextMeshProUGUI warningText;
-
+    public GameObject gob;
     private void Awake()
     {
         // Tự động tìm các ô (Slot) nằm bên trong các lưới

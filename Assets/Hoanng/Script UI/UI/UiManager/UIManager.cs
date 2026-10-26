@@ -7,7 +7,7 @@ public class UIManager : MonoBehaviour
     [Header("UI Panels")]
     public UiBase uiSetting;
     public UiBase uiInventory;
-    public HUDMenuPanel uiHud; // Kéo object HUD vào đây trong Inspector
+    
     public UiPauseGame uiPause;     // Kéo object UiPause vào đây
     public UiGameOver uiGameOver;   // Kéo object UiGameOver vào đây
 
@@ -23,14 +23,6 @@ public class UIManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    private void Start()
-    {
-        // Khi game bắt đầu, luôn bật giao diện HUD lên
-        if (uiHud != null)
-        {
-            uiHud.Show();
-        }
-    }
 
     private void Update()
     {
