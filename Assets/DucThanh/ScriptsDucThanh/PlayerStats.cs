@@ -11,6 +11,8 @@ namespace DucThanh
         [SerializeField] private float maxHealth = 100f;
         [SerializeField] private float currentHealth;
 
+        // Tắt cảnh báo CS0414/CS0169 cho các biến thiết lập chưa dùng đến trong Update
+#pragma warning disable 0414, 0169
         [Header("Hunger Settings")]
         [Tooltip("Tổng điểm đói tối đa")]
         [SerializeField] private float maxHunger = 100f;
@@ -33,9 +35,12 @@ namespace DucThanh
         [Tooltip("Thời gian chờ trước khi bắt đầu hồi thể lực sau khi dừng dùng")]
         [SerializeField] private float regenDelay = 1.5f;
 
-        private PlayerController playerController;
         private float hungerTimer = 0f;
         private float staminaCooldownTimer = 0f;
+#pragma warning restore 0414, 0169
+
+        private PlayerController playerController;
+        private bool isDead = false;
 
         // Getters
         public float MaxHealth => maxHealth;
@@ -55,8 +60,6 @@ namespace DucThanh
 
         public event System.Action OnPlayerDied;
 
-        private bool isDead = false;
-
         private void Awake()
         {
             playerController = GetComponent<PlayerController>();
@@ -69,63 +72,21 @@ namespace DucThanh
 
         private void Update()
         {
-            HandleDebugInput();
-
             if (isDead) return;
 
-            // Đã bỏ tính năng tự trừ thức ăn và trừ thể lực theo yêu cầu
+            // Tính năng tự trừ đói/thể lực theo thời gian đang tắt theo yêu cầu
         }
 
-        private void HandleDebugInput()
-        {
-//            bool kPressed = false;
-
-//#if ENABLE_INPUT_SYSTEM
-//            if (Keyboard.current != null && Keyboard.current.kKey.wasPressedThisFrame)
-//            {
-//                kPressed = true;
-//            }
-//#endif
-//            if (!kPressed)
-//            {
-//                try
-//                {
-//                    if (Input.GetKeyDown(KeyCode.K))
-//                    {
-//                        kPressed = true;
-//                    }
-//                }
-//                catch
-//                {
-//                    // Tránh lỗi nếu Legacy Input bị tắt trong ProjectSettings
-//                }
-//            }
-
-//            if (kPressed)
-//            {
-//                ModifyHealth(-10f);
-//                Debug.Log($"[PlayerStats] Phím K được nhấn: -10 Máu (Còn lại: {currentHealth}/{maxHealth})");
-//            }
-        }
-
-        private void HandleHunger()
-        {
-            // Đã vô hiệu hóa tự giảm thức ăn
-        }
-
-        private void HandleStamina()
-        {
-            // Không tiêu hao thể lực khi chạy/di chuyển
-        }
-
-
+        /// <summary>
+        /// Thay đổi máu của Player (Hỗ trợ cả sát thương lẫn hồi máu + Tự kích hoạt Die/Revive)
+        /// </summary>
         public void ModifyHealth(float amount)
         {
             if (isDead && amount <= 0f) return;
 
             currentHealth = Mathf.Clamp(currentHealth + amount, 0f, maxHealth);
 
-            // In rõ ràng ra Console mỗi khi Player mất/thay đổi máu
+            // In log thông báo
             if (amount < 0f)
             {
                 Debug.Log($"<color=red><b>[Player Health]</b> Player bị đánh trúng! Mất {-amount:F1} máu. <b>Máu hiện tại: {currentHealth:F0} / {maxHealth:F0} HP</b></color>");
@@ -134,14 +95,8 @@ namespace DucThanh
             {
                 Debug.Log($"<color=green><b>[Player Health]</b> Player được hồi {amount:F1} máu. Máu hiện tại: {currentHealth:F0} / {maxHealth:F0} HP</color>");
             }
-        }
-            
-        public void ModifyHealths(float amount)
-        {
-            if (isDead && amount <= 0f) return;
 
-            currentHealth = Mathf.Clamp(currentHealth + amount, 0f, maxHealth);
-            
+            // Kiểm tra trạng thái sống/chết
             if (!isDead && currentHealth <= 0f)
             {
                 Die();

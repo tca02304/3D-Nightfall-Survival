@@ -29,8 +29,10 @@ namespace DucThanh
         [Tooltip("Bộ giới hạn tốc độ đánh và phạm vi (Nếu để trống sẽ tự lấy trên Player)")]
         [SerializeField] private AttackRateLimiter attackLimiter;
 
+
         [Tooltip("Lượng thể lực tiêu hao cho mỗi đòn tấn công (0 = không tốn)")]
         [SerializeField] private float attackStaminaCost = 0f;
+
 
         [Tooltip("Lượng sát thương gây ra mỗi đòn chém")]
         [SerializeField] private float attackDamage = 25f;
@@ -302,6 +304,15 @@ namespace DucThanh
 
             if (playerStats != null && playerStats.IsDead) return;
 
+            // Kiểm tra stamina nếu có chi phí đánh
+            if (attackStaminaCost > 0f && playerStats != null)
+            {
+                if (!playerStats.ConsumeStamina(attackStaminaCost))
+                {
+                    return;
+                }
+            }
+
             if (attackLimiter != null)
             {
                 if (!attackLimiter.TryAttack())
@@ -335,7 +346,17 @@ namespace DucThanh
 
         private void CheckHitAndDamageEnemies()
         {
+            Vector3 origin = transform.position + Vector3.up * 1f;
+            Vector3 center = origin + transform.forward * (attackRange * 0.5f);
 
+            Collider[] hits = Physics.OverlapSphere(center, attackRadius, targetLayer);
+            foreach (var hit in hits)
+            {
+                if (hit.gameObject == gameObject) continue;
+
+                // Gửi thông báo tấn công đến target nếu có Component chịu damage
+                hit.SendMessage("TakeDamage", attackDamage, SendMessageOptions.DontRequireReceiver);
+            }
         }
 
         private void OnDrawGizmosSelected()

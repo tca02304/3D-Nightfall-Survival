@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace UnityStandardAssets.ImageEffects
 {
-    [RequireComponent(typeof (Camera))]
+    [RequireComponent(typeof(Camera))]
     [AddComponentMenu("")]
     public class ImageEffectBase : MonoBehaviour
     {
@@ -16,12 +16,7 @@ namespace UnityStandardAssets.ImageEffects
 
         protected virtual void Start()
         {
-            // Disable if we don't support image effects
-            if (!SystemInfo.supportsImageEffects)
-            {
-                enabled = false;
-                return;
-            }
+            // Đã xóa kiểm tra SystemInfo.supportsImageEffects bị obsolete
 
             // Disable the image effect if the shader can't
             // run on the users graphics card
@@ -34,7 +29,7 @@ namespace UnityStandardAssets.ImageEffects
         {
             get
             {
-                if (m_Material == null)
+                if (m_Material == null && shader != null)
                 {
                     m_Material = new Material(shader);
                     m_Material.hideFlags = HideFlags.HideAndDontSave;
