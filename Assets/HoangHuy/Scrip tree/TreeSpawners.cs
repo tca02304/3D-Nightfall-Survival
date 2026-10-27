@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class TreeSpawner : MonoBehaviour
+public class TreeSpawners : MonoBehaviour
 {
     [Header("Terrain & Prefabs")]
     public Terrain terrain;
