@@ -15,18 +15,11 @@ namespace DucThanh
         [Tooltip("Tốc độ chạy nhanh (Sprint)")]
         [SerializeField] private float sprintSpeed = 8f;
 
-        [Tooltip("Tốc độ xoay người theo hướng di chuyển")]
-        [SerializeField] private float rotationSpeed = 12f;
-
         [Tooltip("Độ cao nhảy")]
         [SerializeField] private float jumpHeight = 1.5f;
 
         [Tooltip("Trọng lực")]
         [SerializeField] private float gravity = -19.62f;
-
-        [Header("Camera")]
-        [Tooltip("Camera tham chiếu hướng di chuyển. Nếu để trống sẽ tự lấy Camera.main")]
-        [SerializeField] private Transform cameraTransform;
 
         [Header("Animation")]
         [Tooltip("Animator điều khiển hoạt ảnh nhân vật. Nếu để trống sẽ tự tìm trên chính GameObject hoặc con")]
@@ -61,7 +54,6 @@ namespace DucThanh
         private bool isSprinting;
         private bool jumpTriggered;
         private bool attackTriggered;
-        private float nextAttackTime;
         private float attackEndTime;
 
         [Header("Weapon & Equipment")]
@@ -92,11 +84,6 @@ namespace DucThanh
             if (attackLimiter == null)
             {
                 attackLimiter = gameObject.AddComponent<AttackRateLimiter>();
-            }
-
-            if (cameraTransform == null && Camera.main != null)
-            {
-                cameraTransform = Camera.main.transform;
             }
 
             if (animator == null)
@@ -176,7 +163,6 @@ namespace DucThanh
                 playerStats = GetComponent<PlayerStats>();
             }
 
-            // Nếu player đã chết thì khóa toàn bộ phím di chuyển, chạy nhanh, nhảy
             if (playerStats != null && playerStats.IsDead)
             {
                 moveInput = Vector2.zero;
@@ -185,7 +171,6 @@ namespace DucThanh
                 return;
             }
 
-            // Hỗ trợ cả New Input System lẫn Legacy Input Manager mượt mà và không gây lỗi
             float horizontal = 0f;
             float vertical = 0f;
             bool sprintPressed = false;
@@ -205,22 +190,6 @@ namespace DucThanh
                 if (Keyboard.current.spaceKey.wasPressedThisFrame)
                     jumpPressed = true;
             }
-
-            if (Gamepad.current != null)
-            {
-                Vector2 stick = Gamepad.current.leftStick.ReadValue();
-                if (stick.sqrMagnitude > 0.01f)
-                {
-                    horizontal = stick.x;
-                    vertical = stick.y;
-                }
-
-                if (Gamepad.current.leftStickButton.isPressed || Gamepad.current.buttonSouth.isPressed)
-                    sprintPressed = true;
-
-                if (Gamepad.current.buttonSouth.wasPressedThisFrame)
-                    jumpPressed = true;
-            }
 #else
             horizontal = Input.GetAxisRaw("Horizontal");
             vertical = Input.GetAxisRaw("Vertical");
@@ -228,7 +197,6 @@ namespace DucThanh
             jumpPressed = Input.GetButtonDown("Jump");
 #endif
 
-            // Fallback nếu new input system không lấy được hoặc đang bật cả hai
             if (horizontal == 0f && vertical == 0f)
             {
                 try
@@ -240,10 +208,7 @@ namespace DucThanh
                     if (!jumpPressed)
                         jumpPressed = Input.GetButtonDown("Jump");
                 }
-                catch
-                {
-                    // Tránh lỗi nếu Legacy Input bị tắt hoàn toàn trong Unity settings
-                }
+                catch { }
             }
 
             moveInput = new Vector2(horizontal, vertical).normalized;
@@ -253,7 +218,6 @@ namespace DucThanh
                 jumpTriggered = true;
             }
 
-            // Thu thập input tấn công chuột trái (Left Mouse Click)
             bool attackPressed = false;
 #if ENABLE_INPUT_SYSTEM
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
@@ -270,20 +234,7 @@ namespace DucThanh
                         attackPressed = true;
                     }
                 }
-                catch
-                {
-                    // Tránh lỗi nếu Legacy Input bị tắt hoàn toàn trong Unity settings
-                }
-            }
-
-            // Bỏ qua nếu con trỏ chuột đang click lên giao diện UI
-            if (attackPressed)
-            {
-                if (UnityEngine.EventSystems.EventSystem.current != null &&
-                    UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
-                {
-                    attackPressed = false;
-                }
+                catch { }
             }
 
             if (attackPressed)
@@ -292,20 +243,70 @@ namespace DucThanh
             }
         }
 
+        private void HandleMovement()
+        {
+            if (characterController == null) return;
+
+            if (playerStats != null && playerStats.IsDead)
+            {
+                jumpTriggered = false;
+                if (characterController.isGrounded)
+                {
+                    if (verticalVelocity.y < 0f) verticalVelocity.y = -2f;
+                }
+                else
+                {
+                    verticalVelocity.y += gravity * Time.deltaTime;
+                }
+
+                characterController.Move(verticalVelocity * Time.deltaTime);
+                UpdateAnimation();
+                return;
+            }
+
+            if (characterController.isGrounded)
+            {
+                if (verticalVelocity.y < 0f)
+                {
+                    verticalVelocity.y = -2f;
+                }
+
+                if (jumpTriggered)
+                {
+                    verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+                }
+            }
+            jumpTriggered = false;
+
+            // Di chuyển theo hướng nhân vật đang đứng
+            Vector3 forward = transform.forward;
+            Vector3 right = transform.right;
+
+            Vector3 moveDirection = (forward * moveInput.y + right * moveInput.x).normalized;
+            float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
+
+            Vector3 horizontalMove = moveDirection * currentSpeed;
+
+            verticalVelocity.y += gravity * Time.deltaTime;
+
+            Vector3 finalMotion = (horizontalMove + verticalVelocity) * Time.deltaTime;
+            characterController.Move(finalMotion);
+
+            UpdateAnimation();
+        }
+
         private void HandleAttack()
         {
             if (!attackTriggered) return;
             attackTriggered = false;
 
-            // Không thể tấn công nếu player đã chết
             if (playerStats != null && playerStats.IsDead) return;
 
-            // Kiểm tra và thực hiện đòn đánh thông qua AttackRateLimiter
             if (attackLimiter != null)
             {
                 if (!attackLimiter.TryAttack())
                 {
-                    return; // Bị chặn bởi Cooldown hoặc điều kiện mục tiêu
+                    return;
                 }
             }
 
@@ -334,19 +335,7 @@ namespace DucThanh
 
         private void CheckHitAndDamageEnemies()
         {
-            //if (attackLimiter == null) return;
 
-            //var targets = attackLimiter.GetTargetsToDamage();
-            //foreach (var enemy in targets)
-            //{
-            //        EnemyTest enemy = hitInfo.collider.GetComponentInParent<EnemyTest>();
-            //    if (enemy != null && !enemy.IsDead)
-            //    {
-            //            damagedEnemies.Add(enemy);
-            //        enemy.TakeDamage(attackDamage);
-            //    }
-            //}
-            
         }
 
         private void OnDrawGizmosSelected()
@@ -357,94 +346,21 @@ namespace DucThanh
             Gizmos.DrawWireSphere(center, attackRadius);
         }
 
-        private void HandleMovement()
-        {
-            if (characterController == null) return;
-
-            // Khi player đã chết: không di chuyển ngang, không nhảy, chỉ chịu tác động trọng lực rơi
-            if (playerStats != null && playerStats.IsDead)
-            {
-                jumpTriggered = false;
-                if (characterController.isGrounded)
-                {
-                    if (verticalVelocity.y < 0f) verticalVelocity.y = -2f;
-                }
-                else
-                {
-                    verticalVelocity.y += gravity * Time.deltaTime;
-                }
-
-                characterController.Move(verticalVelocity * Time.deltaTime);
-                UpdateAnimation();
-                return;
-            }
-
-            // Kiểm tra chạm đất
-            if (characterController.isGrounded)
-            {
-                if (verticalVelocity.y < 0f)
-                {
-                    verticalVelocity.y = -2f; // Giữ chặt trên mặt đất dốc
-                }
-
-                if (jumpTriggered)
-                {
-                    verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-                }
-            }
-            jumpTriggered = false; // Reset trigger jump sau frame xử lý
-
-            // Hướng di chuyển tương đối theo Camera
-            Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
-            Vector3 right = cameraTransform != null ? cameraTransform.right : Vector3.right;
-
-            forward.y = 0f;
-            right.y = 0f;
-            forward.Normalize();
-            right.Normalize();
-
-            Vector3 moveDirection = (forward * moveInput.y + right * moveInput.x).normalized;
-            float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
-
-            Vector3 horizontalMove = moveDirection * currentSpeed;
-
-            // Xoay nhân vật trực tiếp theo hướng di chuyển
-            if (moveDirection.sqrMagnitude > 0.001f)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            }
-
-            // Áp dụng trọng lực
-            verticalVelocity.y += gravity * Time.deltaTime;
-
-            // Tổng hợp di chuyển
-            Vector3 finalMotion = (horizontalMove + verticalVelocity) * Time.deltaTime;
-            characterController.Move(finalMotion);
-
-            // Cập nhật Animation
-            UpdateAnimation();
-        }
-
         private void UpdateAnimation()
         {
             if (animator == null) return;
 
-            // Dừng toàn bộ hoạt ảnh khi player đã chết
             if (playerStats != null && playerStats.IsDead)
             {
                 animator.speed = 0f;
                 return;
             }
 
-            // Khôi phục tốc độ chạy hoạt ảnh khi còn sống
             if (animator.speed == 0f)
             {
                 animator.speed = 1f;
             }
 
-            // OnlinePlayer controller:
-            // - Speed (Float): 0 = Idle, 1 = Walk, >1 = Run/Sprint
             float targetSpeed = 0f;
             if (moveInput.sqrMagnitude > 0.01f)
             {
@@ -459,33 +375,12 @@ namespace DucThanh
         }
 
         #region Animation Events Receiver
-        /// <summary>
-        /// Được gọi từ AnimationEvent trong Jump.anim và Land.anim
-        /// </summary>
-        public void SpawnSmoke()
-        {
-            // Placeholder cho hiệu ứng khói/bụi khi nhảy và tiếp đất
-        }
-
-        /// <summary>
-        /// Được gọi từ AnimationEvent trong Attack.anim và các đòn đánh
-        /// </summary>
-        public void SpawnFx()
-        {
-            // Placeholder cho hiệu ứng chém/tấn công
-        }
-
-        /// <summary>
-        /// Được gọi từ AnimationEvent trong các đòn đánh hitbox
-        /// </summary>
+        public void SpawnSmoke() { }
+        public void SpawnFx() { }
         public void UseHitbox()
         {
             CheckHitAndDamageEnemies();
         }
-
-        /// <summary>
-        /// Được gọi từ AnimationEvent bước chân
-        /// </summary>
         public void LeftStep() { }
         public void RightStep() { }
         #endregion
