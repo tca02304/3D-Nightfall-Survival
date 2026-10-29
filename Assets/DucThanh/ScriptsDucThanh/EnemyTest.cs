@@ -1,60 +1,43 @@
-using System.Collections;
+using System;
 using UnityEngine;
 
 namespace DucThanh
 {
+    /// <summary>
+    /// Component quản lý máu của Enemy, tích hợp với EnemyStats để nhận máu và tăng chỉ số theo ngày.
+    /// Giữ nguyên các hàm và thuộc tính tương thích cho AttackRateLimiter & PlayerCombat.
+    /// </summary>
+    [RequireComponent(typeof(EnemyStats))]
     public class EnemyTest : MonoBehaviour
     {
-        [Header("Enemy Stats")]
-        [Tooltip("Lượng máu tối đa")]
-        [SerializeField] private float maxHealth = 100f;
+        [Tooltip("Tham chiếu tới EnemyStats. Nếu để trống sẽ tự động lấy trên cùng GameObject.")]
+        [SerializeField] private EnemyStats enemyStats;
 
-        [Tooltip("Lượng máu hiện tại")]
-        [SerializeField] private float currentHealth;
-
-        [Tooltip("Thời gian chờ trước khi biến mất sau khi chết")]
-        [SerializeField] private float destroyDelay = 0.3f;
-
-        private bool isDead = false;
-
-        public float MaxHealth => maxHealth;
-        public float CurrentHealth => currentHealth;
-        public bool IsDead => isDead;
+        public float MaxHealth => enemyStats != null ? enemyStats.MaxHealth : 100f;
+        public float CurrentHealth => enemyStats != null ? enemyStats.CurrentHealth : 100f;
+        public bool IsDead => enemyStats != null ? enemyStats.IsDead : false;
 
         private void Awake()
         {
-            currentHealth = maxHealth;
-            isDead = false;
+            if (enemyStats == null)
+            {
+                enemyStats = GetComponent<EnemyStats>();
+            }
         }
 
         /// <summary>
-        /// Nhận sát thương khi bị player chém trúng
+        /// Nhận sát thương khi bị player chém trúng (chuyển tiếp sang EnemyStats)
         /// </summary>
         public void TakeDamage(float damage)
         {
-            if (isDead) return;
-
-            currentHealth -= damage;
-            if (currentHealth < 0f)
+            if (enemyStats != null)
             {
-                currentHealth = 0f;
+                enemyStats.TakeDamage(damage);
             }
-
-            Debug.Log($"Enemy có {currentHealth}hp");
-
-            if (currentHealth <= 0f)
+            else
             {
-                Die();
+                Debug.LogWarning($"[EnemyTest] Chưa có EnemyStats trên {gameObject.name}");
             }
-        }
-
-        private void Die()
-        {
-            if (isDead) return;
-            isDead = true;
-
-            Debug.Log("quái đã chết");
-            Destroy(gameObject, destroyDelay);
         }
     }
 }

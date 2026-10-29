@@ -134,14 +134,7 @@ namespace DucThanh
             {
                 Debug.Log($"<color=green><b>[Player Health]</b> Player được hồi {amount:F1} máu. Máu hiện tại: {currentHealth:F0} / {maxHealth:F0} HP</color>");
             }
-        }
-            
-        public void ModifyHealths(float amount)
-        {
-            if (isDead && amount <= 0f) return;
 
-            currentHealth = Mathf.Clamp(currentHealth + amount, 0f, maxHealth);
-            
             if (!isDead && currentHealth <= 0f)
             {
                 Die();
@@ -150,6 +143,11 @@ namespace DucThanh
             {
                 Revive();
             }
+        }
+            
+        public void ModifyHealths(float amount)
+        {
+            ModifyHealth(amount);
         }
 
         public void ModifyHunger(float amount)

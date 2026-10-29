@@ -41,6 +41,13 @@ namespace DucThanh
 
         private bool isFastForwardActive = false;
 
+        [Header("Debug & Test Keys (Phím tắt kiểm tra)")]
+        [Tooltip("Bật phím tắt test")]
+        [SerializeField] private bool enableDebugKeys = true;
+
+        [Tooltip("Phím nhảy sang 6h00 sáng ngày tiếp theo (mặc định phím N)")]
+        [SerializeField] private KeyCode skipToNextDayKey = KeyCode.N;
+
         [Header("Light References")]
         [Tooltip("Directional Light đại diện cho Mặt trời.")]
         [SerializeField] private Light sunLight;
@@ -183,6 +190,7 @@ namespace DucThanh
         private void Update()
         {
             HandleFastForwardInput();
+            HandleDebugInput();
 
             if (!pauseTime && realSecondsPerInGameHour > 0f)
             {
@@ -254,12 +262,42 @@ namespace DucThanh
             }
         }
 
+        private void HandleDebugInput()
+        {
+            if (!enableDebugKeys) return;
+
+            bool isSkipPressed = false;
+
+#if ENABLE_INPUT_SYSTEM
+            if (Keyboard.current != null)
+            {
+                Key key = ConvertKeyCodeToInputSystemKey(skipToNextDayKey);
+                if (key != Key.None)
+                {
+                    var keyControl = Keyboard.current[key];
+                    if (keyControl != null)
+                    {
+                        isSkipPressed = keyControl.wasPressedThisFrame;
+                    }
+                }
+            }
+#else
+            isSkipPressed = Input.GetKeyDown(skipToNextDayKey);
+#endif
+
+            if (isSkipPressed)
+            {
+                SkipToNextDayAt6AM();
+            }
+        }
+
 #if ENABLE_INPUT_SYSTEM
         private Key ConvertKeyCodeToInputSystemKey(KeyCode code)
         {
             switch (code)
             {
                 case KeyCode.P: return Key.P;
+                case KeyCode.N: return Key.N;
                 case KeyCode.Space: return Key.Space;
                 case KeyCode.T: return Key.T;
                 case KeyCode.F: return Key.F;
@@ -532,6 +570,30 @@ namespace DucThanh
         public void SetTime(float hour)
         {
             currentInGameTime = Mathf.Repeat(hour, 24f);
+            UpdateLighting();
+            UpdateUI();
+        }
+
+        /// <summary>
+        /// Nhảy sang 06:00 sáng của ngày tiếp theo (phục vụ test).
+        /// Kích hoạt event OnDayChanged để các hệ thống (quái, UI...) tự động cập nhật sức mạnh.
+        /// </summary>
+        public void SkipToNextDayAt6AM()
+        {
+            currentDay++;
+            currentInGameTime = 6f;
+
+            Debug.Log($"<color=cyan>[DayNightController] Chuyển sang 06:00 sáng ngày tiếp theo -> <b>Day {currentDay}</b></color>");
+
+            OnDayChanged?.Invoke(currentDay);
+
+            bool currentDayState = IsDayTime;
+            if (currentDayState != lastDayState)
+            {
+                lastDayState = currentDayState;
+                OnDayNightStateChanged?.Invoke(currentDayState);
+            }
+
             UpdateLighting();
             UpdateUI();
         }

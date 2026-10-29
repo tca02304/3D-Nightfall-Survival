@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c78104b3e3014733aa499a2c68e80123, type: 3}
+  m_Name: Gobin
+  m_EditorClassIdentifier: 
+  enemyTypeName: Normal Monster
+  baseMaxHealth: 100
+  baseDamage: 15
+  growthType: 0
+  healthGrowthRatePerDay: 0.15
+  damageGrowthRatePerDay: 0.1
+  maxDamageCap: 0
+  maxHealthCap: 0
