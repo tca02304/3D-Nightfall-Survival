@@ -7,6 +7,8 @@ TagManager:
   - Ground
   - Ignore
   - PowerUps
+  - Weapon
+  - Tools
   layers:
   - Default
   - TransparentFX
