@@ -11,18 +11,18 @@ public class DraggableItem : MonoBehaviour,
 {
     private Canvas canvas;
     private CanvasGroup canvasGroup;
-
+    private ItemUI itemUI;
     private GameObject dragGhost;
     private RectTransform dragGhostRect;
 
-    private ItemSlot sourceSlot;
-
-    public ItemSlot SourceSlot => sourceSlot;
+    public ItemSlot sourceSlot { get; private set; }
+    private int dragAmount;
 
     private void Awake()
     {
         canvas = GetComponentInParent<Canvas>();
         canvasGroup = GetComponent<CanvasGroup>();
+        itemUI = GetComponent<ItemUI>();
     }
 
     public void OnInitializePotentialDrag(PointerEventData eventData)
@@ -32,15 +32,34 @@ public class DraggableItem : MonoBehaviour,
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        if (InventoryManager.Instance != null && !InventoryManager.Instance.CursorSlot.isEmpty())
+            return;
+
         sourceSlot = GetComponentInParent<ItemSlot>();
 
         if (sourceSlot == null)
             return;
 
-        CreateDragGhost();
-        UpdateGhostPosition(eventData);
+        InventorySlotData slotData = InventoryManager.Instance.Slots[sourceSlot.SlotIndex];
 
-        canvasGroup.blocksRaycasts = false;
+        if (slotData.isEmpty())
+            return;
+
+        dragAmount = slotData.Amount;
+        canvasGroup.alpha = 0f;
+
+        CreateDragGhost();
+
+        ItemUI ghostUI = dragGhost.GetComponent<ItemUI>();
+
+        if (ghostUI != null)
+            ghostUI.SetAmount(dragAmount);
+
+        UpdateGhostPosition(eventData);
+        canvasGroup.blocksRaycasts = false; 
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -51,7 +70,6 @@ public class DraggableItem : MonoBehaviour,
     public void OnEndDrag(PointerEventData eventData)
     {
         CleanupDrag();
-
         sourceSlot = null;
     }
 
@@ -84,24 +102,15 @@ public class DraggableItem : MonoBehaviour,
 
         DraggableItem ghostDraggable = dragGhost.GetComponent<DraggableItem>();
 
-        if(ghostDraggable != null)
-        {
-            ghostDraggable.enabled = false;
-        }
+        if (ghostDraggable != null)
+            Destroy(ghostDraggable);
 
         CanvasGroup ghostCanvasGroup = dragGhost.GetComponent<CanvasGroup>();
 
         if(ghostCanvasGroup != null)
         {
             ghostCanvasGroup.blocksRaycasts = false;
-            ghostCanvasGroup.interactable = false;
-        }
-
-        Graphic[] graphics = dragGhost.GetComponentsInChildren<Graphic>(true);
-
-        foreach(Graphic graphic in graphics)
-        {
-            graphic.raycastTarget = false;
+            ghostCanvasGroup.alpha = 1f;
         }
     }
 
@@ -110,11 +119,11 @@ public class DraggableItem : MonoBehaviour,
         if (sourceSlot == null)
             return;
 
-        int sourceSlotIndex = sourceSlot.SlotIndex;
+        int srcIndex = sourceSlot.SlotIndex;
 
         CleanupDrag();
 
-        InventoryManager.Instance.MoveSwapOrMergeItem(sourceSlotIndex, targetSlotIndex);
+        InventoryManager.Instance.MoveItemAmount(srcIndex, targetSlotIndex, dragAmount);
 
         sourceSlot = null;
     }
@@ -122,6 +131,7 @@ public class DraggableItem : MonoBehaviour,
     private void CleanupDrag()
     {
         canvasGroup.blocksRaycasts = true;
+        canvasGroup.alpha = 1f;
 
         if(dragGhost != null)
         {
@@ -129,6 +139,10 @@ public class DraggableItem : MonoBehaviour,
         }
 
         dragGhost = null;
-        dragGhostRect = null;
+    }
+
+    private void OnDisable()
+    {
+        CleanupDrag();
     }
 }

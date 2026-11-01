@@ -33,33 +33,37 @@ public class ItemAPI : MonoBehaviour
 
         ItemDatabase.Instance.SetItems(response.data);
 
-        if (response.success)
+        if(response == null)
         {
-            ItemDatabase.Instance.SetItems(response.data);
+            Debug.LogError("Không thể chuyển JSON thành ItemResponse");
+            yield break;
+        }
 
-            foreach(ItemData item in response.data)
-            {
-                Debug.Log(
-                    item.id + "-" +
-                    item.name
-                );
+        if (!response.success)
+        {
+            Debug.LogError("API trả về thất bại: " + response.message);
+            yield break;
+        }
 
-                if(item.weaponStat != null)
-                {
-                    Debug.Log(
-                        "Damage: " + item.weaponStat.damage +
-                        " | Range: " + item.weaponStat.attackRange
-                        );
-                }
+        if(response.data == null)
+        {
+            Debug.LogError("API không trả về danh sách Item");
+            yield break;
+        }
 
-                if(item.toolStat != null)
-                {
-                    Debug.Log(
-                        "Tool: " + item.toolStat.toolType +
-                        " | Power: " + item.toolStat.toolPower
-                        );
-                }
-            }
+        if(ItemDatabase.Instance == null)
+        {
+            Debug.LogError("Không tìm thấy ItemDatabase");
+            yield break;
+        }
+
+        ItemDatabase.Instance.SetItems(response.data);
+
+        Debug.Log("Đã tải thành công: " + response.data.Length + " Items");
+
+        foreach(ItemData item in response.data)
+        {
+            Debug.Log(item.id + " - " + item.name);
         }
     }
 }

@@ -71,7 +71,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: -1530003170, guid: fd1a6b7a005df5d40a18a413f5441a28, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -103,6 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c65e8aba139fa6548a9f71eabd164a35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  itemIcon: {fileID: 1727638928554879577}
   amountText: {fileID: 4696629360916955574}
 --- !u!225 &4067553162300030113
 CanvasGroup:

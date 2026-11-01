@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ItemSlot : MonoBehaviour, IDropHandler
+public class ItemSlot : MonoBehaviour, IDropHandler, IPointerClickHandler
 {
     public int SlotIndex { get; private set; }
 
@@ -12,17 +12,25 @@ public class ItemSlot : MonoBehaviour, IDropHandler
 
     public void OnDrop(PointerEventData eventData)
     {
-        DraggableItem draggedItem =
-            eventData.pointerDrag?.GetComponent<DraggableItem>();
+        DraggableItem draggedItem = eventData.pointerDrag?.GetComponent<DraggableItem>();
+        if(draggedItem != null & draggedItem.sourceSlot != null)
+        {
+            draggedItem.CompleteDrop(SlotIndex);
+        }
+    }
 
-        if (draggedItem == null)
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (InventoryManager.Instance == null)
             return;
 
-        ItemSlot sourceSlot = draggedItem.SourceSlot;
-
-        if (sourceSlot == null)
-            return;
-
-        draggedItem.CompleteDrop(SlotIndex);
+        if(eventData.button == PointerEventData.InputButton.Right)
+        {
+            InventoryManager.Instance.HandleRightClick(SlotIndex);
+        }
+        else if(eventData.button == PointerEventData.InputButton.Left)
+        {
+            InventoryManager.Instance.HandleLeftClick(SlotIndex);
+        }
     }
 }

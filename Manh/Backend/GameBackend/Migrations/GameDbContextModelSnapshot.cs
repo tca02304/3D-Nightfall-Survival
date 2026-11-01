@@ -21,6 +21,22 @@ namespace GameBackend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("GameBackend.Models.ConsumableStat", b =>
+                {
+                    b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("HealHP")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RestoreStamina")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ItemId");
+
+                    b.ToTable("ConsumableStats");
+                });
+
             modelBuilder.Entity("GameBackend.Models.Items", b =>
                 {
                     b.Property<int>("Id")
@@ -28,6 +44,9 @@ namespace GameBackend.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BuyPrice")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -49,7 +68,7 @@ namespace GameBackend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Price")
+                    b.Property<int?>("SellPrice")
                         .HasColumnType("integer");
 
                     b.Property<string>("Type")
@@ -100,6 +119,17 @@ namespace GameBackend.Migrations
                     b.ToTable("WeaponStats");
                 });
 
+            modelBuilder.Entity("GameBackend.Models.ConsumableStat", b =>
+                {
+                    b.HasOne("GameBackend.Models.Items", "Item")
+                        .WithOne("ConsumableStat")
+                        .HasForeignKey("GameBackend.Models.ConsumableStat", "ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+                });
+
             modelBuilder.Entity("GameBackend.Models.ToolStat", b =>
                 {
                     b.HasOne("GameBackend.Models.Items", "Item")
@@ -124,6 +154,8 @@ namespace GameBackend.Migrations
 
             modelBuilder.Entity("GameBackend.Models.Items", b =>
                 {
+                    b.Navigation("ConsumableStat");
+
                     b.Navigation("ToolStat");
 
                     b.Navigation("WeaponStat");

@@ -31,6 +31,170 @@ public class InventoryManager : MonoBehaviour
         CreateInventory();
     }
 
+    // Biến lưu trữ dữ liệu của vật phẩm đang "dính" trên chuột
+    public InventorySlotData CursorSlot = new InventorySlotData();
+
+    public bool MoveItemAmount(int fromIndex, int toIndex, int amount)
+    {
+        if (fromIndex < 0 || fromIndex >= Slots.Count || toIndex < 0 || toIndex >= Slots.Count || fromIndex == toIndex)
+            return false;
+
+        InventorySlotData source = Slots[fromIndex];
+        InventorySlotData target = Slots[toIndex];
+
+        if (source.isEmpty() || source.Amount < amount)
+            return false;
+
+        if (target.isEmpty())
+        {
+            CopySlotData(source, target);
+            target.Amount = amount;
+            source.Amount -= amount;
+
+            if (source.Amount <= 0)
+                source.Clear();
+
+            OnInventoryChanged?.Invoke();
+            return true;
+        }
+
+        if(source.ItemId == target.ItemId)
+        {
+            int availableSpace = target.MaxStack - target.Amount;
+
+            if (availableSpace > 0)
+            {
+                int amountToAdd = Mathf.Min(availableSpace, amount);
+                target.Amount += amountToAdd;
+                source.Amount -= amountToAdd;
+
+                if (source.Amount <= 0)
+                    source.Clear();
+
+                OnInventoryChanged?.Invoke();
+                return true;
+            }
+
+        }
+
+        if(amount == source.Amount)
+        {
+            InventorySlotData temp = new InventorySlotData();
+            CopySlotData(source, temp);
+            CopySlotData(target, source);
+            CopySlotData(temp, target);
+            OnInventoryChanged?.Invoke();
+            return true;
+        }
+
+        return false;
+    }
+
+    public void HandleRightClick(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= Slots.Count) return;
+        InventorySlotData slot = Slots[slotIndex];
+
+        // 1. Chuột trống
+        if (CursorSlot.isEmpty())
+        {
+            if (slot.isEmpty())
+                return;
+
+            if(slot.Amount == 1)
+            {
+                CopySlotData(slot, CursorSlot);
+                slot.Clear();
+            }
+            else
+            {
+                int half = slot.Amount / 2;
+                CopySlotData(slot, CursorSlot);
+                CursorSlot.Amount = half;
+                slot.Amount -= half;
+            }
+            OnInventoryChanged?.Invoke();
+            return;
+        }
+
+        // 2. Chuột có đồ
+        if (slot.isEmpty())
+        {
+            CopySlotData(CursorSlot, slot);
+            slot.Amount = 1;
+            CursorSlot.Amount--;
+            if (CursorSlot.Amount <= 0)
+                CursorSlot.Clear();
+            
+            OnInventoryChanged?.Invoke();
+            return;
+        }
+
+        // 3. Chuột có đồ
+        if (slot.ItemId == CursorSlot.ItemId && slot.Amount < slot.MaxStack)
+        {
+            slot.Amount++;
+            CursorSlot.Amount--;
+            if (CursorSlot.Amount <= 0)
+                CursorSlot.Clear();
+
+            OnInventoryChanged?.Invoke();
+            return;
+        }
+    }
+
+    public void HandleLeftClick(int slotIndex)
+    {
+        if (CursorSlot.isEmpty())
+            return;
+
+        if (slotIndex < 0 || slotIndex >= Slots.Count) return;
+        InventorySlotData slot = Slots[slotIndex];
+
+        // 1. Chuột trống
+        if (slot.isEmpty())
+        {
+            CopySlotData(CursorSlot, slot);
+            CursorSlot.Clear();
+            OnInventoryChanged?.Invoke();
+            return;
+        }
+
+        // 2. Ô cùng loại
+        if (slot.ItemId == CursorSlot.ItemId)
+        {
+            int space = slot.MaxStack - slot.Amount;
+            if (space < 0)
+            {
+                int add = Mathf.Min(space, CursorSlot.Amount);
+                slot.Amount += add;
+                CursorSlot.Amount -= add;
+
+                if (CursorSlot.Amount <= 0) CursorSlot.Clear();
+
+                OnInventoryChanged?.Invoke();
+            }
+            return;
+        }
+
+        InventorySlotData temp = new InventorySlotData();
+        CopySlotData(slot, temp);
+        CopySlotData(CursorSlot, slot);
+        CopySlotData(temp, CursorSlot);
+        OnInventoryChanged?.Invoke();
+    }
+
+    private void CopySlotData(InventorySlotData source, InventorySlotData target)
+    {
+        target.ItemId = source.ItemId;
+        target.ItemCode = source.ItemCode;
+        target.ItemName = source.ItemName;
+        target.MaxStack = source.MaxStack;
+        target.Amount = source.Amount;
+    }
+
+    // Hàm tiện ích để copy dữ liệu
+
     private void CreateInventory()
     {
         Slots.Clear();
@@ -273,6 +437,21 @@ public class InventoryManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    public bool SplitStackHalf(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= Slots.Count)
+            return false;
+
+        InventorySlotData sourceSlot = Slots[slotIndex];
+
+        if (sourceSlot.isEmpty() || sourceSlot.Amount <= 1)
+            return false;
+
+        int splitAmount = sourceSlot.Amount / 2;
+
+        return SplitStack(slotIndex, splitAmount);
     }
 
     public InventorySlotData DropItem(int slotIndex, int amount = 1)

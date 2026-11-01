@@ -10,11 +10,13 @@ public class ItemData
     public string type;
 
     public int maxStack;
-    public int price;
+    public int buyPrice;
+    public int sellPrice;
     public bool isActive;
 
     public string iconKey;
 
     public WeaponStatData weaponStat;
     public ToolStatData toolStat;
+    public ConsumableStatData consumableStat;
 }

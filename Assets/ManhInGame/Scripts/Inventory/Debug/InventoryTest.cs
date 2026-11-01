@@ -1,55 +1,56 @@
-using System.Collections;
 using UnityEngine;
 
 public class InventoryTest : MonoBehaviour
 {
-    private IEnumerator Start()
+    [Header("Test Settings")]
+    [SerializeField] private int testItemId = 1;
+    [SerializeField] private int testAmount = 10;
+
+    [ContextMenu("Test/Add Item To Inventory")]
+    public void TestAddItem()
     {
-        ItemData wood = new ItemData
+        if (ItemDatabase.Instance == null)
         {
-            id = 1,
-            itemCode = "wood",
-            name = "Wood",
-            maxStack = 64
-        };
-
-        ItemData stone = new ItemData
-        {
-            id = 2,
-            itemCode = "stone",
-            name = "Stone",
-            maxStack = 64
-        };
-
-        ItemData sword = null;
-
-        while(sword == null)
-        {
-            sword = ItemDatabase.Instance.GetItemById(5);
-            yield return null;
+            Debug.LogError("ItemDatabase chưa được khởi tạo!");
+            return;
         }
 
-        InventoryManager.Instance.AddItem(wood, 5);
-        InventoryManager.Instance.AddItem(stone, 3);
-        InventoryManager.Instance.AddItem(sword, 1);
+        if (InventoryManager.Instance == null)
+        {
+            Debug.LogError("InventoryManager chưa được khởi tạo!");
+            return;
+        }
 
-        InventorySlotData slot =
-            InventoryManager.Instance.Slots[2];
+        ItemData item = ItemDatabase.Instance.GetItemById(testItemId);
 
-        ItemData itemData =
-            InventoryManager.Instance.GetItemData(slot.ItemId);
+        if (item == null)
+        {
+            Debug.LogError(
+                $"Không tìm thấy Item ID: {testItemId}. " +
+                "Kiểm tra API đã tải dữ liệu chưa!"
+            );
+            return;
+        }
 
-        Debug.Log("Slot contains: " + itemData.name);
+        Sprite icon = ItemDatabase.Instance.GetIconByKey(item.iconKey);
 
-        Debug.Log("Damage: " + itemData.weaponStat.damage);
-        Debug.Log("Range: " + itemData.weaponStat.attackRange);
+        if (icon == null)
+        {
+            Debug.LogWarning(
+                $"Không tìm thấy Sprite cho IconKey: {item.iconKey}"
+            );
+        }
 
-        Debug.Log("BEFORE: " + InventoryManager.Instance.Slots[0].ItemName +
-            " | " + InventoryManager.Instance.Slots[1].ItemName);
+        int remaining = InventoryManager.Instance.AddItem(
+            item,
+            testAmount
+        );
 
-        InventoryManager.Instance.MoveSwapOrMergeItem(0, 3);
-
-        Debug.Log("AFTER: " + InventoryManager.Instance.Slots[0].ItemName +
-            " | " + InventoryManager.Instance.Slots[1].ItemName);
+        Debug.Log(
+            $"Test Item: {item.name} | " +
+            $"IconKey: {item.iconKey} | " +
+            $"Amount: {testAmount} | " +
+            $"Remaining: {remaining}"
+        );
     }
 }
