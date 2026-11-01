@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 3
   tags:
   - Ground
+  - Ignore
+  - PowerUps
+  - Weapon
+  - Tools
   layers:
   - Default
   - TransparentFX

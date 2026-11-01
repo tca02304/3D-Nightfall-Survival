@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: 70d8568987ac0499f952b54c7c13e265
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 19288
+  packageName: Free Rocks
+  packageVersion: 1.1
+  assetPath: Assets/Free_Rocks/Standard Assets/Effects/ImageEffects/Shaders/GlobalFog.shader
+  uploadId: 152148

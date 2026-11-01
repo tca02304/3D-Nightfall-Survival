@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: c0ace1ca4bc0718448acf798c93d52d9
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 19288
+  packageName: Free Rocks
+  packageVersion: 1.1
+  assetPath: Assets/Free_Rocks/Standard Assets/Effects/Projectors/Shaders/ProjectorLight.shader
+  uploadId: 152148

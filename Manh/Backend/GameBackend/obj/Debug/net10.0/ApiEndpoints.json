@@ -1,0 +1,12 @@
+[
+  {
+    "ContainingType": "GameBackend.Controllers.ItemController",
+    "Method": "GetAll",
+    "RelativePath": "api/Item/getallitem",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]

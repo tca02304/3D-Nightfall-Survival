@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class TreeHealth : MonoBehaviour
+public class TreeHealths : MonoBehaviour
 {
     [Header("Dữ liệu cấu hình cây (ScriptableObject)")]
     public TreeData treeData; // Kéo file asset TreeData vào đây
