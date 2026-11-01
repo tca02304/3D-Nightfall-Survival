@@ -92,7 +92,9 @@ public class InventoryManager : MonoBehaviour
 
     public void HandleRightClick(int slotIndex)
     {
-        if (slotIndex < 0 || slotIndex >= Slots.Count) return;
+        if (slotIndex < 0 || slotIndex >= Slots.Count)
+            return;
+
         InventorySlotData slot = Slots[slotIndex];
 
         // 1. Chuột trống
@@ -102,85 +104,87 @@ public class InventoryManager : MonoBehaviour
                 return;
 
             if(slot.Amount == 1)
-            {
+            {   
                 CopySlotData(slot, CursorSlot);
                 slot.Clear();
             }
             else
             {
                 int half = slot.Amount / 2;
+
                 CopySlotData(slot, CursorSlot);
                 CursorSlot.Amount = half;
+
                 slot.Amount -= half;
             }
+
             OnInventoryChanged?.Invoke();
             return;
         }
 
-        // 2. Chuột có đồ
+        // 2. Chuột đang cầm Item
+        if (!slot.isEmpty() && slot.ItemId != CursorSlot.ItemId)
+            return;
+
         if (slot.isEmpty())
         {
             CopySlotData(CursorSlot, slot);
             slot.Amount = 1;
-            CursorSlot.Amount--;
-            if (CursorSlot.Amount <= 0)
-                CursorSlot.Clear();
-            
-            OnInventoryChanged?.Invoke();
-            return;
         }
-
-        // 3. Chuột có đồ
-        if (slot.ItemId == CursorSlot.ItemId && slot.Amount < slot.MaxStack)
+        else
         {
-            slot.Amount++;
-            CursorSlot.Amount--;
-            if (CursorSlot.Amount <= 0)
-                CursorSlot.Clear();
+            if (slot.Amount >= slot.MaxStack)
+                return;
 
-            OnInventoryChanged?.Invoke();
-            return;
+            slot.Amount += 1;
         }
+
+        CursorSlot.Amount -= 1;
+
+        if (CursorSlot.Amount <= 0)
+            CursorSlot.Clear();
+
+        OnInventoryChanged?.Invoke();
     }
 
     public void HandleLeftClick(int slotIndex)
     {
+        if (slotIndex < 0 || slotIndex >= Slots.Count)
+            return;
+
         if (CursorSlot.isEmpty())
             return;
 
-        if (slotIndex < 0 || slotIndex >= Slots.Count) return;
         InventorySlotData slot = Slots[slotIndex];
 
-        // 1. Chuột trống
+        // 1. Ô trống
         if (slot.isEmpty())
         {
             CopySlotData(CursorSlot, slot);
             CursorSlot.Clear();
+
             OnInventoryChanged?.Invoke();
             return;
         }
 
-        // 2. Ô cùng loại
-        if (slot.ItemId == CursorSlot.ItemId)
-        {
-            int space = slot.MaxStack - slot.Amount;
-            if (space < 0)
-            {
-                int add = Mathf.Min(space, CursorSlot.Amount);
-                slot.Amount += add;
-                CursorSlot.Amount -= add;
-
-                if (CursorSlot.Amount <= 0) CursorSlot.Clear();
-
-                OnInventoryChanged?.Invoke();
-            }
+        // 2. Ô khác ID
+        if (slot.ItemId != CursorSlot.ItemId)
             return;
-        }
 
-        InventorySlotData temp = new InventorySlotData();
-        CopySlotData(slot, temp);
-        CopySlotData(CursorSlot, slot);
-        CopySlotData(temp, CursorSlot);
+        // 2. Ô cùng ID
+        int availableSpace = slot.MaxStack - slot.Amount;
+
+        if (availableSpace <= 0)
+            return;
+
+        int amountToAdd = Mathf.Min(CursorSlot.Amount, availableSpace);
+
+        slot.Amount += amountToAdd;
+        CursorSlot.Amount -= amountToAdd;
+
+        if (CursorSlot.Amount <= 0)
+            CursorSlot.Clear();
+
         OnInventoryChanged?.Invoke();
     }
 
@@ -717,5 +721,74 @@ public class InventoryManager : MonoBehaviour
             return null;
 
         return ItemDatabase.Instance.GetItemById(itemId);
+    }
+
+    public bool LoadInventory(InventorySlotResponse[] serverSlots)
+    {
+        if(serverSlots == null)
+        {
+            Debug.LogError("[Inventory] Server data is null");
+            return false;
+        }
+
+        if (!CursorSlot.isEmpty())
+        {
+            Debug.LogWarning(
+                "[Inventory] Cannot load while holding items");
+            return false;
+        }
+
+        HashSet<int> usedIndices = new HashSet<int>();
+
+        foreach(InventorySlotResponse serverSlot in serverSlots)
+        {
+            if(serverSlot.slotIndex < 0 ||
+                serverSlot.slotIndex >= Slots.Count)
+            {
+                Debug.LogError("[Inventory] Invalid slot index");
+                return false;
+            }
+
+            if (!usedIndices.Add(serverSlot.slotIndex))
+            {
+                Debug.LogError("[Inventory] Duplicate slot index");
+                return false;
+            }
+
+            ItemData item = GetItemData(serverSlot.itemId);
+
+            if(item == null ||
+                serverSlot.amount <= 0 ||
+                serverSlot.amount > item.maxStack)
+            {
+                Debug.LogError(
+                    "[Inventory] Invalid item or amount");
+                return false;
+            }
+        }
+
+        foreach(InventorySlotData slot in Slots)
+        {
+            slot.Clear();
+        }
+
+        foreach(InventorySlotResponse serverSlot in serverSlots)
+        {
+            ItemData item = GetItemData(serverSlot.itemId);
+
+            InventorySlotData slot = Slots[serverSlot.slotIndex];
+
+            slot.ItemId = item.id;
+            slot.ItemCode = item.itemCode;
+            slot.ItemName = item.name;
+            slot.Amount = serverSlot.amount;
+            slot.MaxStack = item.maxStack;
+        }
+
+        OnInventoryChanged?.Invoke();
+
+        Debug.Log("[Inventory] Loaded inventory into slots");
+
+        return true;
     }
 }

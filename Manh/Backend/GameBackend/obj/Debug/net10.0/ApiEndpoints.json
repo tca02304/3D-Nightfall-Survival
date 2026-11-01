@@ -1,5 +1,21 @@
 [
   {
+    "ContainingType": "GameBackend.Controllers.InventoryController",
+    "Method": "GetInventory",
+    "RelativePath": "api/Inventory/{playerId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "playerId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "GameBackend.Controllers.ItemController",
     "Method": "GetAll",
     "RelativePath": "api/Item/getallitem",

@@ -26,12 +26,8 @@ public class ItemAPI : MonoBehaviour
 
         string json = request.downloadHandler.text;
 
-        Debug.Log(json);
-
         ItemResponse response =
             JsonUtility.FromJson<ItemResponse>(json);
-
-        ItemDatabase.Instance.SetItems(response.data);
 
         if(response == null)
         {
@@ -60,10 +56,5 @@ public class ItemAPI : MonoBehaviour
         ItemDatabase.Instance.SetItems(response.data);
 
         Debug.Log("Đã tải thành công: " + response.data.Length + " Items");
-
-        foreach(ItemData item in response.data)
-        {
-            Debug.Log(item.id + " - " + item.name);
-        }
     }
 }

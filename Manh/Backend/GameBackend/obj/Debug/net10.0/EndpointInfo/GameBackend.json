@@ -5,6 +5,29 @@
     "version": "1.0"
   },
   "paths": {
+    "/api/Inventory/{playerId}": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "parameters": [
+          {
+            "name": "playerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Item/getallitem": {
       "get": {
         "tags": [
@@ -20,6 +43,9 @@
   },
   "components": { },
   "tags": [
+    {
+      "name": "Inventory"
+    },
     {
       "name": "Item"
     }

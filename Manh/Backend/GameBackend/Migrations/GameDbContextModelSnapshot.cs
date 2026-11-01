@@ -80,6 +80,62 @@ namespace GameBackend.Migrations
                     b.ToTable("Items");
                 });
 
+            modelBuilder.Entity("GameBackend.Models.Player", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("Players");
+                });
+
+            modelBuilder.Entity("GameBackend.Models.PlayerInventorySlot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SlotIndex")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("itemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("playerId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("itemId");
+
+                    b.HasIndex("playerId", "SlotIndex")
+                        .IsUnique();
+
+                    b.ToTable("PlayerInventorySlots", t =>
+                        {
+                            t.HasCheckConstraint("CK_PlayerInventorySlots_Amount", "\"Amount\" > 0");
+
+                            t.HasCheckConstraint("CK_PlayerInventorySlots_SlotIndex", "\"SlotIndex\" >= 0");
+                        });
+                });
+
             modelBuilder.Entity("GameBackend.Models.ToolStat", b =>
                 {
                     b.Property<int>("ItemId")
@@ -130,6 +186,25 @@ namespace GameBackend.Migrations
                     b.Navigation("Item");
                 });
 
+            modelBuilder.Entity("GameBackend.Models.PlayerInventorySlot", b =>
+                {
+                    b.HasOne("GameBackend.Models.Items", "Item")
+                        .WithMany()
+                        .HasForeignKey("itemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GameBackend.Models.Player", "player")
+                        .WithMany("InventorySlots")
+                        .HasForeignKey("playerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+
+                    b.Navigation("player");
+                });
+
             modelBuilder.Entity("GameBackend.Models.ToolStat", b =>
                 {
                     b.HasOne("GameBackend.Models.Items", "Item")
@@ -159,6 +234,11 @@ namespace GameBackend.Migrations
                     b.Navigation("ToolStat");
 
                     b.Navigation("WeaponStat");
+                });
+
+            modelBuilder.Entity("GameBackend.Models.Player", b =>
+                {
+                    b.Navigation("InventorySlots");
                 });
 #pragma warning restore 612, 618
         }

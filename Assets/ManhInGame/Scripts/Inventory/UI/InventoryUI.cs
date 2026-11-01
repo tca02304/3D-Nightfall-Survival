@@ -103,17 +103,33 @@ public class InventoryUI : MonoBehaviour
 
     private void Update()
     {
-        if (cursorObj != null && cursorObj.activeSelf && canvas != null)
+        if (cursorObj == null || !cursorObj.activeInHierarchy)
+            return;
+
+        if (cursorRect == null)
+            return;
+
+        RectTransform parentRect =
+            cursorRect.parent as RectTransform;
+
+        if (parentRect == null)
+            return;
+
+        Canvas rootCanvas = cursorObj.GetComponentInParent<Canvas>();
+
+        if (rootCanvas == null)
+            return;
+
+        Camera uiCamera = rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay
+            ? null
+            : rootCanvas.worldCamera;
+
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            parentRect,
+            Input.mousePosition,
+            uiCamera,
+            out Vector2 localPoint))
         {
-            // 3. Ép ảnh con trỏ luôn nằm TRÊN CÙNG, không bị các ô đồ che khuất
-            cursorObj.transform.SetAsLastSibling();
-
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvas.transform as RectTransform,
-                Input.mousePosition,
-                canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera,
-                out Vector2 localPoint);
-
             cursorRect.localPosition = localPoint;
         }
     }
