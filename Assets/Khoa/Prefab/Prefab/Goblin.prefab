@@ -847,6 +847,7 @@ GameObject:
   - component: {fileID: 6334202528965760436}
   - component: {fileID: 7737995059304886907}
   - component: {fileID: 6109639394028174512}
+  - component: {fileID: 4780993974104497077}
   m_Layer: 13
   m_Name: Goblin
   m_TagString: Untagged
@@ -950,6 +951,7 @@ MonoBehaviour:
   currentState: 0
   patrolDistance: 50
   chaseDistance: 49
+  attackDistance: 2.2
   patrolRadius: 5
   patrolSpeed: 2.5
   angularSpeed: 1
@@ -979,6 +981,27 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 2
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &4780993974104497077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7823557862899870471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebc1617366880d04a82b84d106a5a0aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseDamage: 15
+  damageVariance: 0.1
+  attackInterval: 1
+  hitDelay: 0.15
+  maxAttackRange: 2.5
+  playerTag: Player
+  autoDealDamageInRange: 1
+  useArmorMitigation: 0
+  targetArmor: 0
 --- !u!1 &8750307756109017220
 GameObject:
   m_ObjectHideFlags: 0
