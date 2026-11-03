@@ -39,18 +39,18 @@ namespace GameBackend.Data
 
                 entity.HasIndex(s => new
                 {
-                    s.playerId,
+                    s.PlayerId,
                     s.SlotIndex
                 }).IsUnique();
 
                 entity.HasOne(s => s.player)
                 .WithMany(p => p.InventorySlots)
-                .HasForeignKey(s => s.playerId)
+                .HasForeignKey(s => s.PlayerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(s => s.Item)
                 .WithMany()
-                .HasForeignKey(s => s.itemId)
+                .HasForeignKey(s => s.ItemId)
                 .OnDelete(DeleteBehavior.Restrict);
 
                 entity.ToTable(t =>

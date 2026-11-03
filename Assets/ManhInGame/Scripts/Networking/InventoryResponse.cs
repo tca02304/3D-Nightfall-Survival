@@ -15,3 +15,17 @@ public class InventorySlotResponse
     public int itemId;
     public int amount;
 }
+
+[Serializable]
+public class SaveInventoryRequest
+{
+    public SaveInventorySlot[] slots;
+}
+
+[Serializable]
+public class SaveInventorySlot
+{
+    public int slotIndex;
+    public int itemId;
+    public int amount;
+}

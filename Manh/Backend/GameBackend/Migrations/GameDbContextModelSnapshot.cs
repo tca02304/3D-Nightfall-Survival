@@ -112,20 +112,20 @@ namespace GameBackend.Migrations
                     b.Property<int>("Amount")
                         .HasColumnType("integer");
 
+                    b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("SlotIndex")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("itemId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("playerId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("itemId");
+                    b.HasIndex("ItemId");
 
-                    b.HasIndex("playerId", "SlotIndex")
+                    b.HasIndex("PlayerId", "SlotIndex")
                         .IsUnique();
 
                     b.ToTable("PlayerInventorySlots", t =>
@@ -190,13 +190,13 @@ namespace GameBackend.Migrations
                 {
                     b.HasOne("GameBackend.Models.Items", "Item")
                         .WithMany()
-                        .HasForeignKey("itemId")
+                        .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("GameBackend.Models.Player", "player")
                         .WithMany("InventorySlots")
-                        .HasForeignKey("playerId")
+                        .HasForeignKey("PlayerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
