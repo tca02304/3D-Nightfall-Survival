@@ -109,6 +109,9 @@ namespace DucThanh
         public float CurrentHour => currentInGameTime;
         public int CurrentDay => currentDay;
         public bool IsDayTime => currentInGameTime >= 6f && currentInGameTime < 18f;
+        public float RealSecondsPerInGameHour => realSecondsPerInGameHour;
+        public bool IsFastForwardActive => isFastForwardActive;
+        public float FastForwardMultiplier => fastForwardMultiplier;
 
         // Events để các script khác (ví dụ AI quái vật, spawning, stats...) có thể lắng nghe
         public event Action<int> OnDayChanged;

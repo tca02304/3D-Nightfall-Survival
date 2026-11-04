@@ -847,6 +847,9 @@ GameObject:
   - component: {fileID: 6334202528965760436}
   - component: {fileID: 7737995059304886907}
   - component: {fileID: 6109639394028174512}
+  - component: {fileID: 5125641353439152426}
+  - component: {fileID: 5118300628086593982}
+  - component: {fileID: 7986577684026736831}
   m_Layer: 13
   m_Name: Goblin
   m_TagString: Untagged
@@ -950,6 +953,7 @@ MonoBehaviour:
   currentState: 0
   patrolDistance: 50
   chaseDistance: 49
+  attackDistance: 2.2
   patrolRadius: 5
   patrolSpeed: 2.5
   angularSpeed: 1
@@ -979,6 +983,62 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 2
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &5125641353439152426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7823557862899870471}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8f1c30b42a945d8b76e5114209df34a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyStats: {fileID: 0}
+--- !u!114 &5118300628086593982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7823557862899870471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebc1617366880d04a82b84d106a5a0aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseDamage: 15
+  attackInterval: 1
+  hitDelay: 0.15
+  maxAttackRange: 2.5
+  playerTag: Player
+  autoDealDamageInRange: 1
+  useArmorMitigation: 0
+  targetArmor: 0
+--- !u!114 &7986577684026736831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7823557862899870471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d89201a4e4024844bb5a9b1c78e91024, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  typeConfig: {fileID: 0}
+  baseMaxHealth: 100
+  baseDamage: 15
+  fallbackGrowthType: 0
+  fallbackHealthGrowthRate: 0.15
+  fallbackDamageGrowthRate: 0.1
+  currentMaxHealth: 0
+  currentHealth: 0
+  currentDamage: 0
+  registeredDay: 1
+  destroyDelay: 0.3
 --- !u!1 &8750307756109017220
 GameObject:
   m_ObjectHideFlags: 0
