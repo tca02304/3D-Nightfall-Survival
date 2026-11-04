@@ -48,5 +48,7 @@ public static class GameEvents
     public static Action<int> OnHotbarSlotSelected;
     // Sự kiện truyền đi tiến độ tải (float từ 0.0f đến 1.0f)
     public static System.Action<float> OnLoadingProgressUpdated;
-
+    public static Action<string> OnTryCraftItem;
+    public static Action<bool, string> OnCraftResult;
+    //public static Action OnInventoryUpdated;
 }
