@@ -10,9 +10,45 @@ public class HotbarManager : MonoBehaviour
     public event Action<int> OnItemSelected;
     public event Action<ItemData> OnSelectedItemChanged;
 
+    [Header("Hotbar Settings")]
+    [SerializeField, Range(0, 6)]
     private int currentSlot = 0;
 
+    private InventoryManager subscribedInventory;
+
     public int CurrentSlot => currentSlot;
+
+    public int HotbarSize
+    {
+        get
+        {
+            if (InventoryManager.Instance == null)
+                return 7;
+
+            return InventoryManager.Instance.HotbarSize;
+        }
+    }
+
+    public int SelectedInventoryIndex
+    {
+        get
+        {
+            InventoryManager inventory = InventoryManager.Instance;
+
+            if (inventory == null)
+                return -1;
+
+            if (CurrentSlot < 0 || CurrentSlot >= inventory.HotbarSize)
+                return -1;
+
+            int index = inventory.InventorySize + currentSlot;
+
+            if (index >= inventory.Slots.Count)
+                return -1;
+
+            return index;
+        }
+    }
 
     private void Awake()
     {
@@ -25,44 +61,101 @@ public class HotbarManager : MonoBehaviour
         Instance = this;
     }
 
-    private void Update()
+    private void Start()
     {
-        if (Keyboard.current.digit1Key.wasPressedThisFrame)
-            SelectSlot(0);
-        if (Keyboard.current.digit2Key.wasPressedThisFrame)
-            SelectSlot(1);
-        if (Keyboard.current.digit3Key.wasPressedThisFrame)
-            SelectSlot(2);
-        if (Keyboard.current.digit4Key.wasPressedThisFrame)
-            SelectSlot(3);
-        if (Keyboard.current.digit5Key.wasPressedThisFrame)
-            SelectSlot(4);
-        if (Keyboard.current.digit6Key.wasPressedThisFrame)
-            SelectSlot(5);
-        if (Keyboard.current.digit7Key.wasPressedThisFrame)
-            SelectSlot(6);
-        if (Keyboard.current.digit8Key.wasPressedThisFrame)
-            SelectSlot(7);
+        TrySubscribeInventory();
+
+        NotifyHotbarChanged();
+        NotifySelectedItemChanged();
     }
 
-    private void OnEnable()
+    private void Update()
     {
-        if(InventoryManager.Instance != null)
+        if(subscribedInventory != InventoryManager.Instance)
         {
-            InventoryManager.Instance.OnInventoryChanged += HandleInventoryChanged;
+            TrySubscribeInventory();
         }
+
+        HandleKeyboardInput();
+    }
+
+    private void HandleKeyboardInput()
+    {
+        Keyboard keyboard = Keyboard.current;
+
+        if (keyboard == null)
+            return;
+
+        if (Keyboard.current.digit1Key.wasPressedThisFrame)
+            SelectSlot(0);
+        else if (Keyboard.current.digit2Key.wasPressedThisFrame)
+            SelectSlot(1);
+        else if (Keyboard.current.digit3Key.wasPressedThisFrame)
+            SelectSlot(2);
+        else if (Keyboard.current.digit4Key.wasPressedThisFrame)
+            SelectSlot(3);
+        else if (Keyboard.current.digit5Key.wasPressedThisFrame)
+            SelectSlot(4);
+        else if (Keyboard.current.digit6Key.wasPressedThisFrame)
+            SelectSlot(5);
+        else if (Keyboard.current.digit7Key.wasPressedThisFrame)
+            SelectSlot(6);
+    }
+
+    private void TrySubscribeInventory()
+    {
+        InventoryManager inventory = InventoryManager.Instance;
+
+        if (subscribedInventory == inventory)
+            return;
+
+        UnsubscribeInventory();
+
+        if (inventory == null)
+            return;
+
+        subscribedInventory = inventory;
+
+        subscribedInventory.OnInventoryChanged += HandleInventoryChanged;
+
+        NotifyHotbarChanged();
+        NotifySelectedItemChanged();
+    }
+
+    private void UnsubscribeInventory()
+    {
+        if(subscribedInventory != null)
+        {
+            subscribedInventory.OnInventoryChanged -= HandleInventoryChanged;
+        }
+
+        subscribedInventory = null;
     }
 
     private void OnDisable()
     {
-        if(InventoryManager.Instance != null)
+        UnsubscribeInventory();
+    }
+
+    private void OnEnable()
+    {
+        if(Instance == this)
         {
-            InventoryManager.Instance.OnInventoryChanged -= HandleInventoryChanged;
+            TrySubscribeInventory();
         }
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeInventory();
+
+        if (Instance == this)
+            Instance = null;
     }
 
     private void HandleInventoryChanged()
     {
+        NotifyHotbarChanged();
         NotifySelectedItemChanged();
     }
 
@@ -73,14 +166,15 @@ public class HotbarManager : MonoBehaviour
 
     private void NotifySelectedItemChanged()
     {
-        ItemData selectedItem = GetSelectedItem();
-
-        OnSelectedItemChanged?.Invoke(selectedItem);
+        OnSelectedItemChanged?.Invoke(GetSelectedItem());
     }
 
     public void SelectSlot(int index)
     {
-        if (index < 0 || index > 6)
+        if (index < 0 || index >= HotbarSize)
+            return;
+
+        if (currentSlot == index)
             return;
 
         currentSlot = index;
@@ -88,51 +182,62 @@ public class HotbarManager : MonoBehaviour
         OnItemSelected?.Invoke(currentSlot);
 
         NotifySelectedItemChanged();
+        NotifyHotbarChanged();
 
-        Debug.Log("Selected Hotbar Slot: " + (currentSlot + 1));
+        Debug.Log($"Selected Hotbar Slot: {currentSlot + 1}");
     }
 
     public void SwitchSlot(int direction)
     {
-        int newSlot = currentSlot + direction;
+        int size = HotbarSize;
 
-        if (newSlot < 0)
-        {
-            newSlot = 7;
-        }
-        else if (newSlot > 7)
-        {
-            newSlot = 0;
-        }
+        if (size < 0)
+            return;
+
+        int newSlot = ((CurrentSlot + direction) % size + size) % size;
 
         SelectSlot(newSlot);
     }
 
     public InventorySlotData GetSelectedSlotData()
     {
-        if (InventoryManager.Instance == null)
+        InventoryManager inventory = InventoryManager.Instance;
+
+        int index = SelectedInventoryIndex;
+
+        if (inventory == null || index < 0)
             return null;
 
-        int dataIndex = InventoryManager.Instance.InventorySize + currentSlot;
-
-        if (dataIndex < 0 || dataIndex >= InventoryManager.Instance.Slots.Count)
-        {
-            return null;
-        }
-
-        return InventoryManager.Instance.Slots[dataIndex];
+        return inventory.Slots[index];
     }
 
     public ItemData GetSelectedItem()
     {
-        InventorySlotData slotData = GetSelectedSlotData();
+        InventorySlotData slot = GetSelectedSlotData();
 
-        if (slotData == null || slotData.isEmpty())
+        if (slot == null || slot.isEmpty())
             return null;
 
         if (ItemDatabase.Instance == null)
             return null;
 
-        return ItemDatabase.Instance.GetItemById(slotData.ItemId);
+        return ItemDatabase.Instance.GetItemById(slot.ItemId);
+    }
+
+    public int GetSelectedAmount()
+    {
+        InventorySlotData slot = GetSelectedSlotData();
+
+        if (slot == null || slot.isEmpty())
+            return 0;
+
+        return slot.Amount;
+    }
+
+    public bool HasSelectedItem()
+    {
+        InventorySlotData slot = GetSelectedSlotData();
+
+        return slot != null && !slot.isEmpty();
     }
 }

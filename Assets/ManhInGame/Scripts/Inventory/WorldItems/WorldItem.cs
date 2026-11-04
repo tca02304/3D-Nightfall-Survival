@@ -4,111 +4,177 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class WorldItem : MonoBehaviour
 {
+    [Header("Item Data")]
     [SerializeField] private int itemId;
-    [SerializeField] private int amount = 1;
+    [SerializeField, Min(1)] private int amount = 1;
 
-    [SerializeField] private float pickupDelay = 0.5f;
+    [Header("Pickup Settings")]
+    [SerializeField, Min(0f)]
+    private float pickupDelay = 0.5f;
+
+    [SerializeField, Min(0.1f)]
+    private float retryInterval = 0.35f;
 
     private float pickupEnableTime;
+    private float nextPickupAttemptTime;
 
     private bool isBeingPickedUp;
+
+    private Transform blockedOwner;
 
     public int ItemId => itemId;
     public int Amount => amount;
 
     private void Awake()
     {
-        SphereCollider sphereCollider = GetComponent<SphereCollider>();
+        SphereCollider sphere = GetComponent<SphereCollider>();
         Rigidbody rb = GetComponent<Rigidbody>();
 
-        sphereCollider.isTrigger = true;
+        sphere.isTrigger = true;
 
         rb.isKinematic = true;
         rb.useGravity = false;
 
         pickupEnableTime = Time.time + pickupDelay;
+        nextPickupAttemptTime = pickupEnableTime;
     }
 
     public void Setup(int newItemId, int newAmount)
     {
+        if(newItemId <= 0 || newAmount <= 0)
+        {
+            Debug.LogError("[WorldItem] Ivalid ItemId or Amount");
+            gameObject.SetActive(false);
+            return;
+        }
+
         itemId = newItemId;
-        amount = Mathf.Max(1, newAmount);
+        amount = newAmount;
+
+        ResetPickupTimer();
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void SetDropOwner(Transform owner)
     {
-        if (!isPlayer(other))
-            return;
+        blockedOwner = owner != null ? owner.root : null;
 
-        TryPickup();
+        ResetPickupTimer();
     }
 
-    private void OnTriggerExit(Collider other)
+    private void ResetPickupTimer()
     {
-        if (!isPlayer(other))
-            return;
-
-        isBeingPickedUp = false;
+        pickupEnableTime = Time.time + pickupDelay;
+        nextPickupAttemptTime = pickupEnableTime;
     }
 
-    private bool isPlayer(Collider other)
+    private bool IsPlayer(Collider other)
     {
         return other.CompareTag("Player") ||
             other.transform.root.CompareTag("Player");
     }
 
-    private void TryPickup()
+    private bool IsBlockedOwner(Collider other)
     {
+        return blockedOwner != null &&
+            other.transform.root == blockedOwner;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        HandlePlayerContact(other);
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        HandlePlayerContact(other);
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (!IsPlayer(other))
+            return;
+
+        if (IsBlockedOwner(other))
+        {
+            blockedOwner = null;
+        }
+    }
+
+    private void HandlePlayerContact(Collider other)
+    {
+        if (!IsPlayer(other))
+            return;
+
+        if (IsBlockedOwner(other))
+            return;
+
         if (Time.time < pickupEnableTime)
             return;
 
-        if (isBeingPickedUp)
+        if (Time.time < nextPickupAttemptTime)
             return;
 
-        if (amount <= 0)
+        if (isBeingPickedUp || amount <= 0)
             return;
 
-        if(InventoryManager.Instance == null)
+        TryPickup();
+    }
+
+    private void TryPickup()
+    {
+        InventoryManager inventory = InventoryManager.Instance;
+        ItemDatabase database = ItemDatabase.Instance;
+
+        if(inventory == null || database == null)
         {
-            Debug.LogWarning("InventoryManager chưa tồn tại");
+            nextPickupAttemptTime = Time.time + retryInterval;
             return;
         }
 
-        if(ItemDatabase.Instance == null)
-        {
-            Debug.LogWarning("ItemDatabase chưa tồn tại");
-            return;
-        }
-
-        ItemData item = ItemDatabase.Instance.GetItemById(itemId);
+        ItemData item = database.GetItemById(itemId);
 
         if(item == null)
         {
-            Debug.LogWarning("Không tìm thấy ItemData với ID: " + ItemId);
+            Debug.LogWarning($"[WorldItem] Item Id {itemId} not found");
+
+            nextPickupAttemptTime = Time.time + retryInterval;
             return;
         }
 
         isBeingPickedUp = true;
 
-        int oldAmount = amount;
-
-        int remainingAmount = InventoryManager.Instance.AddItem(item, amount);
-
-        amount = remainingAmount;
-
-        int pickedAmount = oldAmount - remainingAmount;
-
-        if(pickedAmount > 0)
+        try
         {
-            Debug.Log("Picked up " + pickedAmount + " " + item.name);
-        }
+            int previousAmount = amount;
 
-        if (amount <= 0)
+            int remaining = inventory.AddItem(item, previousAmount);
+
+            if (remaining < 0 || remaining > previousAmount)
+            {
+                Debug.LogError("[WorldItem] Invalid AddItem result");
+                return;
+            }
+
+            int pickedAmount = previousAmount - remaining;
+
+            amount = remaining;
+
+            if (pickedAmount > 0)
+            {
+                Debug.Log($"[Pickup] +{pickedAmount} {item.name}");
+            }
+
+            if(amount <= 0)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            nextPickupAttemptTime = Time.time + retryInterval;
+        }
+        finally
         {
-            Destroy(gameObject);
-            return;
+            isBeingPickedUp = false;
         }
-
-        Debug.Log(item.name + " remaining in world: " + amount);
     }
 }
