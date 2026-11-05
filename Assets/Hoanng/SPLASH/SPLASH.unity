@@ -7978,6 +7978,44 @@ MonoBehaviour:
     icon: {fileID: 21300000, guid: 6cbf9e509d9eba6458b69948352cf9ca, type: 3}
   - iconKey: meat_soup
     icon: {fileID: 21300000, guid: 6ee0dec6848f16e459fcf58cba17491c, type: 3}
+  - iconKey: bark
+    icon: {fileID: 21300000, guid: d63d2a75521de5e408d5feef7e15a5d2, type: 3}
+  - iconKey: blade
+    icon: {fileID: 21300000, guid: 98cb4c7e53bb0c0418ddcb686c470821, type: 3}
+  - iconKey: wood_axe
+    icon: {fileID: 21300000, guid: 4bf894ec79fdd814eafa241dffeeca0f, type: 3}
+  - iconKey: steel_axe
+    icon: {fileID: 21300000, guid: 211eeb96215e99749a3a79e6bb5c2cd2, type: 3}
+  - iconKey: gold_axe
+    icon: {fileID: 21300000, guid: 0e949cc1ed5cc6d41831216454b6b7ce, type: 3}
+  - iconKey: mithril_axe
+    icon: {fileID: 21300000, guid: 6083e0e1009905741a397404c36f2cbf, type: 3}
+  - iconKey: adamantite_axe
+    icon: {fileID: 21300000, guid: 5ef0e6c1033f34a41add5b21c19d3bcc, type: 3}
+  - iconKey: wood_pickaxe
+    icon: {fileID: 21300000, guid: 617f62c8cd618dc429de23c7b6107d85, type: 3}
+  - iconKey: steel_pickaxe
+    icon: {fileID: 21300000, guid: 8e77d42ca5862e04498e6b479a420068, type: 3}
+  - iconKey: gold_pickaxe
+    icon: {fileID: 21300000, guid: cba2e996f1318b64bbcd3a96aff46572, type: 3}
+  - iconKey: mithril_pickaxe
+    icon: {fileID: 21300000, guid: 380e132834345c040b87ebed91f40967, type: 3}
+  - iconKey: adamantite_pickaxe
+    icon: {fileID: 21300000, guid: 9952090604d16d24f9d4faa8cef873d1, type: 3}
+  - iconKey: steel_sword
+    icon: {fileID: 21300000, guid: 1a48474a7e61c694695ada23c2cf2575, type: 3}
+  - iconKey: gold_sword
+    icon: {fileID: 21300000, guid: 267cb3735a4b66a489bbef2852245915, type: 3}
+  - iconKey: mithril_sword
+    icon: {fileID: 21300000, guid: b1e32e0e4aebf734d8c71b1c1033e617, type: 3}
+  - iconKey: adamantite_sword
+    icon: {fileID: 21300000, guid: e4d3cfe99d896f74b9a7299fb11debae, type: 3}
+  - iconKey: obanium_sword
+    icon: {fileID: 21300000, guid: 6172a10d5fb911340b0a17b4fa9a579d, type: 3}
+  - iconKey: night_blade
+    icon: {fileID: 21300000, guid: 1737b54773a06ba4288fd3a00cb0bc18, type: 3}
+  - iconKey: wood_bow
+    icon: {fileID: 21300000, guid: 7fa64731f2fb9ff4c9ecd17474f290e9, type: 3}
 --- !u!114 &784775029
 MonoBehaviour:
   m_ObjectHideFlags: 0
