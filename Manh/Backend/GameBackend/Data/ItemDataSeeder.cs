@@ -454,6 +454,32 @@ namespace GameBackend.Data
                 IconKey = "blade"
             },
 
+            new Items
+            {
+                ItemCode = "rope",
+                Name = "Rope",
+                Description = "Crafting material made from wheat and bark, used in bows and tools.",
+                Type = "Material",
+                MaxStack = 64,
+                BuyPrice = null,
+                SellPrice = null,
+                IsActive = true,
+                IconKey = "rope"
+            },
+
+            new Items
+            {
+                ItemCode = "black_shard",
+                Name = "Black Shard",
+                Description = "Rare dark shard used to craft the Night Blade.",
+                Type = "Material",
+                MaxStack = 64,
+                BuyPrice = null,
+                SellPrice = null,
+                IsActive = true,
+                IconKey = "black_shard"
+            },
+
             // 8. TOOL
 
             new Items

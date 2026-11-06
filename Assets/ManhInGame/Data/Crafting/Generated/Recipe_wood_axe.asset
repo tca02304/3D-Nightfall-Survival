@@ -10,20 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 05e7f2f2e03a38440babad14d64e7748, type: 3}
-  m_Name: Recipe_StoneAxe
+  m_Name: Recipe_wood_axe
   m_EditorClassIdentifier: 
-  recipeId: stone_axe
-  displayName: Stone Axe
-  description: 
+  recipeId: wood_axe
+  displayName: Wood Axe
+  description: Imported from Muck reference; Muck. Station mapped to Nightfall enum.
   requiredStation: 1
   ingredients:
-  - itemId: 0
-    amount: 0
-  - itemId: 0
-    amount: 0
-  - itemId: 0
-    amount: 0
-  outputItemId: 0
+  - itemId: 1
+    amount: 5
+  - itemId: 34
+    amount: 5
+  outputItemId: 36
   outputAmount: 1
   recipeIcon: {fileID: 0}
   craftingTime: 0

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05e7f2f2e03a38440babad14d64e7748, type: 3}
+  m_Name: Recipe_steel_sword
+  m_EditorClassIdentifier: 
+  recipeId: steel_sword
+  displayName: Steel Sword
+  description: Imported from Muck reference; Muck_Anvil_mapped. Station mapped to
+    Nightfall enum.
+  requiredStation: 2
+  ingredients:
+  - itemId: 2
+    amount: 5
+  - itemId: 14
+    amount: 7
+  outputItemId: 46
+  outputAmount: 1
+  recipeIcon: {fileID: 0}
+  craftingTime: 0
+  isActive: 1
