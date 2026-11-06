@@ -7893,6 +7893,7 @@ GameObject:
   - component: {fileID: 784775031}
   - component: {fileID: 784775033}
   - component: {fileID: 784775034}
+  - component: {fileID: 784775035}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -8106,6 +8107,40 @@ MonoBehaviour:
   dropAmount: 1
   playerRoot: {fileID: 0}
   dropOrigin: {fileID: 0}
+--- !u!114 &784775035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 784775026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c60aa4fc486766d4bafbccfee5d4664c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  recipes:
+  - {fileID: 11400000, guid: 65a089d6a2d17194885b49cbded21715, type: 2}
+  - {fileID: 11400000, guid: 3aa68fd0ad4e6eb409a7c6e2d1c10145, type: 2}
+  - {fileID: 11400000, guid: 720e5105e3491bd4eb26c35703cfde73, type: 2}
+  - {fileID: 11400000, guid: ff21b6d9721a44b4aa6d7803cecc368b, type: 2}
+  - {fileID: 11400000, guid: 21b58e17209cc6b48bec245b9bc99577, type: 2}
+  - {fileID: 11400000, guid: df907913471fe3a4787b7079023460eb, type: 2}
+  - {fileID: 11400000, guid: c4c9fb925d11eff4580d57fae021d5f6, type: 2}
+  - {fileID: 11400000, guid: 508c5549b37e9714db28aaedee2e59e5, type: 2}
+  - {fileID: 11400000, guid: e40c838d2fb5a2e4b8c08bc62cbdfedd, type: 2}
+  - {fileID: 11400000, guid: be439dcb631b4aa41850807690289d7d, type: 2}
+  - {fileID: 11400000, guid: a2f3d59b2d4c30e4a820509918c134f9, type: 2}
+  - {fileID: 11400000, guid: 07e78b586f21f294fb1d7633213a0734, type: 2}
+  - {fileID: 11400000, guid: 3f85ebe7ef9ee0b46869946c8ae3db01, type: 2}
+  - {fileID: 11400000, guid: a59b31ee06962b94f9139224e288007d, type: 2}
+  - {fileID: 11400000, guid: 6109027b45293ad498bf9b95295b4635, type: 2}
+  - {fileID: 11400000, guid: 667fa102f1b4a4e4e834a0e684532dfe, type: 2}
+  - {fileID: 11400000, guid: 303830be8bbda52479ef5bc6174a5c20, type: 2}
+  - {fileID: 11400000, guid: 6ce83a31aee165c47a7290b32f8aa509, type: 2}
+  - {fileID: 11400000, guid: 2cb072ff348d30946aad67530779b06a, type: 2}
+  activeStation: 0
+  enforceCraftingStation: 0
 --- !u!1 &816554317
 GameObject:
   m_ObjectHideFlags: 0
@@ -18588,6 +18623,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1954910508}
   - component: {fileID: 1954910507}
+  - component: {fileID: 1954910509}
   m_Layer: 0
   m_Name: TestInven
   m_TagString: Untagged
@@ -18624,6 +18660,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1954910509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1954910506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8444907dd138e9d47b560388ccdc92bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  craftingManager: {fileID: 784775035}
+  recipeId: wood_axe
+  woodId: 1
+  barkId: 34
+  stoneId: 6
+  woodAxeId: 36
 --- !u!1001 &1955153467
 PrefabInstance:
   m_ObjectHideFlags: 0
