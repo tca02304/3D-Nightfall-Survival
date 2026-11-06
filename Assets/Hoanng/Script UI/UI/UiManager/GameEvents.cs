@@ -51,4 +51,17 @@ public static class GameEvents
     public static Action<string> OnTryCraftItem;
     public static Action<bool, string> OnCraftResult;
     //public static Action OnInventoryUpdated;
+    // --- DAY/NIGHT & WAVE EVENTS ---
+
+    // Cập nhật ngày sinh tồn (truyền vào số ngày)
+    public static Action<int> OnDayChanged;
+
+    // Cảnh báo khi màn đêm buông xuống
+    public static Action OnNightStarted;
+
+    // Cảnh báo khi Wave bắt đầu (truyền vào số thứ tự Wave)
+    public static Action<int> OnWaveStarted;
+
+    // Thông báo khi Wave kết thúc (dọn sạch quái)
+    public static Action OnWaveEnded;
 }
