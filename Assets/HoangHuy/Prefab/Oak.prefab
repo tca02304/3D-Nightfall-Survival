@@ -118,7 +118,7 @@ GameObject:
   - component: {fileID: 3352169168877836053}
   - component: {fileID: 8693600471617852857}
   - component: {fileID: 696628101047065137}
-  - component: {fileID: 3332817174628235205}
+  - component: {fileID: 7396008823825353169}
   m_Layer: 0
   m_Name: Oak
   m_TagString: Untagged
@@ -219,7 +219,7 @@ CapsuleCollider:
   m_Height: 15.87581
   m_Direction: 1
   m_Center: {x: 0.07, y: 7.9404197, z: 0.20000005}
---- !u!114 &3332817174628235205
+--- !u!114 &7396008823825353169
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -228,12 +228,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 3017537088126826170}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4e8a768b0ca80448abc7535ff600035, type: 3}
+  m_Script: {fileID: 11500000, guid: 9bf4b4b8221918549b0c7236b48e3c68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   treeData: {fileID: 11400000, guid: c7b149007783ac044918071f14d085be, type: 2}
   currentHealth: 0
-  hpUI: {fileID: 0}
+  hpUI: {fileID: 7990101053912151596}
   dropSpawnPoint: {fileID: 4118297197474813163}
 --- !u!1 &3250137479264225998
 GameObject:

@@ -436,7 +436,7 @@ GameObject:
   - component: {fileID: 897524285063114266}
   - component: {fileID: 7534163463267234719}
   - component: {fileID: -1670332778576278503}
-  - component: {fileID: 5035106711019424980}
+  - component: {fileID: 577381829738251110}
   m_Layer: 0
   m_Name: Poplar
   m_TagString: Untagged
@@ -537,7 +537,7 @@ CapsuleCollider:
   m_Height: 11.033394
   m_Direction: 1
   m_Center: {x: -0.03, y: 5.516547, z: 0}
---- !u!114 &5035106711019424980
+--- !u!114 &577381829738251110
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -546,7 +546,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9049249026398150631}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4e8a768b0ca80448abc7535ff600035, type: 3}
+  m_Script: {fileID: 11500000, guid: 9bf4b4b8221918549b0c7236b48e3c68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   treeData: {fileID: 11400000, guid: 390ff266d307d624ca6dcf536e884a23, type: 2}

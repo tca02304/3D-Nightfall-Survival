@@ -241,7 +241,7 @@ GameObject:
   - component: {fileID: 7361580424977159492}
   - component: {fileID: 3145702583882159706}
   - component: {fileID: -7498606555511065894}
-  - component: {fileID: 7093652262536335585}
+  - component: {fileID: 8060107325397303806}
   m_Layer: 0
   m_Name: Birch
   m_TagString: Untagged
@@ -342,7 +342,7 @@ CapsuleCollider:
   m_Height: 9.322814
   m_Direction: 1
   m_Center: {x: 0, y: 4.69, z: 0.06}
---- !u!114 &7093652262536335585
+--- !u!114 &8060107325397303806
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -351,11 +351,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5172779862636978998}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4e8a768b0ca80448abc7535ff600035, type: 3}
+  m_Script: {fileID: 11500000, guid: 9bf4b4b8221918549b0c7236b48e3c68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   treeData: {fileID: 11400000, guid: da0272bbebb4f024dbf44616762bda5e, type: 2}
-  currentHealth: 100
+  currentHealth: 0
   hpUI: {fileID: 8277771102713642145}
   dropSpawnPoint: {fileID: 3994037168207255949}
 --- !u!1 &6370087483300836935

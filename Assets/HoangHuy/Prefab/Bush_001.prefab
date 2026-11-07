@@ -241,7 +241,7 @@ GameObject:
   - component: {fileID: 4339565291936594958}
   - component: {fileID: 922315602152749522}
   - component: {fileID: -8586105506333830056}
-  - component: {fileID: 3833988467667158258}
+  - component: {fileID: 9131433257145136173}
   m_Layer: 0
   m_Name: Bush_001
   m_TagString: Untagged
@@ -342,7 +342,7 @@ CapsuleCollider:
   m_Height: 6.4785075
   m_Direction: 1
   m_Center: {x: 0.01, y: 3.2350147, z: -0.03}
---- !u!114 &3833988467667158258
+--- !u!114 &9131433257145136173
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -351,12 +351,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 5452570388539148895}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4e8a768b0ca80448abc7535ff600035, type: 3}
+  m_Script: {fileID: 11500000, guid: 9bf4b4b8221918549b0c7236b48e3c68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   treeData: {fileID: 11400000, guid: 8e992e4ffe10dbf4f85b967a5821c6fe, type: 2}
   currentHealth: 0
-  hpUI: {fileID: 0}
+  hpUI: {fileID: 8841827115527881379}
   dropSpawnPoint: {fileID: 6920413791379671678}
 --- !u!1 &5504435969544427713
 GameObject:
