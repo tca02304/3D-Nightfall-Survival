@@ -12,5 +12,6 @@ EditorBuildSettings:
     path: Assets/Hoanng/Home/hoang.unity
     guid: cd2b725707dbfa443afa7285c28bc1ed
   m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: caf7eb72065fc9c42a06fb60286bb300, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

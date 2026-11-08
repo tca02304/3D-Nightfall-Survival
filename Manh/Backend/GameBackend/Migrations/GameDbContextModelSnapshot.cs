@@ -21,6 +21,22 @@ namespace GameBackend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("GameBackend.Models.ConsumableStat", b =>
+                {
+                    b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("HealHP")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RestoreStamina")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ItemId");
+
+                    b.ToTable("ConsumableStats");
+                });
+
             modelBuilder.Entity("GameBackend.Models.Items", b =>
                 {
                     b.Property<int>("Id")
@@ -28,6 +44,9 @@ namespace GameBackend.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BuyPrice")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -49,7 +68,7 @@ namespace GameBackend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Price")
+                    b.Property<int?>("SellPrice")
                         .HasColumnType("integer");
 
                     b.Property<string>("Type")
@@ -59,6 +78,62 @@ namespace GameBackend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Items");
+                });
+
+            modelBuilder.Entity("GameBackend.Models.Player", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("Players");
+                });
+
+            modelBuilder.Entity("GameBackend.Models.PlayerInventorySlot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SlotIndex")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("PlayerId", "SlotIndex")
+                        .IsUnique();
+
+                    b.ToTable("PlayerInventorySlots", t =>
+                        {
+                            t.HasCheckConstraint("CK_PlayerInventorySlots_Amount", "\"Amount\" > 0");
+
+                            t.HasCheckConstraint("CK_PlayerInventorySlots_SlotIndex", "\"SlotIndex\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("GameBackend.Models.ToolStat", b =>
@@ -100,6 +175,36 @@ namespace GameBackend.Migrations
                     b.ToTable("WeaponStats");
                 });
 
+            modelBuilder.Entity("GameBackend.Models.ConsumableStat", b =>
+                {
+                    b.HasOne("GameBackend.Models.Items", "Item")
+                        .WithOne("ConsumableStat")
+                        .HasForeignKey("GameBackend.Models.ConsumableStat", "ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+                });
+
+            modelBuilder.Entity("GameBackend.Models.PlayerInventorySlot", b =>
+                {
+                    b.HasOne("GameBackend.Models.Items", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GameBackend.Models.Player", "player")
+                        .WithMany("InventorySlots")
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+
+                    b.Navigation("player");
+                });
+
             modelBuilder.Entity("GameBackend.Models.ToolStat", b =>
                 {
                     b.HasOne("GameBackend.Models.Items", "Item")
@@ -124,9 +229,16 @@ namespace GameBackend.Migrations
 
             modelBuilder.Entity("GameBackend.Models.Items", b =>
                 {
+                    b.Navigation("ConsumableStat");
+
                     b.Navigation("ToolStat");
 
                     b.Navigation("WeaponStat");
+                });
+
+            modelBuilder.Entity("GameBackend.Models.Player", b =>
+                {
+                    b.Navigation("InventorySlots");
                 });
 #pragma warning restore 612, 618
         }

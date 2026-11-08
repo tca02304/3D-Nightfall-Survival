@@ -11,11 +11,13 @@
         public string Type { get; set; } = null!;
 
         public int MaxStack { get; set; }
-        public int Price { get; set; }
+        public int? BuyPrice { get; set; }
+        public int? SellPrice { get; set; }
         public bool IsActive { get; set; }
 
         public string? IconKey { get; set; }
         public WeaponStat? WeaponStat { get; set; }
         public ToolStat? ToolStat { get; set; }
+        public ConsumableStat? ConsumableStat { get; set; }
     }
 }
