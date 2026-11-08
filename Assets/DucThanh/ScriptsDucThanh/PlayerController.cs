@@ -5,7 +5,13 @@ using UnityEngine.InputSystem;
 
 namespace DucThanh
 {
+    /// <summary>
+    /// Component quản lý chuyên biệt di chuyển, nhảy, chạy nhanh (sprint),
+    /// xoay hướng và hoạt ảnh locomotion của Player.
+    /// Không chứa logic tính toán sát thương hay lượng máu.
+    /// </summary>
     [RequireComponent(typeof(CharacterController))]
+    [DisallowMultipleComponent]
     public class PlayerController : MonoBehaviour
     {
         [Header("Movement Settings")]
@@ -21,71 +27,61 @@ namespace DucThanh
         [Tooltip("Trọng lực")]
         [SerializeField] private float gravity = -19.62f;
 
-        [Header("Animation")]
+        [Header("Camera Reference")]
+        [Tooltip("Camera tham chiếu hướng di chuyển. Nếu để trống sẽ tự lấy Camera.main")]
+        [SerializeField] private Transform cameraTransform;
+
+        [Header("Animation Reference")]
         [Tooltip("Animator điều khiển hoạt ảnh nhân vật. Nếu để trống sẽ tự tìm trên chính GameObject hoặc con")]
         [SerializeField] private Animator animator;
 
-        [Header("Combat Settings")]
-        [Tooltip("Bộ giới hạn tốc độ đánh và phạm vi (Nếu để trống sẽ tự lấy trên Player)")]
-        [SerializeField] private AttackRateLimiter attackLimiter;
+        [Tooltip("Tốc độ phát của hoạt ảnh Die (mặc định 0.45f giúp ngã xuống chậm rãi, mượt mà và tự nhiên hơn)")]
+        [Range(0.1f, 1f)]
+        [SerializeField] private float deathAnimationSpeed = 0.45f;
 
-
-        [Tooltip("Lượng thể lực tiêu hao cho mỗi đòn tấn công (0 = không tốn)")]
-        [SerializeField] private float attackStaminaCost = 0f;
-
-
-        [Tooltip("Lượng sát thương gây ra mỗi đòn chém")]
-        [SerializeField] private float attackDamage = 25f;
-
-        [Tooltip("Khoảng cách tấn công")]
-        [SerializeField] private float attackRange = 2.2f;
-
-        [Tooltip("Bán kính vùng quét va chạm đòn đánh")]
-        [SerializeField] private float attackRadius = 1.2f;
-
-        [Tooltip("Độ trễ trước khi kiểm tra va chạm (khớp thời điểm tay vung đòn)")]
-        [SerializeField] private float attackHitDelay = 0.15f;
-
-        [Tooltip("LayerMask các đối tượng có thể bị tấn công")]
-        [SerializeField] private LayerMask targetLayer = ~0;
+        [Tooltip("Điểm dừng animation Die (0.5 nghĩa là chỉ chạy 50% clip ban đầu rồi giữ nguyên tư thế nằm ngã, bỏ qua nửa sau bị lỗi)")]
+        [Range(0.2f, 1f)]
+        [SerializeField] private float deathAnimationCutoff = 0.5f;
 
         private CharacterController characterController;
         private PlayerStats playerStats;
+        private PlayerCombat playerCombat;
         private Vector3 verticalVelocity;
         private Vector2 moveInput;
         private bool isSprinting;
         private bool jumpTriggered;
-        private bool attackTriggered;
-        private float attackEndTime;
-
-        [Header("Weapon & Equipment")]
-        [Tooltip("Trạng thái đã nhặt vũ khí (Katana) hay chưa")]
-        [SerializeField] private bool hasWeapon = false;
 
         public CharacterController CharacterController => characterController;
         public bool IsGrounded => characterController != null && characterController.isGrounded;
         public Vector3 Velocity => characterController != null ? characterController.velocity : Vector3.zero;
         public bool IsMoving => moveInput.sqrMagnitude > 0.01f;
         public bool IsSprinting => isSprinting;
-        public bool IsAttacking => Time.time < attackEndTime;
-        public bool HasWeapon => hasWeapon;
         public Animator Animator => animator;
 
-        public event System.Action OnAttack;
+        // Chuyển tiếp HasWeapon sang PlayerCombat để duy trì tương thích cho KatanaPickup
+        public bool HasWeapon => playerCombat != null && playerCombat.HasWeapon;
 
         public void SetHasWeapon(bool value)
         {
-            hasWeapon = value;
+            if (playerCombat == null)
+            {
+                playerCombat = GetComponent<PlayerCombat>();
+            }
+
+            if (playerCombat != null)
+            {
+                playerCombat.SetHasWeapon(value);
+            }
         }
 
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
             playerStats = GetComponent<PlayerStats>();
-            attackLimiter = GetComponent<AttackRateLimiter>();
-            if (attackLimiter == null)
+            playerCombat = GetComponent<PlayerCombat>();
+            if (playerCombat == null)
             {
-                attackLimiter = gameObject.AddComponent<AttackRateLimiter>();
+                playerCombat = gameObject.AddComponent<PlayerCombat>();
             }
 
             if (animator == null)
@@ -95,7 +91,7 @@ namespace DucThanh
 
             if (playerStats != null)
             {
-                playerStats.OnPlayerDied += StopAnimationOnDeath;
+                playerStats.OnPlayerDied += HandleDeathAnimation;
             }
         }
 
@@ -138,33 +134,90 @@ namespace DucThanh
         {
             if (playerStats != null)
             {
-                playerStats.OnPlayerDied -= StopAnimationOnDeath;
+                playerStats.OnPlayerDied -= HandleDeathAnimation;
             }
         }
 
-        private void StopAnimationOnDeath()
+        private void HandleDeathAnimation()
         {
-            attackTriggered = false;
             if (animator != null)
             {
+                // Cho phép animator chạy với tốc độ làm chậm để ngã xuống từ từ, chân thực
+                animator.speed = deathAnimationSpeed;
+
+                // Tắt UpperBody layer (layer 1) để không ghi đè chuyển động ngã toàn thân
+                if (animator.layerCount > 1)
+                {
+                    animator.SetLayerWeight(1, 0f);
+                }
+
+                animator.ResetTrigger("Attack");
+                animator.SetTrigger("Die");
+
+                // Giữ frame cuối của animation Die khi ngã xuống
+                StopAllCoroutines();
+                StartCoroutine(HoldDeathPoseRoutine());
+            }
+        }
+
+        private System.Collections.IEnumerator HoldDeathPoseRoutine()
+        {
+            if (animator == null) yield break;
+
+            // Đợi một chút để Animator kịp chuyển sang State Die
+            yield return null;
+
+            // Chờ cho animation Die chạy đến điểm cutoff (mặc định 0.5f = 50% clip ban đầu)
+            float timeout = 4.0f;
+            float elapsed = 0f;
+
+            while (elapsed < timeout)
+            {
+                if (playerStats != null && !playerStats.IsDead)
+                {
+                    // Nếu hồi sinh thì thoát và trả lại tốc độ chuẩn
+                    animator.speed = 1f;
+                    yield break;
+                }
+
+                AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+                if (stateInfo.IsName("Die"))
+                {
+                    if (stateInfo.normalizedTime >= deathAnimationCutoff)
+                    {
+                        // Khóa và giữ cố định tư thế tại đúng điểm 1/2 clip ngã xuống (bỏ qua nửa sau lỗi)
+                        animator.Play("Die", 0, deathAnimationCutoff);
+                        animator.speed = 0f;
+                        yield break;
+                    }
+                }
+
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            // Fallback an toàn nếu hết timeout: khóa tại điểm cutoff
+            if (playerStats != null && playerStats.IsDead)
+            {
+                animator.Play("Die", 0, deathAnimationCutoff);
                 animator.speed = 0f;
             }
         }
 
         private void Update()
         {
-            GatherInput();
+            GatherMovementInput();
             HandleMovement();
-            HandleAttack();
         }
 
-        private void GatherInput()
+        private void GatherMovementInput()
         {
             if (playerStats == null)
             {
                 playerStats = GetComponent<PlayerStats>();
             }
 
+            // Nếu player đã chết thì khóa toàn bộ di chuyển
             if (playerStats != null && playerStats.IsDead)
             {
                 moveInput = Vector2.zero;
@@ -199,6 +252,7 @@ namespace DucThanh
             jumpPressed = Input.GetButtonDown("Jump");
 #endif
 
+            // Fallback nếu Legacy Input đang hoạt động song song
             if (horizontal == 0f && vertical == 0f)
             {
                 try
@@ -210,7 +264,10 @@ namespace DucThanh
                     if (!jumpPressed)
                         jumpPressed = Input.GetButtonDown("Jump");
                 }
-                catch { }
+                catch
+                {
+                    // Bỏ qua nếu Legacy Input bị tắt
+                }
             }
 
             moveInput = new Vector2(horizontal, vertical).normalized;
@@ -219,36 +276,13 @@ namespace DucThanh
             {
                 jumpTriggered = true;
             }
-
-            bool attackPressed = false;
-#if ENABLE_INPUT_SYSTEM
-            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-            {
-                attackPressed = true;
-            }
-#endif
-            if (!attackPressed)
-            {
-                try
-                {
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        attackPressed = true;
-                    }
-                }
-                catch { }
-            }
-
-            if (attackPressed)
-            {
-                attackTriggered = true;
-            }
         }
 
         private void HandleMovement()
         {
             if (characterController == null) return;
 
+            // Khi player đã chết: không di chuyển ngang, chỉ chịu tác động trọng lực rơi chạm đất
             if (playerStats != null && playerStats.IsDead)
             {
                 jumpTriggered = false;
@@ -266,6 +300,7 @@ namespace DucThanh
                 return;
             }
 
+            // Kiểm tra chạm đất
             if (characterController.isGrounded)
             {
                 if (verticalVelocity.y < 0f)
@@ -280,106 +315,45 @@ namespace DucThanh
             }
             jumpTriggered = false;
 
-            // Di chuyển theo hướng nhân vật đang đứng
-            Vector3 forward = transform.forward;
-            Vector3 right = transform.right;
+            // Hướng di chuyển theo góc nhìn Camera
+            Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
+            Vector3 right = cameraTransform != null ? cameraTransform.right : Vector3.right;
+
+            forward.y = 0f;
+            right.y = 0f;
+            forward.Normalize();
+            right.Normalize();
 
             Vector3 moveDirection = (forward * moveInput.y + right * moveInput.x).normalized;
             float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
             Vector3 horizontalMove = moveDirection * currentSpeed;
 
+            // Xoay nhân vật theo hướng di chuyển
+            if (moveDirection.sqrMagnitude > 0.001f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            }
+
+            // Áp dụng trọng lực
             verticalVelocity.y += gravity * Time.deltaTime;
 
+            // Di chuyển CharacterController
             Vector3 finalMotion = (horizontalMove + verticalVelocity) * Time.deltaTime;
             characterController.Move(finalMotion);
 
             UpdateAnimation();
         }
 
-        private void HandleAttack()
-        {
-            if (!attackTriggered) return;
-            attackTriggered = false;
-
-            if (playerStats != null && playerStats.IsDead) return;
-
-            // Kiểm tra stamina nếu có chi phí đánh
-            if (attackStaminaCost > 0f && playerStats != null)
-            {
-                if (!playerStats.ConsumeStamina(attackStaminaCost))
-                {
-                    return;
-                }
-            }
-
-            if (attackLimiter != null)
-            {
-                if (!attackLimiter.TryAttack())
-                {
-                    return;
-                }
-            }
-
-            float cooldownDuration = attackLimiter != null ? attackLimiter.AttackCooldown : 0.8f;
-            attackEndTime = Time.time + cooldownDuration;
-
-            if (animator != null)
-            {
-                animator.SetTrigger("Attack");
-            }
-
-            StartCoroutine(PerformAttackHitCheck());
-
-            OnAttack?.Invoke();
-        }
-
-        private System.Collections.IEnumerator PerformAttackHitCheck()
-        {
-            if (attackHitDelay > 0f)
-            {
-                yield return new WaitForSeconds(attackHitDelay);
-            }
-
-            CheckHitAndDamageEnemies();
-        }
-
-        private void CheckHitAndDamageEnemies()
-        {
-            Vector3 origin = transform.position + Vector3.up * 1f;
-            Vector3 center = origin + transform.forward * (attackRange * 0.5f);
-
-            Collider[] hits = Physics.OverlapSphere(center, attackRadius, targetLayer);
-            foreach (var hit in hits)
-            {
-                if (hit.gameObject == gameObject) continue;
-
-                // Gửi thông báo tấn công đến target nếu có Component chịu damage
-                hit.SendMessage("TakeDamage", attackDamage, SendMessageOptions.DontRequireReceiver);
-            }
-        }
-
-        private void OnDrawGizmosSelected()
-        {
-            Vector3 origin = transform.position + Vector3.up * 1f;
-            Vector3 center = origin + transform.forward * (attackRange * 0.5f);
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(center, attackRadius);
-        }
-
         private void UpdateAnimation()
         {
             if (animator == null) return;
 
+            // Khi player đã chết: không cập nhật Speed/Grounded đè lên animation Die
             if (playerStats != null && playerStats.IsDead)
             {
-                animator.speed = 0f;
                 return;
-            }
-
-            if (animator.speed == 0f)
-            {
-                animator.speed = 1f;
             }
 
             float targetSpeed = 0f;
@@ -400,7 +374,10 @@ namespace DucThanh
         public void SpawnFx() { }
         public void UseHitbox()
         {
-            CheckHitAndDamageEnemies();
+            if (playerCombat != null)
+            {
+                playerCombat.UseHitbox();
+            }
         }
         public void LeftStep() { }
         public void RightStep() { }
