@@ -5,9 +5,10 @@ public class NavMeshEnemyAI : MonoBehaviour
 {
     public enum AIState
     {
-        Patrol, // 1. Tuần tra (Vòng tròn nhỏ khi cách player >= 50m)
-        Chase,  // 2. Truy đuổi (Chạy về phía player khi cách <= 49m)
-        Attack  // 3. Tấn công (Chạy animation attack khi chạm trigger collider / áp sát player)
+        Patrol,  // 1. Tuần tra (Vòng tròn nhỏ khi cách player >= 50m)
+        Chase,   // 2. Truy đuổi (Chạy về phía player khi cách <= 49m)
+        Attack,  // 3. Tấn công (Chạy animation attack khi chạm trigger collider / áp sát player)
+        Blocked  // 4. Bị chặn (Dốc quá cao / không có đường tới player -> đứng ở điểm gần nhất)
     }
 
     [Header("Current State")]
@@ -26,9 +27,39 @@ public class NavMeshEnemyAI : MonoBehaviour
     [Header("Chase Settings")]
     public float chaseSpeed = 5.0f;      // Tốc độ chạy truy đuổi
 
+    [Header("Terrain & Slope Settings")]
+    [Tooltip("Góc dốc tối đa quái có thể leo (độ). Dốc hơn mức này sẽ bị block.")]
+    [Range(1f, 89f)] public float maxSlopeAngle = 35f;
+    [Tooltip("Layer của Terrain / mặt đất (dùng cho Raycast kiểm tra độ dốc).")]
+    public LayerMask groundMask = ~0;
+    [Tooltip("Khoảng cách giữa các điểm lấy mẫu độ dốc dọc đường đi (m).")]
+    public float slopeSampleStep = 1.0f;
+    [Tooltip("Bán kính tìm điểm NavMesh gần Player nhất (m).")]
+    public float navSampleDistance = 3.0f;
+    [Tooltip("Bán kính mở rộng khi Player đứng ngoài NavMesh (vách dốc...) để tìm điểm gần nhất.")]
+    public float navSampleDistanceFar = 15.0f;
+    [Tooltip("Chu kỳ tính lại đường đi tới Player (giây).")]
+    public float repathInterval = 0.25f;
+    [Tooltip("Chiều cao quái bám mặt đất khi không có NavMesh (chế độ dự phòng).")]
+    public float groundOffset = 0.0f;
+
     [Header("Attack Settings")]
     public float attackCooldown = 1.0f;  // Thời gian giãn cách giữa các đòn đánh
     private float nextAttackTime = 0f;
+
+    [Header("Attack FX Settings")]
+    public GameObject fxPrefab;              // Prefab FX sinh ra mỗi lần tấn công
+    public Transform fxPoint;                // Vị trí sinh FX (miệng, móng...). Để trống = vị trí quái
+    public float fxLifeTime = 2f;            // Thời gian tự xóa FX
+    [Tooltip("Bật = FX nổ tại điểm trên người Player gần quái nhất (vị trí gây sát thương). Tắt = nổ tại Fx Point / giữa quái.")]
+    public bool spawnFxAtHitPoint = true;
+    [Tooltip("Độ cao điểm bắt đầu dò (so với chân quái) để tính điểm chạm. Nên ~ ngang miệng/móng.")]
+    public float hitOriginHeight = 1.0f;
+    [Tooltip("Đẩy FX ra khỏi bề mặt Player một chút về phía quái để không bị chìm trong model.")]
+    public float hitPointPullBack = 0.1f;
+    [Tooltip("Bật = FX chạy theo Animation Event 'SpawnFx' trong clip (đúng keyframe, mỗi lần animation chạy). Tắt = FX tự chạy khi bắt đầu đòn đánh.")]
+    public bool useAnimationEvent = true;
+    private float lastFxTime = -10f;
 
     [Header("Target & Tag")]
     public Transform playerTarget;
@@ -42,6 +73,12 @@ public class NavMeshEnemyAI : MonoBehaviour
     private Vector3 spawnPosition;
     private float patrolAngle = 0f;
     private bool isPlayerInTrigger = false;
+
+    // --- Path finding ---
+    private NavMeshPath navPath;
+    private float nextRepathTime = 0f;
+    private bool pathBlocked = false;
+    private Vector3[] debugCorners;
 
     // Animator Hash Parameters
     private static readonly int SpeedHash = Animator.StringToHash("Speed");
@@ -59,11 +96,11 @@ public class NavMeshEnemyAI : MonoBehaviour
             animator.applyRootMotion = false; // Tắt root motion để NavMesh di chuyển chuẩn
             for (int i = 1; i < animator.layerCount; i++)
             {
-                animator.SetLayerWeight(i, 1.0f); // Bật trọng số Layer trên cùng (Upper/Attack) lên 1.0
+                animator.SetLayerWeight(i, 1.0f);
             }
         }
 
-        // 2. Thêm Rigidbody Kinematic (BẮT BUỘC để Unity Physics kích hoạt sự kiện OnTriggerEnter/Stay)
+        // 2. Rigidbody Kinematic (BẮT BUỘC để Unity Physics kích hoạt OnTriggerEnter/Stay)
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb == null)
         {
@@ -83,11 +120,15 @@ public class NavMeshEnemyAI : MonoBehaviour
         {
             agent.updatePosition = true;
             agent.updateRotation = true;
-            agent.stoppingDistance = 1.2f; // Dừng lại ở khoảng cách tấn công
+            agent.stoppingDistance = 1.2f;
             agent.acceleration = 16.0f;
             agent.angularSpeed = 360.0f;
             agent.speed = chaseSpeed;
+            agent.autoRepath = true;
+            agent.areaMask = NavMesh.AllAreas;
         }
+
+        navPath = new NavMeshPath();
 
         // 4. Tự động thêm Trigger SphereCollider phát hiện va chạm với Player
         EnsureTriggerCollider();
@@ -116,11 +157,10 @@ public class NavMeshEnemyAI : MonoBehaviour
             FindPlayer();
         }
 
-        float distanceToPlayer = (playerTarget != null) 
-            ? Vector3.Distance(transform.position, playerTarget.position) 
+        float distanceToPlayer = (playerTarget != null)
+            ? Vector3.Distance(transform.position, playerTarget.position)
             : float.MaxValue;
 
-        // Trạng thái 3: Tấn công khi Trigger Collider chạm Player HOẶC khoảng cách áp sát <= attackDistance
         bool inAttackRange = isPlayerInTrigger || (distanceToPlayer <= attackDistance);
 
         if (inAttackRange && playerTarget != null)
@@ -128,20 +168,22 @@ public class NavMeshEnemyAI : MonoBehaviour
             currentState = AIState.Attack;
             PerformAttack();
         }
-        // Trạng thái 2: Player trong phạm vi <= 49m -> Truy đuổi
         else if (distanceToPlayer <= chaseDistance && playerTarget != null)
         {
-            currentState = AIState.Chase;
+            // Chase hoặc Blocked (PerformChase sẽ tự đặt currentState)
             PerformChase();
         }
-        // Trạng thái 1: Player xa >= 50m -> Tuần tra xoay tròn
         else
         {
             currentState = AIState.Patrol;
+            pathBlocked = false;
             PerformPatrol();
         }
     }
 
+    // =====================================================================
+    //  PATROL
+    // =====================================================================
     private void PerformPatrol()
     {
         patrolAngle += angularSpeed * Time.deltaTime;
@@ -152,24 +194,25 @@ public class NavMeshEnemyAI : MonoBehaviour
 
         if (agent != null && agent.isOnNavMesh)
         {
+            // Bám vào NavMesh để không đi lên chỗ dốc không đi được
+            if (NavMesh.SamplePosition(targetPos, out NavMeshHit hit, 3f, agent.areaMask))
+                targetPos = hit.position;
+
             agent.isStopped = false;
             agent.speed = patrolSpeed;
             agent.SetDestination(targetPos);
         }
         else
         {
-            Vector3 moveDir = (targetPos - transform.position).normalized;
-            moveDir.y = 0;
-            if (moveDir != Vector3.zero)
-            {
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(moveDir), Time.deltaTime * 10f);
-                transform.position += moveDir * patrolSpeed * Time.deltaTime;
-            }
+            ManualMoveOnTerrain(targetPos, patrolSpeed);
         }
 
         UpdateLocomotionAnimation(patrolSpeed);
     }
 
+    // =====================================================================
+    //  CHASE (theo địa hình + raycast/tìm đường gần nhất)
+    // =====================================================================
     private void PerformChase()
     {
         if (playerTarget == null) return;
@@ -178,47 +221,327 @@ public class NavMeshEnemyAI : MonoBehaviour
         {
             agent.isStopped = false;
             agent.speed = chaseSpeed;
-            agent.SetDestination(playerTarget.position);
+
+            // Tính lại đường đi theo chu kỳ (tránh tốn CPU khi gọi mỗi frame)
+            if (Time.time >= nextRepathTime)
+            {
+                nextRepathTime = Time.time + repathInterval;
+                EvaluateChasePath();
+            }
+
+            if (pathBlocked)
+            {
+                // Đã tới điểm gần nhất có thể tới -> đứng lại, nhìn về Player
+                bool arrived = !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.3f;
+                if (arrived)
+                {
+                    currentState = AIState.Blocked;
+                    agent.isStopped = true;
+                    agent.velocity = Vector3.zero;
+                    FaceTarget(playerTarget.position, 8f);
+                    SetIdleAnimation();
+                    return;
+                }
+            }
+
+            currentState = AIState.Chase;
+            UpdateLocomotionAnimation(chaseSpeed);
         }
         else
         {
-            Vector3 moveDir = (playerTarget.position - transform.position).normalized;
-            moveDir.y = 0;
-            if (moveDir != Vector3.zero)
+            // Không có NavMesh -> di chuyển thủ công bám Terrain + chặn dốc
+            bool moved = ManualMoveOnTerrain(playerTarget.position, chaseSpeed);
+            currentState = moved ? AIState.Chase : AIState.Blocked;
+            if (moved) UpdateLocomotionAnimation(chaseSpeed);
+            else SetIdleAnimation();
+        }
+    }
+
+    /// <summary>
+    /// 1) Raycast NavMesh thẳng tới Player -> nếu thông thì đi thẳng (đường gần nhất).
+    /// 2) Nếu bị chắn -> CalculatePath (A*) để lấy đường vòng ngắn nhất.
+    /// 3) Kiểm tra độ dốc dọc đường; gặp dốc > maxSlopeAngle thì cắt đường tại điểm an toàn cuối cùng.
+    /// 4) Không có đường -> đi tới điểm gần Player nhất có thể tới được và bị Blocked.
+    /// </summary>
+    private void EvaluateChasePath()
+    {
+        Vector3 from = transform.position;
+        pathBlocked = false;
+
+        // --- Tìm điểm trên NavMesh gần Player ---
+        Vector3 dest;
+        if (NavMesh.SamplePosition(playerTarget.position, out NavMeshHit hit, navSampleDistance, agent.areaMask))
+        {
+            dest = hit.position;
+        }
+        else if (NavMesh.SamplePosition(playerTarget.position, out hit, navSampleDistanceFar, agent.areaMask))
+        {
+            // Player đứng trên chỗ không đi được (vách dốc) -> chỉ tới được điểm gần nhất
+            dest = hit.position;
+            pathBlocked = true;
+        }
+        else
+        {
+            // Không tìm thấy gì -> đứng yên
+            pathBlocked = true;
+            debugCorners = null;
+            agent.SetDestination(from);
+            return;
+        }
+
+        // --- 1. Raycast NavMesh: đường thẳng có thông không? ---
+        Vector3[] corners;
+        if (!NavMesh.Raycast(from, dest, out NavMeshHit _, agent.areaMask))
+        {
+            corners = new Vector3[] { from, dest };
+        }
+        else
+        {
+            // --- 2. Bị chắn -> tìm đường vòng ngắn nhất ---
+            if (NavMesh.CalculatePath(from, dest, agent.areaMask, navPath) && navPath.corners.Length >= 2)
             {
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(moveDir), Time.deltaTime * 10f);
-                transform.position += moveDir * chaseSpeed * Time.deltaTime;
+                corners = navPath.corners;
+                if (navPath.status != NavMeshPathStatus.PathComplete)
+                    pathBlocked = true; // Chỉ có đường tới một phần
+            }
+            else
+            {
+                pathBlocked = true;
+                debugCorners = null;
+                agent.SetDestination(from);
+                return;
             }
         }
 
-        UpdateLocomotionAnimation(chaseSpeed);
+        // --- 3. Kiểm tra độ dốc dọc đường đi ---
+        Vector3 finalDest = corners[corners.Length - 1];
+        for (int i = 0; i < corners.Length - 1; i++)
+        {
+            if (!IsSegmentWalkable(corners[i], corners[i + 1], out Vector3 lastSafe))
+            {
+                finalDest = lastSafe;
+                pathBlocked = true;
+                // Cắt đường tại điểm an toàn cuối cùng (phục vụ vẽ Gizmo)
+                System.Array.Resize(ref corners, i + 2);
+                corners[i + 1] = lastSafe;
+                break;
+            }
+        }
+
+        debugCorners = corners;
+        agent.SetDestination(finalDest);
     }
 
+    // =====================================================================
+    //  SLOPE / TERRAIN HELPERS
+    // =====================================================================
+    /// <summary>Kiểm tra từng đoạn a->b có đoạn nào dốc hơn maxSlopeAngle không.</summary>
+    private bool IsSegmentWalkable(Vector3 a, Vector3 b, out Vector3 lastSafe)
+    {
+        float dist = Vector3.Distance(a, b);
+        int steps = Mathf.Max(1, Mathf.CeilToInt(dist / Mathf.Max(0.25f, slopeSampleStep)));
+        Vector3 prev = a;
+
+        for (int i = 1; i <= steps; i++)
+        {
+            Vector3 p = Vector3.Lerp(a, b, i / (float)steps);
+            if (GetSlopeAngle(p) > maxSlopeAngle)
+            {
+                lastSafe = prev;
+                return false;
+            }
+            prev = p;
+        }
+
+        lastSafe = b;
+        return true;
+    }
+
+    /// <summary>Lấy góc dốc (độ) tại vị trí p. Ưu tiên Terrain, nếu không có thì Raycast xuống.</summary>
+    private float GetSlopeAngle(Vector3 p)
+    {
+        if (TryGetGroundNormal(p, out Vector3 normal, out _))
+            return Vector3.Angle(normal, Vector3.up);
+        return 0f;
+    }
+
+    private bool TryGetGroundNormal(Vector3 p, out Vector3 normal, out float groundY)
+    {
+        // Ưu tiên Terrain (không bị dính collider của chính quái)
+        Terrain terrain = GetTerrainAt(p);
+        if (terrain != null)
+        {
+            TerrainData td = terrain.terrainData;
+            Vector3 local = p - terrain.transform.position;
+            float nx = Mathf.Clamp01(local.x / td.size.x);
+            float nz = Mathf.Clamp01(local.z / td.size.z);
+            normal = td.GetInterpolatedNormal(nx, nz);
+            groundY = terrain.SampleHeight(p) + terrain.transform.position.y;
+            return true;
+        }
+
+        // Không có Terrain -> Raycast xuống mặt đất (bỏ qua collider của chính quái)
+        RaycastHit[] hits = Physics.RaycastAll(p + Vector3.up * 2f, Vector3.down, 6f, groundMask, QueryTriggerInteraction.Ignore);
+        float best = float.MaxValue;
+        bool found = false;
+        normal = Vector3.up;
+        groundY = p.y;
+
+        foreach (RaycastHit h in hits)
+        {
+            if (h.transform == transform || h.transform.IsChildOf(transform)) continue;
+            if (h.distance < best)
+            {
+                best = h.distance;
+                normal = h.normal;
+                groundY = h.point.y;
+                found = true;
+            }
+        }
+        return found;
+    }
+
+    private Terrain GetTerrainAt(Vector3 p)
+    {
+        Terrain t = Terrain.activeTerrain;
+        if (t == null) return null;
+
+        Vector3 local = p - t.transform.position;
+        Vector3 size = t.terrainData.size;
+        if (local.x < 0 || local.z < 0 || local.x > size.x || local.z > size.z) return null;
+        return t;
+    }
+
+    /// <summary>
+    /// Di chuyển dự phòng khi không có NavMesh: bám mặt đất, KHÔNG đi lên dốc > maxSlopeAngle.
+    /// Trả về true nếu di chuyển được.
+    /// </summary>
+    private bool ManualMoveOnTerrain(Vector3 targetPos, float speed)
+    {
+        Vector3 dir = targetPos - transform.position;
+        dir.y = 0;
+        if (dir.sqrMagnitude < 0.0001f) return false;
+        dir.Normalize();
+
+        Vector3 next = transform.position + dir * speed * Time.deltaTime;
+
+        if (TryGetGroundNormal(next, out Vector3 normal, out float groundY))
+        {
+            if (Vector3.Angle(normal, Vector3.up) > maxSlopeAngle)
+            {
+                // Dốc quá cao -> chặn, chỉ xoay mặt
+                FaceTarget(targetPos, 10f);
+                return false;
+            }
+            next.y = groundY + groundOffset;
+        }
+
+        FaceTarget(targetPos, 10f);
+        transform.position = next;
+        return true;
+    }
+
+    private void FaceTarget(Vector3 worldPos, float turnSpeed)
+    {
+        Vector3 d = worldPos - transform.position;
+        d.y = 0;
+        if (d != Vector3.zero)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(d), Time.deltaTime * turnSpeed);
+        }
+    }
+
+    // =====================================================================
+    //  ATTACK
+    // =====================================================================
     private void PerformAttack()
     {
-        // 1. Dừng di chuyển
         if (agent != null && agent.isOnNavMesh)
         {
             agent.isStopped = true;
             agent.velocity = Vector3.zero;
         }
 
-        // 2. Quay mặt về phía Player
         if (playerTarget != null)
         {
-            Vector3 direction = (playerTarget.position - transform.position).normalized;
-            direction.y = 0;
-            if (direction != Vector3.zero)
-            {
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * 12f);
-            }
+            FaceTarget(playerTarget.position, 12f);
         }
 
-        // 3. Kích hoạt animation attack khi hết Cooldown
         if (Time.time >= nextAttackTime)
         {
             PlayAttackAnimation();
+
+            // Mỗi lần tấn công -> chạy FX (trừ khi FX do Animation Event đảm nhận)
+            if (!useAnimationEvent) SpawnFx();
+
             nextAttackTime = Time.time + attackCooldown;
+        }
+    }
+
+    /// <summary>
+    /// Sinh FX tấn công. Được gọi tự động mỗi lần đánh,
+    /// hoặc từ Animation Event tên "SpawnFx" nếu bật useAnimationEvent.
+    /// </summary>
+    public void SpawnFx()
+    {
+        if (fxPrefab == null) return;
+
+        // Chống bắn trùng (event có thể được gọi 2 lần trong lúc crossfade giữa các clip)
+        if (Time.time - lastFxTime < 0.1f) return;
+        lastFxTime = Time.time;
+
+        Vector3 pos;
+        Quaternion rot;
+        GetFxSpawnPose(out pos, out rot);
+
+        GameObject fx = Instantiate(fxPrefab, pos, rot);
+        Destroy(fx, fxLifeTime);
+    }
+
+    /// <summary>
+    /// Tính vị trí + hướng sinh FX. Nếu bật spawnFxAtHitPoint thì lấy điểm trên
+    /// collider của Player gần "nanh/móng" quái nhất (nơi thực sự gây sát thương).
+    /// </summary>
+    private void GetFxSpawnPose(out Vector3 pos, out Quaternion rot)
+    {
+        // Điểm xuất phát dò: fxPoint (miệng/móng) nếu có, không thì ngang ngực quái
+        Vector3 origin = fxPoint != null
+            ? fxPoint.position
+            : transform.position + Vector3.up * hitOriginHeight;
+
+        pos = origin;
+        rot = fxPoint != null ? fxPoint.rotation : transform.rotation;
+
+        if (!spawnFxAtHitPoint || playerTarget == null) return;
+
+        Collider col = playerTarget.GetComponentInChildren<Collider>();
+        Vector3 hitPoint;
+
+        if (col != null)
+        {
+            // bounds.ClosestPoint hoạt động với mọi loại collider (kể cả CharacterController)
+            hitPoint = col.bounds.ClosestPoint(origin);
+
+            // Origin nằm trong bounds (quá sát) -> dùng tâm Player
+            if ((hitPoint - origin).sqrMagnitude < 0.0001f)
+                hitPoint = col.bounds.center;
+        }
+        else
+        {
+            hitPoint = playerTarget.position + Vector3.up * hitOriginHeight;
+        }
+
+        // Pháp tuyến giả: hướng từ Player về phía quái
+        Vector3 toAttacker = origin - hitPoint;
+        if (toAttacker.sqrMagnitude > 0.0001f)
+        {
+            toAttacker.Normalize();
+            pos = hitPoint + toAttacker * hitPointPullBack; // đẩy ra khỏi bề mặt một chút
+            rot = Quaternion.LookRotation(toAttacker);      // FX hướng về phía quái (như máu bắn ra ngoài)
+        }
+        else
+        {
+            pos = hitPoint;
         }
     }
 
@@ -226,7 +549,6 @@ public class NavMeshEnemyAI : MonoBehaviour
     {
         if (animator == null) return;
 
-        // Đảm bảo bật Layer Weight cho các layer trên cùng (Upper/Attack)
         for (int i = 1; i < animator.layerCount; i++)
         {
             animator.SetLayerWeight(i, 1.0f);
@@ -235,12 +557,10 @@ public class NavMeshEnemyAI : MonoBehaviour
         if (HasParameter(IsRunningHash)) animator.SetBool(IsRunningHash, false);
         if (HasParameter(SpeedHash)) animator.SetFloat(SpeedHash, 0f);
 
-        // Kích hoạt triggers
         if (HasParameter(AttackTriggerHash)) animator.SetTrigger(AttackTriggerHash);
         if (HasParameter(MeleeTriggerHash)) animator.SetTrigger(MeleeTriggerHash);
         if (HasParameter(BiteTriggerHash)) animator.SetTrigger(BiteTriggerHash);
 
-        // Danh sách các state tấn công trong AnimatorController của Goblin, Wolf, LilDave
         string[] attackStateNames = new string[] {
             "GoblinMelee",   // Goblin
             "WolfAttack",    // Wolf
@@ -251,7 +571,6 @@ public class NavMeshEnemyAI : MonoBehaviour
         };
 
         bool played = false;
-        // Quét trên tất cả các layer để phát animation
         for (int layer = 0; layer < animator.layerCount; layer++)
         {
             foreach (string stName in attackStateNames)
@@ -267,7 +586,6 @@ public class NavMeshEnemyAI : MonoBehaviour
             if (played) break;
         }
 
-        // Nếu chưa phát được, thử Play trực tiếp state name đầu tiên tìm thấy
         if (!played)
         {
             foreach (string stName in attackStateNames)
@@ -282,12 +600,24 @@ public class NavMeshEnemyAI : MonoBehaviour
         }
     }
 
+    // =====================================================================
+    //  ANIMATION
+    // =====================================================================
     private void UpdateLocomotionAnimation(float currentSpeed)
     {
         if (animator != null)
         {
             if (HasParameter(IsRunningHash)) animator.SetBool(IsRunningHash, true);
             if (HasParameter(SpeedHash)) animator.SetFloat(SpeedHash, currentSpeed);
+        }
+    }
+
+    private void SetIdleAnimation()
+    {
+        if (animator != null)
+        {
+            if (HasParameter(IsRunningHash)) animator.SetBool(IsRunningHash, false);
+            if (HasParameter(SpeedHash)) animator.SetFloat(SpeedHash, 0f);
         }
     }
 
@@ -301,6 +631,9 @@ public class NavMeshEnemyAI : MonoBehaviour
         return false;
     }
 
+    // =====================================================================
+    //  PLAYER FINDING & TRIGGERS
+    // =====================================================================
     private void FindPlayer()
     {
         GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
@@ -314,7 +647,7 @@ public class NavMeshEnemyAI : MonoBehaviour
             playerTarget = playerObj.transform;
             if (!playerObj.CompareTag(playerTag))
             {
-                try { playerObj.tag = playerTag; } catch {}
+                try { playerObj.tag = playerTag; } catch { }
             }
         }
     }
@@ -337,7 +670,6 @@ public class NavMeshEnemyAI : MonoBehaviour
         triggerCol.center = new Vector3(0, 1.0f, 0);
     }
 
-    // --- XỬ LÝ VA CHẠM TRIGGER VÀ COLLISION VỚI PLAYER ---
     private void OnTriggerEnter(Collider other)
     {
         if (IsPlayerCollider(other)) isPlayerInTrigger = true;
@@ -377,22 +709,32 @@ public class NavMeshEnemyAI : MonoBehaviour
         return false;
     }
 
+    // =====================================================================
+    //  GIZMOS
+    // =====================================================================
     private void OnDrawGizmosSelected()
     {
-        // 1. Phạm vi Tuần tra (Vàng) >= 50m
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, patrolDistance);
 
-        // 2. Phạm vi Truy đuổi (Đỏ) <= 49m
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, chaseDistance);
 
-        // 3. Phạm vi Tấn công (Tím) <= 2.2m
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, attackDistance);
 
-        // 4. Đường tròn tuần tra (Xanh lá)
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(Application.isPlaying ? spawnPosition : transform.position, patrolRadius);
+
+        // Đường đi đang truy đuổi (Xanh lơ = thông, Cam = bị chặn)
+        if (debugCorners != null && debugCorners.Length >= 2)
+        {
+            Gizmos.color = pathBlocked ? new Color(1f, 0.5f, 0f) : Color.cyan;
+            for (int i = 0; i < debugCorners.Length - 1; i++)
+            {
+                Gizmos.DrawLine(debugCorners[i] + Vector3.up * 0.2f, debugCorners[i + 1] + Vector3.up * 0.2f);
+                Gizmos.DrawSphere(debugCorners[i + 1] + Vector3.up * 0.2f, 0.2f);
+            }
+        }
     }
 }
