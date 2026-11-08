@@ -180,6 +180,42 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c631077cd73e1de4c9fa20f36a7154be, type: 3}
+--- !u!1 &102392304 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3017537088126826170, guid: c631077cd73e1de4c9fa20f36a7154be, type: 3}
+  m_PrefabInstance: {fileID: 102392303}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &170315434
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 170315435}
+  m_Layer: 0
+  m_Name: SpawnZone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &170315435
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 170315434}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 773.7924, y: 143.2, z: 774.2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &359559661
 GameObject:
   m_ObjectHideFlags: 0
@@ -388,7 +424,7 @@ Transform:
   m_GameObject: {fileID: 837349824}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 756.324, y: 101.984, z: 573.52}
+  m_LocalPosition: {x: 773.7924, y: 143.2, z: 436.8}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -449,6 +485,14 @@ PrefabInstance:
     - target: {fileID: 4843524868254211946, guid: 0b7c39db641be5044ab85ba9f56a629a, type: 3}
       propertyPath: m_Name
       value: SM_Rocks_01
+      objectReference: {fileID: 0}
+    - target: {fileID: 5353305776107469943, guid: 0b7c39db641be5044ab85ba9f56a629a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5585120622457861077, guid: 0b7c39db641be5044ab85ba9f56a629a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7346818648503330275, guid: 0b7c39db641be5044ab85ba9f56a629a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -511,7 +555,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1648548737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -521,19 +565,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 1648548736}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2799c5faf13a36d46b348b6d172b5233, type: 3}
+  m_Script: {fileID: 11500000, guid: 8a671ade79d13e34cbec11d92aa509d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   terrain: {fileID: 1922074806}
   treePrefabs:
-  - {fileID: 5172779862636978998, guid: 66abe782235e73948a344f1742a3facb, type: 3}
-  - {fileID: 5452570388539148895, guid: 9de01b87804adf04fb9701e36d8cef18, type: 3}
-  - {fileID: 3017537088126826170, guid: c631077cd73e1de4c9fa20f36a7154be, type: 3}
-  - {fileID: 9049249026398150631, guid: 9efd7882624f44f49a7465792a81c83e, type: 3}
-  - {fileID: 4843524868254211946, guid: 0b7c39db641be5044ab85ba9f56a629a, type: 3}
-  - {fileID: 7105557981267009923, guid: 8b2f7789077f69f458e3919626d6ea22, type: 3}
+  - {fileID: 102392304}
+  centerPoint: {fileID: 170315435}
+  spawnRadius: 100.6
   numberOfTrees: 100
-  groundLayer:
+  groundLayers:
+    serializedVersion: 2
     m_Bits: 8
 --- !u!4 &1648548738
 Transform:
@@ -562,9 +604,9 @@ GameObject:
   - component: {fileID: 1922074806}
   - component: {fileID: 1922074805}
   - component: {fileID: 1922074808}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Terrain
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -749,6 +791,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1230199593572546637, guid: 779d7510b161e364393ef249911d640a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1475244732079135290, guid: 779d7510b161e364393ef249911d640a, type: 3}
       propertyPath: m_Name
       value: Coal
@@ -810,3 +856,4 @@ SceneRoots:
   - {fileID: 1327444425}
   - {fileID: 7588765584746440933}
   - {fileID: 2003902772}
+  - {fileID: 170315435}
