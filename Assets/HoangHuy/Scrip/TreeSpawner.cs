@@ -15,6 +15,21 @@ public class TreeSpawner : MonoBehaviour
     public int numberOfTrees = 100;
     public LayerMask groundLayers;
 
+    private void OnDrawGizmosSelected()
+    {
+        // Xác định tâm (nếu có centerPoint thì lấy, không thì lấy vị trí hiện tại)
+        Vector3 spawnCenter = centerPoint != null ? centerPoint.position : transform.position;
+
+        // Đặt màu cho khung vẽ (Ví dụ: Màu xanh lá)
+        Gizmos.color = Color.green;
+
+        // Vẽ một hình cầu dạng lưới (WireSphere) thể hiện bán kính spawn
+        Gizmos.DrawWireSphere(spawnCenter, spawnRadius);
+
+        // Hoặc nếu là dạng hình hộp (Box), bạn có thể dùng:
+        // Gizmos.DrawWireCube(spawnCenter, new Vector3(width, height, length));
+    }
+
     void Start()
     {
         SpawnTrees();
