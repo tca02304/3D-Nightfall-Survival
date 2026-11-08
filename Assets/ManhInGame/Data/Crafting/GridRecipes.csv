@@ -1,0 +1,20 @@
+recipeId,displayName,station,outputCode,outputAmount,grid
+bark,Bark,BasicWorkbench,bark,5,.|.|.|.|wood:1|.|.|.|.
+wood_axe,Wood Axe,BasicWorkbench,wood_axe,1,wood:1|wood:1|.|wood:1|bark:1|.|.|bark:1|.
+wood_pickaxe,Wood Pickaxe,BasicWorkbench,wood_pickaxe,1,wood:1|wood:1|wood:1|.|bark:1|.|.|bark:1|.
+steel_axe,Steel Axe,AdvancedWorkbench,steel_axe,1,iron_bar:1|iron_bar:1|.|iron_bar:1|wood_birch:1|.|.|wood_birch:1|.
+steel_pickaxe,Steel Pickaxe,AdvancedWorkbench,steel_pickaxe,1,iron_bar:1|iron_bar:1|iron_bar:1|.|wood_birch:1|.|.|wood_birch:1|.
+gold_axe,Gold Axe,AdvancedWorkbench,gold_axe,1,gold_bar:1|gold_bar:1|.|gold_bar:1|wood:1|.|.|wood:1|.
+gold_pickaxe,Gold Pickaxe,AdvancedWorkbench,gold_pickaxe,1,gold_bar:1|gold_bar:1|gold_bar:1|.|wood:1|.|.|wood:1|.
+mithril_axe,Mithril Axe,AdvancedWorkbench,mithril_axe,1,mithril_bar:1|mithril_bar:1|.|mithril_bar:1|wood_fir:1|.|.|wood_fir:1|.
+mithril_pickaxe,Mithril Pickaxe,AdvancedWorkbench,mithril_pickaxe,1,mithril_bar:1|mithril_bar:1|mithril_bar:1|.|wood_fir:1|.|.|wood_fir:1|.
+adamantite_axe,Adamantite Axe,AdvancedWorkbench,adamantite_axe,1,adamantite_bar:1|adamantite_bar:1|.|adamantite_bar:1|wood_oak:1|.|.|wood_oak:1|.
+adamantite_pickaxe,Adamantite Pickaxe,AdvancedWorkbench,adamantite_pickaxe,1,adamantite_bar:1|adamantite_bar:1|adamantite_bar:1|.|wood_oak:1|.|.|wood_oak:1|.
+steel_sword,Steel Sword,AdvancedWorkbench,steel_sword,1,.|iron_bar:1|.|.|iron_bar:1|.|.|wood_birch:1|.
+gold_sword,Gold Sword,AdvancedWorkbench,gold_sword,1,.|gold_bar:1|.|.|gold_bar:1|.|.|wood:1|.
+mithril_sword,Mithril Sword,AdvancedWorkbench,mithril_sword,1,.|mithril_bar:1|.|.|mithril_bar:1|.|.|wood_fir:1|.
+adamantite_sword,Adamantite Sword,AdvancedWorkbench,adamantite_sword,1,.|adamantite_bar:1|.|.|adamantite_bar:1|.|.|wood_oak:1|.
+obanium_sword,Obanium Sword,AdvancedWorkbench,obanium_sword,1,.|obanium_bar:1|.|.|obanium_bar:1|.|.|wood_dark_oak:1|.
+night_blade,Night Blade,AdvancedWorkbench,night_blade,1,obanium_bar:1|black_shard:1|obanium_bar:1|.|obanium_bar:1|.|.|wood_dark_oak:1|.
+wood_bow,Wood Bow,BasicWorkbench,wood_bow,1,wood:1|.|rope:1|wood:1|.|rope:1|wood:1|.|rope:1
+rope,Rope,BasicWorkbench,rope,2,wheat:1|.|bark:1|wheat:1|.|bark:1|wheat:1|.|bark:1

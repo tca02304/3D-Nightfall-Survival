@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -21,6 +20,9 @@ public class InventoryAPI : MonoBehaviour
     [Header("Auto Save")]
     [SerializeField] private float saveDelay = 0.5f;
 
+    [Header("Dependencies")]
+    [SerializeField] private ItemAPI itemAPI;
+
     private bool isLoaded;
     private bool isApplyingLoad;
     private bool isSubscribed;
@@ -34,15 +36,33 @@ public class InventoryAPI : MonoBehaviour
     {
         if (!loadOnStart)
         {
-            Debug.LogWarning("[InventoryAPI] Auto Save requires initial load");
+            Debug.LogWarning("[InventoryAPI] Load On Start disabled");
             yield break;
         }
 
-        while (ItemDatabase.Instance == null ||
-            InventoryManager.Instance == null)
+        while (InventoryManager.Instance == null ||
+               ItemDatabase.Instance == null)
         {
             yield return null;
         }
+
+        if (itemAPI == null)
+            itemAPI = GetComponent<ItemAPI>();
+
+        if (itemAPI == null)
+        {
+            Debug.LogError("[InventoryAPI] ItemAPI not found");
+            yield break;
+        }
+
+        Debug.Log("[InventoryAPI] Waiting for ItemAPI...");
+
+        while (!itemAPI.IsLoaded)
+        {
+            yield return null;
+        }
+
+        Debug.Log("[InventoryAPI] ItemAPI ready. Loading inventory...");
 
         yield return StartCoroutine(GetInventory());
 
@@ -146,6 +166,25 @@ public class InventoryAPI : MonoBehaviour
             yield break;
         }
 
+        if (itemAPI == null)
+        {
+            itemAPI = GetComponent<ItemAPI>();
+        }
+
+        if (itemAPI == null)
+        {
+            Debug.LogError("[InventoryAPI] ItemAPI reference is missing.");
+            yield break;
+        }
+
+        if (!itemAPI.IsLoaded)
+        {
+            Debug.LogWarning(
+                "[InventoryAPI] Cannot load Inventory: ItemAPI is not ready."
+            );
+            yield break;
+        }
+
         string url = $"{apiUrl}/{playerId}";
 
         using UnityWebRequest request =
@@ -206,7 +245,12 @@ public class InventoryAPI : MonoBehaviour
         if (!loaded)
         {
             Debug.LogError(
-                "[InventoryAPI] Failed to apply inventory");
+                $"[InventoryAPI] Failed to apply inventory. " +
+                $"PlayerId={playerId}, " +
+                $"ReceivedSlots={response.data.Length}, " +
+                $"ItemAPIReady={(itemAPI != null && itemAPI.IsLoaded)}"
+            );
+
             yield break;
         }
 

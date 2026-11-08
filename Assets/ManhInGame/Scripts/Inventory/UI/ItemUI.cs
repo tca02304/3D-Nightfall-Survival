@@ -17,6 +17,13 @@ public class ItemUI : MonoBehaviour
 
         Sprite icon = ItemDatabase.Instance.GetIconByKey(item.iconKey);
 
+        if (icon == null)
+        {
+            Debug.LogWarning(
+                $"[ItemUI] Missing icon: Item={item.itemCode}, IconKey={item.iconKey}"
+            );
+        }
+
         itemIcon.sprite = icon;
         itemIcon.color = Color.white;
         itemIcon.enabled = icon != null;
