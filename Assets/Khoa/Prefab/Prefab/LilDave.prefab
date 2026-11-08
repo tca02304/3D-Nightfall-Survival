@@ -106,7 +106,6 @@ GameObject:
   - component: {fileID: 3748603922248222431}
   - component: {fileID: 8097159341790110211}
   - component: {fileID: 1913734637928690202}
-  - component: {fileID: 8033270458842522008}
   - component: {fileID: 9082997998224518711}
   m_Layer: 13
   m_Name: LilDave
@@ -175,29 +174,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &8033270458842522008
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1408715526692010511}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f607182930415263748596, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentState: 0
-  patrolDistance: 50
-  chaseDistance: 49
-  patrolRadius: 5
-  patrolSpeed: 2.5
-  angularSpeed: 1
-  chaseSpeed: 5
-  attackCooldown: 1.2
-  playerTarget: {fileID: 0}
-  playerTag: Player
-  triggerRadius: 2
 --- !u!135 &9082997998224518711
 SphereCollider:
   m_ObjectHideFlags: 0
