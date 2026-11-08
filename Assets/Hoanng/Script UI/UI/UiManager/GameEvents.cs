@@ -64,4 +64,7 @@ public static class GameEvents
 
     // Thông báo khi Wave kết thúc (dọn sạch quái)
     public static Action OnWaveEnded;
+
+    // Yêu cầu bật màn hình Settings (dùng khi chuyển từ Home sang SPLASH)
+    public static System.Action OnRequestSettingsUI;
 }

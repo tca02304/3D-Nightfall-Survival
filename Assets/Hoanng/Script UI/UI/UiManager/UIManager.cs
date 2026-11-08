@@ -23,7 +23,19 @@ public class UIManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    // --- MẪU CHUẨN 3 BƯỚC CHO OBSERVER PATTERN ---
 
+    private void OnEnable()
+    {
+        // 1. Đăng ký (Subscribe): Lắng nghe tín hiệu từ Scene Home Menu
+        GameEvents.OnRequestSettingsUI += ShowSetting;
+    }
+
+    private void OnDisable()
+    {
+        // 2. Hủy đăng ký (Unsubscribe): Tránh lỗi Memory Leak
+        GameEvents.OnRequestSettingsUI -= ShowSetting;
+    }
     private void Update()
     {
         // Bật/tắt Inventory bằng phím I hoặc Tab
@@ -54,9 +66,15 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    // 3. Xử lý (Notify): Đánh thức UiSetting dậy
     public void ShowSetting()
     {
-        if (uiSetting != null) uiSetting.Show();
+        if (uiSetting != null)
+        {
+            // Bật GameObject chứa UiSetting lên (dù trước đó nó đang tắt dấu tích)
+            uiSetting.gameObject.SetActive(true);
+            uiSetting.Show();
+        }
     }
 
     public void HideSetting()
