@@ -5,19 +5,16 @@ namespace DucThanh
 {
     /// <summary>
     /// Component độc lập chuyên tính toán và gây sát thương từ Enemy lên Player.
-    /// - Không yêu cầu phải đúng góc trước mặt: chỉ cần trúng Player (qua trigger/khoảng cách) là tính damage.
+    /// - Sát thương cố định chuẩn xác theo ngày (đã bỏ tính năng random dame dao động).
+    /// - Tự động đồng bộ với EnemyStats nếu có.
     /// - Khi Player hết máu (CurrentHealth <= 0 hoặc IsDead), Enemy lập tức ngừng đánh.
     /// </summary>
     [DisallowMultipleComponent]
     public class EnemyDamageDealer : MonoBehaviour
     {
         [Header("Damage Settings (Chỉ số sát thương)")]
-        [Tooltip("Lượng sát thương gây lên Player mỗi đòn đánh")]
+        [Tooltip("Lượng sát thương gây lên Player mỗi đòn đánh (sát thương chuẩn theo ngày)")]
         [SerializeField] private float baseDamage = 15f;
-
-        [Tooltip("Tỉ lệ sát thương ngẫu nhiên dao động (ví dụ: 0.1 nghĩa là ±10% damage, 0 = cố định)")]
-        [Range(0f, 0.5f)]
-        [SerializeField] private float damageVariance = 0.1f;
 
         [Header("Attack Timing (Nhịp đánh)")]
         [Tooltip("Thời gian giãn cách tối thiểu giữa 2 lần gây sát thương (giây)")]
@@ -44,6 +41,7 @@ namespace DucThanh
 
         private Transform playerTransform;
         private PlayerStats playerStats;
+        private EnemyStats enemyStats;
         private float nextDamageAllowedTime = 0f;
         private bool isPlayerInContact = false;
 
@@ -57,6 +55,15 @@ namespace DucThanh
         /// Kiểm tra nhanh Player còn sống và có máu > 0 không
         /// </summary>
         public bool IsPlayerAlive => playerStats != null && !playerStats.IsDead && playerStats.CurrentHealth > 0f;
+
+        private void Awake()
+        {
+            enemyStats = GetComponent<EnemyStats>();
+            if (enemyStats != null)
+            {
+                baseDamage = enemyStats.CurrentDamage;
+            }
+        }
 
         private void Start()
         {
@@ -73,7 +80,9 @@ namespace DucThanh
                 if (playerTransform == null || playerStats == null) return;
             }
 
-            // Không chặn dừng đánh khi Player hết máu
+            // Nếu Player đã chết thì dừng đánh ngay
+            if (!IsPlayerAlive) return;
+
             float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
             bool inRange = isPlayerInContact || (distanceToPlayer <= maxAttackRange);
 
@@ -97,7 +106,7 @@ namespace DucThanh
         {
             yield return new WaitForSeconds(delay);
 
-            if (playerTransform != null)
+            if (playerTransform != null && IsPlayerAlive)
             {
                 float dist = Vector3.Distance(transform.position, playerTransform.position);
                 if (dist <= maxAttackRange * 1.35f || isPlayerInContact)
@@ -108,10 +117,19 @@ namespace DucThanh
         }
 
         /// <summary>
+        /// Cập nhật sát thương gốc (thường được gọi bởi EnemyStats khi qua ngày mới)
+        /// </summary>
+        public void SetBaseDamage(float newDamage)
+        {
+            baseDamage = Mathf.Max(1f, newDamage);
+        }
+
+        /// <summary>
         /// Hàm có thể gọi từ Animation Event hoặc trigger của quái
         /// </summary>
         public void DealDamageToPlayer()
         {
+            if (!IsPlayerAlive) return;
             if (Time.time < nextDamageAllowedTime) return;
 
             ExecuteDamage();
@@ -119,11 +137,11 @@ namespace DucThanh
         }
 
         /// <summary>
-        /// Thực hiện trừ máu Player
+        /// Thực hiện trừ máu Player với sát thương chuẩn xác (không random)
         /// </summary>
         private void ExecuteDamage()
         {
-            if (playerStats == null) return;
+            if (playerStats == null || !IsPlayerAlive) return;
 
             float calculatedDamage = CalculateDamage(baseDamage);
             playerStats.ModifyHealth(-calculatedDamage);
@@ -133,16 +151,10 @@ namespace DucThanh
         }
 
         /// <summary>
-        /// Công thức tính toán sát thương: Dao động ngẫu nhiên và trừ giáp nếu có
+        /// Tính toán sát thương cố định chuẩn xác theo ngày (không còn yếu tố ngẫu nhiên dao động)
         /// </summary>
         public float CalculateDamage(float rawDamage)
         {
-            if (damageVariance > 0f)
-            {
-                float randomFactor = UnityEngine.Random.Range(1f - damageVariance, 1f + damageVariance);
-                rawDamage *= randomFactor;
-            }
-
             if (useArmorMitigation && targetArmor > 0f)
             {
                 float mitigation = 100f / (100f + targetArmor);
