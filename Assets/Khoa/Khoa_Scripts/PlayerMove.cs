@@ -11,7 +11,7 @@ using UnityEngine.InputSystem;
 namespace DucThanh
 {
     [RequireComponent(typeof(CharacterController))]
-    public class PlayerController : MonoBehaviour
+    public class PlayerMove : MonoBehaviour
     {
         // =========================================================
         // MOVEMENT SETTINGS

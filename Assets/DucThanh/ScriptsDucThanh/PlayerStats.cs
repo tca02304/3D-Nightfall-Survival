@@ -28,7 +28,7 @@ namespace DucThanh
         private float staminaCooldownTimer = 0f;
 #pragma warning restore 0414, 0169
 
-        private PlayerController playerController;
+        private PlayerMove playerController;
         private bool isDead = false;
 
         // Getters
@@ -53,7 +53,7 @@ namespace DucThanh
 
         private void Awake()
         {
-            playerController = GetComponent<PlayerController>();
+            playerController = GetComponent<PlayerMove>();
 
             currentHealth = maxHealth;
             currentHunger = maxHunger;
