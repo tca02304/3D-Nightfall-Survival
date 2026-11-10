@@ -33,7 +33,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4876982490519927339}
-  - {fileID: 6212829132209144513}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8674937755378287005
@@ -51,7 +50,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5974562507003098039}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -239,65 +238,3 @@ MonoBehaviour:
   - You have proven that you can survive.
   - But your journey has only just begun.
   - There are more dangerous things waiting beyond these lands.
---- !u!1001 &4415335203017313680
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 3483657533935082445}
-    m_Modifications:
-    - target: {fileID: 6932689609850213867, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
-      propertyPath: m_Name
-      value: Ashigaru
-      objectReference: {fileID: 0}
-    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
---- !u!4 &6212829132209144513 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
-  m_PrefabInstance: {fileID: 4415335203017313680}
-  m_PrefabAsset: {fileID: 0}
