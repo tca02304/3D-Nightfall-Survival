@@ -7,8 +7,6 @@ namespace DucThanh
         [Header("Health Settings")]
         [SerializeField] private float maxHealth = 100f;
         [SerializeField] private float currentHealth;
-        [Tooltip("Thời gian chờ trước khi Destroy Player sau khi hết máu")]
-        [SerializeField] private float destroyDelayOnDeath = 2.0f;
 
 #pragma warning disable 0414, 0169
         [Header("Hunger Settings")]
@@ -22,18 +20,18 @@ namespace DucThanh
         [SerializeField] private float maxStamina = 100f;
         [SerializeField] private float currentStamina;
         [SerializeField] private float walkDrainRate = 1.5f;
-        [SerializeField] private float sprintDrainRate = 12f;
-        [SerializeField] private float staminaRegenRate = 8f;
-        [SerializeField] private float regenDelay = 1.5f;
+        [SerializeField] private float sprintDrainRate = 15f;
+        [SerializeField] private float staminaRegenRate = 10f;
+        [SerializeField] private float regenDelay = 1.0f;
 
         private float hungerTimer = 0f;
         private float staminaCooldownTimer = 0f;
 #pragma warning restore 0414, 0169
 
-        private PlayerMove playerController;
+        // Sử dụng PlayerController theo cấu hình của bạn
+        private PlayerController playerController;
         private bool isDead = false;
 
-        // Getters
         public float MaxHealth => maxHealth;
         public float CurrentHealth => currentHealth;
         public float HealthPercent => Mathf.Clamp01(currentHealth / maxHealth);
@@ -46,16 +44,15 @@ namespace DucThanh
         public float CurrentStamina => currentStamina;
         public float StaminaPercent => Mathf.Clamp01(currentStamina / maxStamina);
 
-        public bool CanSprint => !isDead;
+        public bool CanSprint => !isDead && currentStamina > 0.1f;
         public bool IsDead => isDead;
 
-        // Events
         public event System.Action OnPlayerDied;
         public event System.Action OnStatsChanged;
 
         private void Awake()
         {
-            playerController = GetComponent<PlayerMove>();
+            playerController = GetComponent<PlayerController>();
 
             currentHealth = maxHealth;
             currentHunger = maxHunger;
@@ -65,7 +62,49 @@ namespace DucThanh
 
         private void Start()
         {
+            if (playerController == null)
+            {
+                playerController = GetComponentInParent<PlayerController>();
+            }
+
+            if (playerController == null)
+            {
+                Debug.LogError("<color=red>[PlayerStats] KHÔNG TÌM THẤY PlayerController trên GameObject này!</color>");
+            }
+
             OnStatsChanged?.Invoke();
+        }
+
+        private void Update()
+        {
+            if (isDead) return;
+            HandleStaminaLogic();
+        }
+
+        private void HandleStaminaLogic()
+        {
+            if (playerController == null) return;
+
+            // Kiểm tra PlayerController đang di chuyển VÀ đang bấm Sprint
+            if (playerController.IsMoving && playerController.IsSprinting)
+            {
+                currentStamina = Mathf.Clamp(currentStamina - sprintDrainRate * Time.deltaTime, 0f, maxStamina);
+                staminaCooldownTimer = regenDelay;
+                OnStatsChanged?.Invoke();
+            }
+            else
+            {
+                // Tự hồi thể lực khi nhả phím chạy / đứng yên
+                if (staminaCooldownTimer > 0)
+                {
+                    staminaCooldownTimer -= Time.deltaTime;
+                }
+                else if (currentStamina < maxStamina)
+                {
+                    currentStamina = Mathf.Clamp(currentStamina + staminaRegenRate * Time.deltaTime, 0f, maxStamina);
+                    OnStatsChanged?.Invoke();
+                }
+            }
         }
 
         public void ModifyHealth(float amount)
@@ -74,15 +113,6 @@ namespace DucThanh
 
             currentHealth = Mathf.Clamp(currentHealth + amount, 0f, maxHealth);
             OnStatsChanged?.Invoke();
-
-            if (amount < 0f)
-            {
-                Debug.Log($"<color=red><b>[Player Health]</b> Player bị đánh trúng! Mất {-amount:F1} máu. <b>Máu hiện tại: {currentHealth:F0} / {maxHealth:F0} HP</b></color>");
-            }
-            else if (amount > 0f)
-            {
-                Debug.Log($"<color=green><b>[Player Health]</b> Player được hồi {amount:F1} máu. Máu hiện tại: {currentHealth:F0} / {maxHealth:F0} HP</color>");
-            }
 
             if (!isDead && currentHealth <= 0f)
             {
@@ -129,18 +159,15 @@ namespace DucThanh
         {
             isDead = true;
             currentHealth = 0f;
-            Debug.Log("<color=red><b>[Player] Player đã chết! Quái ngừng tấn công, hủy Player sau 2s.</b></color>");
+            Debug.Log("<color=red><b>[Player] Player đã chết!</b></color>");
+            OnStatsChanged?.Invoke();
             OnPlayerDied?.Invoke();
-
-            // Destroy Player sau 2 giây
-            Destroy(gameObject, destroyDelayOnDeath);
         }
 
         public void Revive(float healthPercent = 1f)
         {
             isDead = false;
             currentHealth = Mathf.Clamp(maxHealth * healthPercent, 1f, maxHealth);
-            Debug.Log($"[Player] Player đã hồi sinh với {currentHealth} máu!");
             OnStatsChanged?.Invoke();
         }
     }

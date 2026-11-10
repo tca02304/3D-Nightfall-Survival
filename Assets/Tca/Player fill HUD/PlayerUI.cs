@@ -4,9 +4,6 @@ using TMPro;
 
 namespace DucThanh
 {
-    /// <summary>
-    /// Component quản lý hiển thị các thanh chỉ số Health, Hunger, Stamina trên UI.
-    /// </summary>
     public class PlayerUI : MonoBehaviour
     {
         [Header("Player Reference")]
@@ -25,7 +22,6 @@ namespace DucThanh
         [SerializeField] private TextMeshProUGUI staminaText;
 
         [Header("Settings")]
-        [Tooltip("Tốc độ làm mượt thanh chỉ số (Lerp speed)")]
         [SerializeField] private float smoothSpeed = 10f;
 
         private void Start()
@@ -35,11 +31,14 @@ namespace DucThanh
                 playerStats = FindAnyObjectByType<PlayerStats>();
             }
 
-            // Đăng ký sự kiện cập nhật ngay lập tức khi thay đổi chỉ số
             if (playerStats != null)
             {
                 playerStats.OnStatsChanged += UpdateUI;
                 UpdateUI();
+            }
+            else
+            {
+                Debug.LogError("<color=red>[PlayerUI] Không tìm thấy PlayerStats trong Scene!</color>");
             }
         }
 
@@ -55,36 +54,24 @@ namespace DucThanh
         {
             if (playerStats == null) return;
 
-            // Làm mượt fillAmount của thanh UI theo thời gian
+            // Làm mượt fillAmount của các thanh UI theo thời gian thực
             if (healthFillImage != null)
-            {
                 healthFillImage.fillAmount = Mathf.Lerp(healthFillImage.fillAmount, playerStats.HealthPercent, Time.deltaTime * smoothSpeed);
-            }
 
             if (hungerFillImage != null)
-            {
                 hungerFillImage.fillAmount = Mathf.Lerp(hungerFillImage.fillAmount, playerStats.HungerPercent, Time.deltaTime * smoothSpeed);
-            }
 
             if (staminaFillImage != null)
-            {
                 staminaFillImage.fillAmount = Mathf.Lerp(staminaFillImage.fillAmount, playerStats.StaminaPercent, Time.deltaTime * smoothSpeed);
-            }
         }
 
         public void UpdateUI()
         {
             if (playerStats == null) return;
 
-            // Cập nhật nội dung Text (100/100)
-            if (healthText != null)
-                healthText.text = $"{Mathf.CeilToInt(playerStats.CurrentHealth)}/{Mathf.CeilToInt(playerStats.MaxHealth)}";
-
-            if (hungerText != null)
-                hungerText.text = $"{Mathf.CeilToInt(playerStats.CurrentHunger)}/{Mathf.CeilToInt(playerStats.MaxHunger)}";
-
-            if (staminaText != null)
-                staminaText.text = $"{Mathf.CeilToInt(playerStats.CurrentStamina)}/{Mathf.CeilToInt(playerStats.MaxStamina)}";
+            if (healthText != null) healthText.text = $"{Mathf.CeilToInt(playerStats.CurrentHealth)}/{Mathf.CeilToInt(playerStats.MaxHealth)}";
+            if (hungerText != null) hungerText.text = $"{Mathf.CeilToInt(playerStats.CurrentHunger)}/{Mathf.CeilToInt(playerStats.MaxHunger)}";
+            if (staminaText != null) staminaText.text = $"{Mathf.CeilToInt(playerStats.CurrentStamina)}/{Mathf.CeilToInt(playerStats.MaxStamina)}";
         }
     }
 }

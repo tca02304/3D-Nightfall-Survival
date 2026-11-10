@@ -66,7 +66,7 @@ namespace DucThanh
             if (target == null)
             {
                 // Tự tìm player nếu chưa gán
-                var player = Object.FindFirstObjectByType<PlayerMove>();
+                var player = Object.FindFirstObjectByType<PlayerController>();
                 if (player != null)
                 {
                     target = player.transform;
