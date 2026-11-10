@@ -91,14 +91,24 @@
           "slots": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SaveInventorySlotDto"
+              "$ref": "#/components/schemas/SaveInventorySlot"
             },
             "nullable": true
+          },
+          "craftingSlots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SaveInventorySlot"
+            },
+            "nullable": true
+          },
+          "cursorSlot": {
+            "$ref": "#/components/schemas/SaveInventorySlot"
           }
         },
         "additionalProperties": false
       },
-      "SaveInventorySlotDto": {
+      "SaveInventorySlot": {
         "type": "object",
         "properties": {
           "slotIndex": {

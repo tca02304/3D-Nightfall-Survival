@@ -10,24 +10,23 @@ public class HotbarUI : MonoBehaviour
 
     private bool isSubscibed;
 
-    private void Awake()
+    private void Start()
     {
         CacheHotbarSlots();
+
+        SubscribeEvents();
+
+        RefreshHotbar();
+
+        if (HotbarManager.Instance != null)
+        {
+            RefreshSelection(HotbarManager.Instance.CurrentSlot);
+        }
     }
 
     private void OnEnable()
     {
-        SubscribeEvents();
-
-        if (InventoryManager.Instance != null)
-        {
-            RefreshHotbar();
-        }
-
-        if(HotbarManager.Instance != null)
-        {
-            RefreshSelection(HotbarManager.Instance.CurrentSlot);
-        }
+        
     }
 
     private void OnDisable()
@@ -40,10 +39,16 @@ public class HotbarUI : MonoBehaviour
         hotbarSlots.Clear();
         selectionHighlights.Clear();
 
-        if (InventoryManager.Instance == null)
-            return;
+        InventoryManager inventory = InventoryManager.Instance;
 
-        int inventorySize = InventoryManager.Instance.InventorySize;
+        if (inventory == null || hotbarGrid == null)
+        {
+            Debug.LogWarning("[HotbarUI] InventoryManager or HotbarGrid is missing.");
+            return;
+        }
+
+        int inventorySize = inventory.InventorySize;
+        int hotbarSize = inventory.HotbarSize;
 
         for (int i = 0; i < hotbarGrid.childCount; i++)
         {
@@ -54,6 +59,9 @@ public class HotbarUI : MonoBehaviour
             if (itemSlot == null)
                 continue;
 
+            if (hotbarSlots.Count >= hotbarSize)
+                break;
+
             int dataIndex = inventorySize + hotbarSlots.Count;
 
             itemSlot.SetIndex(dataIndex);
@@ -62,17 +70,16 @@ public class HotbarUI : MonoBehaviour
 
             Transform highlight = child.Find("SelectionHighlight");
 
-            if(highlight != null)
-            {
-                selectionHighlights.Add(highlight.gameObject);
-            }
-            else
-            {
-                selectionHighlights.Add(null);
-            }
+            selectionHighlights.Add(
+                highlight != null ? highlight.gameObject : null
+            );
+
+            Debug.Log(
+                $"[HotbarUI] {child.name} assigned SlotIndex = {dataIndex}"
+            );
         }
 
-        Debug.Log("Hotbar UI found: " + hotbarSlots.Count + " slots");
+        Debug.Log($"[HotbarUI] Initialized {hotbarSlots.Count}/{hotbarSize} slots.");
     }
 
     private void SubscribeEvents()
@@ -80,15 +87,19 @@ public class HotbarUI : MonoBehaviour
         if (isSubscibed)
             return;
 
-        if(InventoryManager.Instance != null)
+        InventoryManager inventory = InventoryManager.Instance;
+        HotbarManager hotbar = HotbarManager.Instance;
+
+        if (inventory == null || hotbar == null)
         {
-            InventoryManager.Instance.OnInventoryChanged += RefreshHotbar;
+            Debug.LogWarning(
+                "[HotbarUI] InventoryManager or HotbarManager not ready."
+            );
+            return;
         }
 
-        if(HotbarManager.Instance != null)
-        {
-            HotbarManager.Instance.OnItemSelected += RefreshSelection;
-        }
+        inventory.OnInventoryChanged += RefreshHotbar;
+        hotbar.OnItemSelected += RefreshSelection;
 
         isSubscibed = true;
     }
@@ -113,33 +124,50 @@ public class HotbarUI : MonoBehaviour
 
     private void RefreshHotbar()
     {
-        if (InventoryManager.Instance == null)
+        InventoryManager inventory = InventoryManager.Instance;
+        ItemDatabase database = ItemDatabase.Instance;
+
+        if (inventory == null || database == null)
             return;
 
-        for(int i = 0; i < hotbarSlots.Count; i++)
+        for (int i = 0; i < hotbarSlots.Count; i++)
         {
             ItemSlot slot = hotbarSlots[i];
+
+            int dataIndex = inventory.InventorySize + i;
+
+            if (dataIndex >= inventory.Slots.Count)
+                continue;
+
+            InventorySlotData data = inventory.Slots[dataIndex];
 
             ItemUI itemUI = slot.GetComponentInChildren<ItemUI>(true);
 
             if (itemUI == null)
-                continue;
-
-            GameObject itemIcon = itemUI.gameObject;
-
-            int dataIndex = InventoryManager.Instance.InventorySize + i;
-
-            InventorySlotData data = InventoryManager.Instance.Slots[dataIndex];
-
-            if (data.isEmpty())
             {
-                itemIcon.SetActive(false);
+                Debug.LogWarning(
+                    $"[HotbarUI] Missing ItemUI at slot {dataIndex}"
+                );
                 continue;
             }
 
-            itemIcon.SetActive(true);
+            if (data.isEmpty())
+            {
+                itemUI.ClearItem();
+                continue;
+            }
 
-            itemUI.SetAmount(data.Amount);
+            ItemData item = database.GetItemById(data.ItemId);
+
+            if (item == null)
+            {
+                Debug.LogWarning(
+                    $"[HotbarUI] Item ID {data.ItemId} not found"
+                );
+                continue;
+            }
+
+            itemUI.SetItem(item, data.Amount);
         }
     }
 

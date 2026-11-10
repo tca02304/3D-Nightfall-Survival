@@ -15,6 +15,8 @@ public class DraggableItem : MonoBehaviour,
     private GameObject dragGhost;
     private RectTransform dragGhostRect;
 
+    public static DraggableItem ActiveDrag { get; private set; }
+
     public ItemSlot sourceSlot { get; private set; }
     private int dragAmount;
 
@@ -52,6 +54,7 @@ public class DraggableItem : MonoBehaviour,
         canvasGroup.alpha = 0f;
 
         CreateDragGhost();
+        ActiveDrag = this;
 
         ItemUI ghostUI = dragGhost.GetComponent<ItemUI>();
 
@@ -116,7 +119,7 @@ public class DraggableItem : MonoBehaviour,
 
     public void CompleteDrop(int targetSlotIndex)
     {
-        if (sourceSlot == null)
+        if (sourceSlot == null || dragAmount <= 0)
             return;
 
         int srcIndex = sourceSlot.SlotIndex;
@@ -128,12 +131,155 @@ public class DraggableItem : MonoBehaviour,
         sourceSlot = null;
     }
 
+
+    public bool TryPlaceOneOnSlot(int targetSlotIndex)
+    {
+        InventoryManager inventory = InventoryManager.Instance;
+
+        if (inventory == null || sourceSlot == null)
+            return false;
+
+        if (ActiveDrag != this || dragAmount <= 0)
+            return false;
+
+        if (!inventory.CursorSlot.isEmpty())
+            return false;
+
+        int sourceIndex = sourceSlot.SlotIndex;
+
+        if (sourceIndex < 0 ||
+            sourceIndex >= inventory.Slots.Count ||
+            targetSlotIndex < 0 ||
+            targetSlotIndex >= inventory.Slots.Count ||
+            sourceIndex == targetSlotIndex)
+            return false;
+
+        InventorySlotData source = inventory.Slots[sourceIndex];
+        InventorySlotData target = inventory.Slots[targetSlotIndex];
+
+        if (source.isEmpty() || source.Amount <= 0)
+            return false;
+
+        // Chỉ cho đặt vào ô trống hoặc stack cùng loại.
+        // Không swap Item khác loại khi thả từng 1.
+        if (!target.isEmpty())
+        {
+            if (target.ItemId != source.ItemId)
+                return false;
+
+            if (target.Amount >= target.MaxStack)
+                return false;
+        }
+
+        // Lưu số lượng trước khi chuyển.
+        int remaining = source.Amount;
+
+        bool success = inventory.MoveItemAmount(
+            sourceIndex,
+            targetSlotIndex,
+            1
+        );
+
+        if (!success)
+            return false;
+
+        dragAmount = Mathf.Min(
+            Mathf.Max(0, remaining - 1),
+            inventory.Slots[sourceIndex].Amount
+        );
+
+        // Cập nhật số lượng còn lại trên DragGhost.
+        if (dragGhost != null)
+        {
+            ItemUI ghostUI = dragGhost.GetComponent<ItemUI>();
+
+            if (ghostUI != null)
+                ghostUI.SetAmount(dragAmount);
+
+            if (dragAmount <= 0)
+                dragGhost.SetActive(false);
+        }
+
+        return true;
+    }
+
+
+    public bool TryPlaceOneOnCraftCell(
+        GridCraftingController controller,
+        int gridIndex)
+    {
+        InventoryManager inventory = InventoryManager.Instance;
+
+        if (controller == null ||
+            inventory == null ||
+            sourceSlot == null ||
+            ActiveDrag != this ||
+            dragAmount <= 0)
+        {
+            return false;
+        }
+
+        if (!inventory.CursorSlot.isEmpty())
+            return false;
+
+        int sourceIndex = sourceSlot.SlotIndex;
+
+        if (sourceIndex < 0 ||
+            sourceIndex >= inventory.Slots.Count)
+        {
+            return false;
+        }
+
+        InventorySlotData source =
+            inventory.Slots[sourceIndex];
+
+        if (source.isEmpty())
+            return false;
+
+        // Chuyển đúng 1 Item từ Inventory vào Crafting.
+        int transferred = controller.TryMoveAmountFromInventory(
+            sourceIndex,
+            gridIndex,
+            1
+        );
+
+        if (transferred != 1)
+            return false;
+
+        // Cập nhật số lượng đang kéo.
+        dragAmount = Mathf.Min(
+            Mathf.Max(0, dragAmount - 1),
+            inventory.Slots[sourceIndex].Amount
+        );
+
+        // Cập nhật số lượng trên DragGhost.
+        if (dragGhost != null)
+        {
+            ItemUI ghostUI = dragGhost.GetComponent<ItemUI>();
+
+            if (ghostUI != null)
+                ghostUI.SetAmount(dragAmount);
+
+            if (dragAmount <= 0)
+                dragGhost.SetActive(false);
+        }
+
+        return true;
+    }
+
+
+
     private void CleanupDrag()
     {
         canvasGroup.blocksRaycasts = true;
         canvasGroup.alpha = 1f;
 
-        if(dragGhost != null)
+        if (ActiveDrag == this)
+        {
+            ActiveDrag = null;
+        }
+
+        if (dragGhost != null)
         {
             Destroy(dragGhost);
         }
