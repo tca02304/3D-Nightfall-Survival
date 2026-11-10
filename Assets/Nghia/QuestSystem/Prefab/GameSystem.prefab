@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2253341306522553515}
-  - component: {fileID: 2834622581160344771}
   m_Layer: 0
   m_Name: GameSystem
   m_TagString: Untagged
@@ -32,15 +31,49 @@ Transform:
   m_Children:
   - {fileID: 2000734377596638223}
   - {fileID: 4546797561422765881}
+  - {fileID: 914036556148563201}
+  - {fileID: 5690576562137411022}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2834622581160344771
+--- !u!1 &518679819388679340
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 914036556148563201}
+  - component: {fileID: 2490742706558436257}
+  m_Layer: 0
+  m_Name: CraftingQuestObserver
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &914036556148563201
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 518679819388679340}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2253341306522553515}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2490742706558436257
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 395426755931081176}
+  m_GameObject: {fileID: 518679819388679340}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ef8ec4c71ea60447a4bbd55da064d20, type: 3}
@@ -136,11 +169,52 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3681ecb67ab1082479c1701957eb9e46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  questNotification: {fileID: 0}
-  questName: Waking Up
-  requiredStone: 5
-  requiredWood: 5
+  questDefinitions: []
   questPanel: {fileID: 0}
   questNameText: {fileID: 0}
   questDescriptionText: {fileID: 0}
   questProgressText: {fileID: 0}
+--- !u!1 &9073963631961958321
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5690576562137411022}
+  - component: {fileID: 3290628076062644391}
+  m_Layer: 0
+  m_Name: ResourceQuestObserver
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5690576562137411022
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9073963631961958321}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2253341306522553515}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3290628076062644391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9073963631961958321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4c27877261bdc245b816ed691cf86e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

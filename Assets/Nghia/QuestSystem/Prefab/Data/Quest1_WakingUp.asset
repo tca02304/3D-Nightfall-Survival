@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b48ff2116e82e1844a87bfabc80c90cc, type: 3}
+  m_Name: Quest1_WakingUp
+  m_EditorClassIdentifier: 
+  questId: quest_1
+  questName: Waking Up
+  description: Gather resources and prepare for survival.
+  objectives:
+  - objectiveType: 0
+    targetId: 1
+    description: Collect Wood
+    requiredAmount: 5
+    currentAmount: 0
+  - objectiveType: 0
+    targetId: 6
+    description: Collect Stone
+    requiredAmount: 5
+    currentAmount: 0
+  - objectiveType: 1
+    targetId: 37
+    description: Craft Stone Axe
+    requiredAmount: 1
+    currentAmount: 0
+  - objectiveType: 1
+    targetId: 42
+    description: Craft Stone Pickaxe
+    requiredAmount: 1
+    currentAmount: 0
+  - objectiveType: 1
+    targetId: campfire
+    description: Create Campfire
+    requiredAmount: 1
+    currentAmount: 0
+  rewardDescription: "\u2022\tUnlock Basic Workbench.\r\n\u2022\tUnlock Quest 2.\r\n"

@@ -33,6 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4876982490519927339}
+  - {fileID: 6212829132209144513}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8674937755378287005
@@ -50,7 +51,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5974562507003098039}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -179,7 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbfc64f5a2a1521479b653c518710a0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interactionPrompt: {fileID: 0}
+  interactionPrompt: {fileID: 7422945108008224842}
   dialogue: {fileID: 5837630847178100507}
 --- !u!54 &4688565309611971900
 Rigidbody:
@@ -224,9 +225,79 @@ MonoBehaviour:
   npcNameText: {fileID: 0}
   dialogueText: {fileID: 0}
   npcName: The Survivor
-  dialogueLines:
+  firstDialogueLines:
   - You're finally awake.
   - This place is dangerous. You need to learn how to survive.
   - First, collect some stones. You will need them to craft your tools.
   - Now find a tree and collect some wood.
   - Good luck, survivor. The night is coming.
+  reminderDialogueLines:
+  - You still have work to do.
+  - Collect 5 Stone and 5 Wood before returning to me.
+  secondDialogueLines:
+  - Well done, survivor!
+  - You have proven that you can survive.
+  - But your journey has only just begun.
+  - There are more dangerous things waiting beyond these lands.
+--- !u!1001 &4415335203017313680
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3483657533935082445}
+    m_Modifications:
+    - target: {fileID: 6932689609850213867, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
+      propertyPath: m_Name
+      value: Ashigaru
+      objectReference: {fileID: 0}
+    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
+--- !u!4 &6212829132209144513 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7745642516071419729, guid: f345952416b7b9e44a2543f71b7c967b, type: 3}
+  m_PrefabInstance: {fileID: 4415335203017313680}
+  m_PrefabAsset: {fileID: 0}

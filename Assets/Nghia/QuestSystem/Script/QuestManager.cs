@@ -17,7 +17,10 @@ public class QuestManager : MonoBehaviour
 
     [Header("Quest Definitions")]
     [SerializeField] private List<QuestDefinition> questDefinitions = new();
-
+    [Header("Quest Notification")]
+    [SerializeField] private QuestNotification questNotification;
+    [Header("Quest Guide")]
+    [SerializeField] private QuestGuideController questGuideController;
     [Header("Quest UI")]
     [SerializeField] private GameObject questPanel;
     [SerializeField] private TMP_Text questNameText;
@@ -123,8 +126,19 @@ public class QuestManager : MonoBehaviour
             questDescriptionText.text = currentQuest.description;
 
         UpdateQuestUI();
+        // Hiển thị chỉ dẫn khi bắt đầu Quest 1.
+        if (questId == "quest_1" && questGuideController != null)
+        {
+            questGuideController.ShowStoneGuide();
+        }
 
         Debug.Log("[Quest] Started: " + currentQuest.questName);
+        if (questNotification != null)
+        {
+            questNotification.ShowNotification(
+                "Quest Started: " + currentQuest.questName
+            );
+        }
 
         return true;
     }
@@ -179,28 +193,51 @@ public class QuestManager : MonoBehaviour
         return true;
     }
 
+
+
     private void UpdateQuestUI()
     {
         if (questProgressText == null)
             return;
 
+        int completedCount = 0;
         string progress = "";
 
         foreach (QuestObjectiveData objective in runtimeObjectives)
         {
-            progress +=
-                objective.description + " " +
-                objective.currentAmount + "/" +
-                objective.requiredAmount;
+            bool completed = objective.IsCompleted;
 
-            if (objective.IsCompleted)
-                progress += " [Completed]";
+            if (completed)
+                completedCount++;
+
+            string objectiveName = string.IsNullOrWhiteSpace(objective.description)
+                ? "Unknown Objective"
+                : objective.description;
+
+            if (completed)
+            {
+                progress += "<color=#65D98A>[ DONE ] "
+                    + objectiveName + " "
+                    + objective.currentAmount + "/"
+                    + objective.requiredAmount
+                    + "</color>";
+            }
+            else
+            {
+                progress += "<color=#FFFFFF>[ ] "
+                    + objectiveName + " "
+                    + objective.currentAmount + "/"
+                    + objective.requiredAmount
+                    + "</color>";
+            }
 
             progress += "\n";
         }
 
+        questProgressText.richText = true;
         questProgressText.text = progress;
     }
+
 
     private void CompleteCurrentQuest()
     {
@@ -212,6 +249,12 @@ public class QuestManager : MonoBehaviour
         Debug.Log(
             "[Quest] Completed: " + currentQuest.questName
         );
+        if (questNotification != null)
+        {
+            questNotification.ShowNotification(
+                "Quest Completed: " + currentQuest.questName
+            );
+        }
 
         if (currentQuest.questId == "quest_1")
         {
