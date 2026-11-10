@@ -8,12 +8,18 @@ namespace DucThanh
         [SerializeField] private float maxHealth = 100f;
         [SerializeField] private float currentHealth;
 
-#pragma warning disable 0414, 0169
         [Header("Hunger Settings")]
+        [Tooltip("Tổng điểm đói tối đa")]
         [SerializeField] private float maxHunger = 100f;
         [SerializeField] private float currentHunger;
+
+        [Tooltip("Thời gian để giảm 1 điểm đói (mặc định 10s)")]
         [SerializeField] private float hungerInterval = 10f;
+
+        [Tooltip("Khi đói về 0 thì có trừ máu dần theo thời gian không")]
         [SerializeField] private bool takeDamageWhenStarving = true;
+
+        [Tooltip("Số máu bị trừ / giây khi điểm đói cạn kiệt (về 0)")]
         [SerializeField] private float starvingDamageRate = 2f;
 
         [Header("Stamina Settings")]
@@ -26,12 +32,11 @@ namespace DucThanh
 
         private float hungerTimer = 0f;
         private float staminaCooldownTimer = 0f;
-#pragma warning restore 0414, 0169
 
-        // Sử dụng PlayerController theo cấu hình của bạn
         private PlayerController playerController;
         private bool isDead = false;
 
+        // Getters
         public float MaxHealth => maxHealth;
         public float CurrentHealth => currentHealth;
         public float HealthPercent => Mathf.Clamp01(currentHealth / maxHealth);
@@ -47,6 +52,7 @@ namespace DucThanh
         public bool CanSprint => !isDead && currentStamina > 0.1f;
         public bool IsDead => isDead;
 
+        // Events
         public event System.Action OnPlayerDied;
         public event System.Action OnStatsChanged;
 
@@ -78,9 +84,37 @@ namespace DucThanh
         private void Update()
         {
             if (isDead) return;
+
+            HandleHungerLogic();
             HandleStaminaLogic();
         }
 
+        /// <summary>
+        /// Logic tự động giảm điểm đói và mất máu khi chết đói
+        /// </summary>
+        private void HandleHungerLogic()
+        {
+            // 1. Trừ điểm đói theo khoảng thời gian hungerInterval
+            if (currentHunger > 0f)
+            {
+                hungerTimer += Time.deltaTime;
+                if (hungerTimer >= hungerInterval)
+                {
+                    hungerTimer = 0f;
+                    currentHunger = Mathf.Clamp(currentHunger - 1f, 0f, maxHunger);
+                    OnStatsChanged?.Invoke();
+                }
+            }
+            // 2. Khi đói về 0, nếu bật takeDamageWhenStarving sẽ bị trừ máu từ từ theo thời gian
+            else if (takeDamageWhenStarving && currentHealth > 0f)
+            {
+                ModifyHealth(-starvingDamageRate * Time.deltaTime);
+            }
+        }
+
+        /// <summary>
+        /// Logic tiêu hao và tự hồi thể lực (Stamina)
+        /// </summary>
         private void HandleStaminaLogic()
         {
             if (playerController == null) return;

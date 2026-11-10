@@ -434,21 +434,49 @@ MonoBehaviour:
   m_GameObject: {fileID: 2643771054221018191}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f607182930415263748596, type: 3}
+  m_Script: {fileID: 11500000, guid: 6fd7385733e18234083879fbaece204f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   currentState: 0
   patrolDistance: 50
   chaseDistance: 49
-  attackDistance: 2.2
+  attackReach: 0.5
+  attackExitMargin: 0.4
+  attackAngle: 50
+  attackPoint: {fileID: 0}
   patrolRadius: 5
   patrolSpeed: 2.5
-  angularSpeed: 1
+  angularSpeed: 1.2
   chaseSpeed: 5
-  attackCooldown: 1.2
+  speedDampTime: 0.1
+  maxSlopeAngle: 35
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  slopeSampleStep: 1
+  navSampleDistance: 3
+  navSampleDistanceFar: 15
+  repathInterval: 0.25
+  groundOffset: 0
+  attackCooldown: 1
+  fxPrefab: {fileID: 0}
+  fxPoint: {fileID: 0}
+  fxLifeTime: 2
+  spawnFxAtHitPoint: 1
+  hitOriginHeight: 1
+  hitPointPullBack: 0.1
+  useAnimationEvent: 1
   playerTarget: {fileID: 0}
   playerTag: Player
-  triggerRadius: 2
+  useTriggerForAttack: 0
+  triggerRadius: 2.5
+  bodyColliderOnly: 1
+  dieTriggerName: Die
+  deathStateNames:
+  - Death
+  - Die
+  - LilDave_Death
+  corpseLifetime: 0
 --- !u!135 &7042791466316255934
 SphereCollider:
   m_ObjectHideFlags: 0
