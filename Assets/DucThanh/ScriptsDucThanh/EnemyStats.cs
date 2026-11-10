@@ -21,9 +21,9 @@ namespace DucThanh
         [SerializeField] private float baseDamage = 15f;
         [SerializeField] private EnemyGrowthType fallbackGrowthType = EnemyGrowthType.Linear;
         [Range(0f, 2f)]
-        [SerializeField] private float fallbackHealthGrowthRate = 0.15f;
+        [SerializeField] private float fallbackHealthGrowthRate = 0.20f;
         [Range(0f, 2f)]
-        [SerializeField] private float fallbackDamageGrowthRate = 0.10f;
+        [SerializeField] private float fallbackDamageGrowthRate = 0.15f;
 
         [Header("Runtime State (Hiển thị runtime)")]
         [SerializeField] private float currentMaxHealth;
@@ -93,16 +93,17 @@ namespace DucThanh
             }
             else
             {
-                int dayOffset = registeredDay - 1;
+                int currentDay = registeredDay;
                 if (fallbackGrowthType == EnemyGrowthType.Linear)
                 {
-                    newMaxHealth = baseMaxHealth * (1f + (dayOffset * fallbackHealthGrowthRate));
-                    newDamage = baseDamage * (1f + (dayOffset * fallbackDamageGrowthRate));
+                    // Công thức: Enemy HP = Base HP * (1 + Day * 0.20), Enemy Damage = Base Damage * (1 + Day * 0.15)
+                    newMaxHealth = baseMaxHealth * (1f + (currentDay * fallbackHealthGrowthRate));
+                    newDamage = baseDamage * (1f + (currentDay * fallbackDamageGrowthRate));
                 }
                 else
                 {
-                    newMaxHealth = baseMaxHealth * Mathf.Pow(1f + fallbackHealthGrowthRate, dayOffset);
-                    newDamage = baseDamage * Mathf.Pow(1f + fallbackDamageGrowthRate, dayOffset);
+                    newMaxHealth = baseMaxHealth * Mathf.Pow(1f + fallbackHealthGrowthRate, currentDay);
+                    newDamage = baseDamage * Mathf.Pow(1f + fallbackDamageGrowthRate, currentDay);
                 }
                 newMaxHealth = Mathf.Max(1f, Mathf.Round(newMaxHealth));
                 newDamage = Mathf.Max(1f, Mathf.Round(newDamage * 10f) / 10f);
@@ -157,7 +158,6 @@ namespace DucThanh
             }
 
             OnHealthChanged?.Invoke(currentHealth, currentMaxHealth);
-            Debug.Log($"<color=red>[EnemyStats] {gameObject.name} nhận {damage} dame -> Máu còn: {currentHealth}/{currentMaxHealth} (Day {registeredDay})</color>");
 
             if (currentHealth <= 0f)
             {

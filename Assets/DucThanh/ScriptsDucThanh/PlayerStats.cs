@@ -10,6 +10,8 @@ namespace DucThanh
         [Header("Health Settings")]
         [SerializeField] private float maxHealth = 100f;
         [SerializeField] private float currentHealth;
+        [Tooltip("Thời gian chờ trước khi Destroy Player sau khi hết máu")]
+        [SerializeField] private float destroyDelayOnDeath = 2.0f;
 
         // Tắt cảnh báo CS0414/CS0169 cho các biến thiết lập chưa dùng đến trong Update
 #pragma warning disable 0414, 0169
@@ -141,8 +143,11 @@ namespace DucThanh
         {
             isDead = true;
             currentHealth = 0f;
-            Debug.Log("<color=red><b>[Player] Player đã chết!</b></color>");
+            Debug.Log("<color=red><b>[Player] Player đã chết! Quái ngừng tấn công, hủy Player sau 2s.</b></color>");
             OnPlayerDied?.Invoke();
+
+            // Destroy Player sau 2 giây
+            Destroy(gameObject, destroyDelayOnDeath);
         }
 
         public void Revive(float healthPercent = 1f)

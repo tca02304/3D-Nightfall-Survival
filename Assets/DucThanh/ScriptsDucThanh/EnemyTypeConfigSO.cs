@@ -31,13 +31,13 @@ namespace DucThanh
         [Tooltip("Công thức tăng tiến chỉ số (Tuyến tính hoặc Tăng % lũy tiến)")]
         [SerializeField] private EnemyGrowthType growthType = EnemyGrowthType.Linear;
 
-        [Tooltip("Tỉ lệ tăng máu mỗi ngày (VD: 0.15 = +15% máu cơ bản mỗi ngày)")]
+        [Tooltip("Tỉ lệ tăng máu mỗi ngày (VD: 0.20 = +20% máu cơ bản mỗi ngày)")]
         [Range(0f, 2f)]
-        [SerializeField] private float healthGrowthRatePerDay = 0.15f;
+        [SerializeField] private float healthGrowthRatePerDay = 0.20f;
 
-        [Tooltip("Tỉ lệ tăng sát thương mỗi ngày (VD: 0.10 = +10% dame cơ bản mỗi ngày)")]
+        [Tooltip("Tỉ lệ tăng sát thương mỗi ngày (VD: 0.15 = +15% dame cơ bản mỗi ngày)")]
         [Range(0f, 2f)]
-        [SerializeField] private float damageGrowthRatePerDay = 0.10f;
+        [SerializeField] private float damageGrowthRatePerDay = 0.15f;
 
         [Tooltip("Hệ số sát thương tối đa quái có thể đạt được (ngăn việc dame quá vô lý ở ngày cao). Đặt <= 0 nếu không giới hạn.")]
         [SerializeField] private float maxDamageCap = 0f;
@@ -53,20 +53,21 @@ namespace DucThanh
         public float DamageGrowthRatePerDay => damageGrowthRatePerDay;
 
         /// <summary>
-        /// Tính toán lượng máu tối đa cho một ngày cụ thể
+        /// Tính toán lượng máu tối đa cho một ngày cụ thể.
+        /// Công thức: Enemy HP = Base HP * (1 + Day * 0.20)
         /// </summary>
         public float CalculateMaxHealthForDay(int day)
         {
-            int dayOffset = Mathf.Max(0, day - 1);
+            int currentDay = Mathf.Max(1, day);
             float calculatedHealth = baseMaxHealth;
 
             switch (growthType)
             {
                 case EnemyGrowthType.Linear:
-                    calculatedHealth = baseMaxHealth * (1f + (dayOffset * healthGrowthRatePerDay));
+                    calculatedHealth = baseMaxHealth * (1f + (currentDay * healthGrowthRatePerDay));
                     break;
                 case EnemyGrowthType.Percentage:
-                    calculatedHealth = baseMaxHealth * Mathf.Pow(1f + healthGrowthRatePerDay, dayOffset);
+                    calculatedHealth = baseMaxHealth * Mathf.Pow(1f + healthGrowthRatePerDay, currentDay);
                     break;
             }
 
@@ -79,20 +80,21 @@ namespace DucThanh
         }
 
         /// <summary>
-        /// Tính toán sát thương cố định cho một ngày cụ thể
+        /// Tính toán sát thương cố định cho một ngày cụ thể.
+        /// Công thức: Enemy Damage = Base Damage * (1 + Day * 0.15)
         /// </summary>
         public float CalculateDamageForDay(int day)
         {
-            int dayOffset = Mathf.Max(0, day - 1);
+            int currentDay = Mathf.Max(1, day);
             float calculatedDamage = baseDamage;
 
             switch (growthType)
             {
                 case EnemyGrowthType.Linear:
-                    calculatedDamage = baseDamage * (1f + (dayOffset * damageGrowthRatePerDay));
+                    calculatedDamage = baseDamage * (1f + (currentDay * damageGrowthRatePerDay));
                     break;
                 case EnemyGrowthType.Percentage:
-                    calculatedDamage = baseDamage * Mathf.Pow(1f + damageGrowthRatePerDay, dayOffset);
+                    calculatedDamage = baseDamage * Mathf.Pow(1f + damageGrowthRatePerDay, currentDay);
                     break;
             }
 

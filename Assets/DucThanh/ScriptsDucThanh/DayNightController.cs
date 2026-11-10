@@ -10,14 +10,14 @@ namespace DucThanh
 {
     /// <summary>
     /// Hệ thống quản lý chu kỳ ngày / đêm (Day-Night Cycle) và đồng hồ trong game.
-    /// Quy định: 1 phút thực tế = 1 giờ trong game (1 ngày 24 giờ = 24 phút thực tế).
-    /// Hỗ trợ điều khiển vị trí/cường độ/màu sắc của Mặt trời và Mặt trăng, đồng thời cập nhật UI đồng hồ.
+    /// Quy định: 1 ngày 24 giờ = 12 phút thực tế (30 giây thực tế = 1 giờ trong game).
+    /// Hỗ trợ điều khiển vị trí/cường độ/màu sắc của Mặt trời và Mặt trăng, Skybox/Bầu trời, đồng thời cập nhật UI đồng hồ.
     /// </summary>
     public class DayNightController : MonoBehaviour
     {
         [Header("Time Settings")]
-        [Tooltip("Tỉ lệ: Số giây thực tế cho 1 giờ game. Mặc định 60s (1 phút thực tế = 1 giờ game).")]
-        [SerializeField] private float realSecondsPerInGameHour = 60f;
+        [Tooltip("Tỉ lệ: Số giây thực tế cho 1 giờ game. Mặc định 30s (1 ngày 24 giờ = 12 phút thực tế, 30 giây thực tế = 1 giờ game).")]
+        [SerializeField] private float realSecondsPerInGameHour = 30f;
 
         [Tooltip("Giờ bắt đầu lúc vào game (từ 0.0h đến 24.0h). Mặc định: 6.0 = 6h sáng.")]
         [Range(0f, 24f)]
@@ -94,6 +94,17 @@ namespace DucThanh
         [SerializeField] private bool controlAmbientLight = true;
         [SerializeField] private Gradient ambientColor;
 
+        [Header("Skybox Settings (Bầu trời)")]
+        [Tooltip("Tự động điều chỉnh độ sáng/màu sắc của Skybox Material theo chu kỳ ngày đêm")]
+        [SerializeField] private bool controlSkybox = true;
+        [Tooltip("Dải màu sắc / độ phơi sáng của bầu trời theo thời gian (0h -> 24h).")]
+        [SerializeField] private Gradient skyColor;
+        [Tooltip("Độ phơi sáng tối đa ban ngày (_Exposure)")]
+        [SerializeField] private float daySkyExposure = 1.0f;
+        [Tooltip("Độ phơi sáng tối thiểu ban đêm (_Exposure)")]
+        [SerializeField] private float nightSkyExposure = 0.15f;
+        private Material runtimeSkyboxMat;
+
         [Header("UI Reference")]
         [Tooltip("Text hiển thị đồng hồ thời gian (TextMeshProUGUI). Nếu có sẽ tự động format HH:mm hoặc Day/Night.")]
         [SerializeField] private TextMeshProUGUI clockText;
@@ -109,6 +120,9 @@ namespace DucThanh
         public float CurrentHour => currentInGameTime;
         public int CurrentDay => currentDay;
         public bool IsDayTime => currentInGameTime >= 6f && currentInGameTime < 18f;
+        public float RealSecondsPerInGameHour => realSecondsPerInGameHour;
+        public bool IsFastForwardActive => isFastForwardActive;
+        public float FastForwardMultiplier => fastForwardMultiplier;
 
         // Events để các script khác (ví dụ AI quái vật, spawning, stats...) có thể lắng nghe
         public event Action<int> OnDayChanged;
@@ -128,6 +142,10 @@ namespace DucThanh
             if (sunColor == null || sunColor.colorKeys.Length == 0)
             {
                 SetupDefaultGradients();
+            }
+            else if (skyColor == null || skyColor.colorKeys == null || skyColor.colorKeys.Length == 0)
+            {
+                SetupDefaultSkyGradient();
             }
 
             // Tự động tìm sunLight nếu chưa gán
@@ -178,6 +196,13 @@ namespace DucThanh
             if (autoCreateStars && starParticleSystem == null)
             {
                 CreateStarDome();
+            }
+
+            // Khởi tạo runtime Skybox Material nếu controlSkybox được bật
+            if (controlSkybox && RenderSettings.skybox != null)
+            {
+                runtimeSkyboxMat = new Material(RenderSettings.skybox);
+                RenderSettings.skybox = runtimeSkyboxMat;
             }
         }
 
@@ -344,6 +369,22 @@ namespace DucThanh
             aKeys[3] = new GradientColorKey(new Color(0.3f, 0.24f, 0.24f), 0.75f);   // 18h: Chiều tối
             aKeys[4] = new GradientColorKey(new Color(0.12f, 0.15f, 0.22f), 1.0f);   // 24h: Đêm
             ambientColor.SetKeys(aKeys, sAlpha);
+
+            SetupDefaultSkyGradient();
+        }
+
+        private void SetupDefaultSkyGradient()
+        {
+            // Sky Color Gradient (Màu sắc bầu trời thay đổi theo chu kỳ)
+            skyColor = new Gradient();
+            GradientColorKey[] skyKeys = new GradientColorKey[5];
+            skyKeys[0] = new GradientColorKey(new Color(0.05f, 0.05f, 0.15f), 0.0f);   // 0h: Đêm tối thẫm xanh tím
+            skyKeys[1] = new GradientColorKey(new Color(0.9f, 0.6f, 0.45f), 0.25f);    // 6h: Rạng đông ấm áp
+            skyKeys[2] = new GradientColorKey(new Color(0.5f, 0.7f, 0.95f), 0.5f);     // 12h: Bầu trời xanh ban ngày
+            skyKeys[3] = new GradientColorKey(new Color(0.85f, 0.45f, 0.25f), 0.75f);  // 18h: Hoàng hôn rực rỡ
+            skyKeys[4] = new GradientColorKey(new Color(0.05f, 0.05f, 0.15f), 1.0f);   // 24h: Đêm
+            GradientAlphaKey[] skyAlpha = new GradientAlphaKey[2] { new GradientAlphaKey(1, 0), new GradientAlphaKey(1, 1) };
+            skyColor.SetKeys(skyKeys, skyAlpha);
         }
 
         private void UpdateLighting()
@@ -428,6 +469,48 @@ namespace DucThanh
             {
                 RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
                 RenderSettings.ambientLight = ambientColor.Evaluate(timePercent);
+            }
+
+            // Điều khiển Skybox / Bầu trời theo thời gian
+            UpdateSkybox(timePercent, currentSunDot);
+        }
+
+        private void UpdateSkybox(float timePercent, float currentSunDot)
+        {
+            if (!controlSkybox) return;
+
+            Material skyMat = runtimeSkyboxMat != null ? runtimeSkyboxMat : RenderSettings.skybox;
+            if (skyMat == null) return;
+
+            // Tính độ phơi sáng exposure chuyển tiếp mượt mà giữa ngày và đêm
+            float dayFactor = Mathf.Clamp01(currentSunDot);
+            float currentExposure = Mathf.Lerp(nightSkyExposure, daySkyExposure, dayFactor);
+
+            if (skyMat.HasProperty("_Exposure"))
+            {
+                skyMat.SetFloat("_Exposure", currentExposure);
+            }
+
+            if (skyColor != null)
+            {
+                Color currentSkyCol = skyColor.Evaluate(timePercent);
+
+                if (skyMat.HasProperty("_SkyTint"))
+                {
+                    skyMat.SetColor("_SkyTint", currentSkyCol);
+                }
+                else if (skyMat.HasProperty("_Tint"))
+                {
+                    skyMat.SetColor("_Tint", currentSkyCol);
+                }
+                else if (skyMat.HasProperty("_Color"))
+                {
+                    skyMat.SetColor("_Color", currentSkyCol);
+                }
+                else if (skyMat.HasProperty("_BaseColor"))
+                {
+                    skyMat.SetColor("_BaseColor", currentSkyCol);
+                }
             }
         }
 
