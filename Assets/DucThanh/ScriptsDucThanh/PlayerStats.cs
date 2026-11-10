@@ -96,7 +96,6 @@ namespace DucThanh
                 Debug.Log($"<color=green><b>[Player Health]</b> Player được hồi {amount:F1} máu. Máu hiện tại: {currentHealth:F0} / {maxHealth:F0} HP</color>");
             }
 
-            // Kiểm tra trạng thái sống/chết
             if (!isDead && currentHealth <= 0f)
             {
                 Die();
@@ -105,6 +104,11 @@ namespace DucThanh
             {
                 Revive();
             }
+        }
+            
+        public void ModifyHealths(float amount)
+        {
+            ModifyHealth(amount);
         }
 
         public void ModifyHunger(float amount)

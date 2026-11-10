@@ -569,6 +569,8 @@ GameObject:
   - component: {fileID: 2876168845227934523}
   - component: {fileID: 3767226822710765509}
   - component: {fileID: 417683503416121945}
+  - component: {fileID: 2008918264899289067}
+  - component: {fileID: 8482300265039258442}
   - component: {fileID: 546730589801359809}
   - component: {fileID: 8801504448265985766}
   m_Layer: 12
@@ -744,6 +746,44 @@ MonoBehaviour:
   sprintDrainRate: 12
   staminaRegenRate: 8
   regenDelay: 1.5
+--- !u!114 &2008918264899289067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3322190313533134227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be5bd83e1bf8eb14c957a56dd5706294, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mode: 0
+  movementSubject: {fileID: 8482300265039258442}
+  audioSource: {fileID: 0}
+  walkFootstepClips:
+  - {fileID: 8300000, guid: 3668a9fd84385b64db88880d00743017, type: 3}
+  volume: 0.1
+  minPitch: 0.92
+  maxPitch: 1.08
+  avoidRepeatingClip: 1
+--- !u!114 &8482300265039258442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3322190313533134227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 001dcac2d743f0e48a7fc69a721dd495, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minMoveSpeed: 0.05
+  walkStepInterval: 0.5
+  sprintStepInterval: 0.36
+  sprintThresholdSpeed: 6
+  minStepCooldown: 0.28
 --- !u!114 &546730589801359809
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -758,19 +798,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   walkSpeed: 5
   sprintSpeed: 8
+  groundAcceleration: 45
+  groundDeceleration: 55
+  airAcceleration: 12
+  moveSpeedWhileAttacking: 1
   jumpHeight: 1.5
   gravity: -19.62
+  coyoteTime: 0.12
+  jumpBufferTime: 0.12
+  groundStickForce: 2
+  enableMouseLook: 0
+  lockCursor: 1
+  cameraPivot: {fileID: 0}
+  lookSensitivity: 0.15
+  lookSmoothing: 0
+  minPitch: -85
+  maxPitch: 85
   animator: {fileID: 0}
+  freezeAnimationOnDeath: 1
   attackLimiter: {fileID: 0}
   attackStaminaCost: 10
   attackDamage: 25
   attackRange: 2.2
   attackRadius: 1.2
-  attackHitDelay: 0.15
+  attackOriginHeight: 1
   targetLayer:
     serializedVersion: 2
     m_Bits: 4294967295
+  useAnimationEventForHit: 0
+  attackHitDelay: 0.15
   hasWeapon: 0
+  requireWeapon: 0
+  autoSetupKatana: 1
 --- !u!95 &8801504448265985766
 Animator:
   serializedVersion: 7

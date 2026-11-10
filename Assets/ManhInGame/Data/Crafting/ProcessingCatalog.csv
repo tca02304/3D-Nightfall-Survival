@@ -1,0 +1,7 @@
+recipeId,station,outputCode,outputAmount,ingredients,notes
+smelt_iron,Smelter,iron_bar,1,iron_ore:1,Fuel and processing time not in RecipeData; implement Furnace station inventory separately
+smelt_gold,Smelter,gold_bar,1,gold_ore:1,Fuel and processing time not in RecipeData; implement Furnace station inventory separately
+smelt_mithril,Smelter,mithril_bar,1,mithril_ore:1,Fuel and processing time not in RecipeData; implement Furnace station inventory separately
+smelt_adamantite,Smelter,adamantite_bar,1,adamantite_ore:1,Fuel and processing time not in RecipeData; implement Furnace station inventory separately
+smelt_obanium,Smelter,obanium_bar,1,obanium_ore:1,Fuel and processing time not in RecipeData; implement Furnace station inventory separately
+smelt_chunkium,Smelter,chunkium_bar,1,chunkium_ore:1,Fuel and processing time not in RecipeData; implement Furnace station inventory separately

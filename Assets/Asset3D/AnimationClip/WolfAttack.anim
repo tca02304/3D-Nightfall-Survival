@@ -634,4 +634,11 @@ AnimationClip:
     flags: 0
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
-  m_Events: []
+  m_Events:
+  - time: 0.38333333
+    functionName: SpawnFx
+    data: 
+    objectReferenceParameter: {fileID: 1709254077376921, guid: 3dbbda43f0883cd4ea1036efe4ec2712, type: 3}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
