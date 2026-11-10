@@ -1,7 +1,4 @@
 using UnityEngine;
-#if ENABLE_INPUT_SYSTEM
-using UnityEngine.InputSystem;
-#endif
 
 namespace DucThanh
 {
@@ -11,28 +8,20 @@ namespace DucThanh
         [SerializeField] private float maxHealth = 100f;
         [SerializeField] private float currentHealth;
 
-        // Tắt cảnh báo CS0414/CS0169 cho các biến thiết lập chưa dùng đến trong Update
 #pragma warning disable 0414, 0169
         [Header("Hunger Settings")]
-        [Tooltip("Tổng điểm đói tối đa")]
         [SerializeField] private float maxHunger = 100f;
         [SerializeField] private float currentHunger;
-        [Tooltip("Thời gian để giảm 1 điểm đói (mặc định 10s)")]
         [SerializeField] private float hungerInterval = 10f;
-        [Tooltip("Khi đói về 0 thì có trừ máu dần theo thời gian không")]
         [SerializeField] private bool takeDamageWhenStarving = true;
-        [SerializeField] private float starvingDamageRate = 2f; // Trừ 2 máu / giây khi đói cạn kiệt
+        [SerializeField] private float starvingDamageRate = 2f;
 
         [Header("Stamina Settings")]
         [SerializeField] private float maxStamina = 100f;
         [SerializeField] private float currentStamina;
-        [Tooltip("Tốc độ trừ thể lực khi đi bộ (/giây)")]
         [SerializeField] private float walkDrainRate = 1.5f;
-        [Tooltip("Tốc độ trừ thể lực khi chạy sprint (/giây)")]
         [SerializeField] private float sprintDrainRate = 12f;
-        [Tooltip("Tốc độ hồi thể lực khi đứng yên (/giây)")]
         [SerializeField] private float staminaRegenRate = 8f;
-        [Tooltip("Thời gian chờ trước khi bắt đầu hồi thể lực sau khi dừng dùng")]
         [SerializeField] private float regenDelay = 1.5f;
 
         private float hungerTimer = 0f;
@@ -58,7 +47,9 @@ namespace DucThanh
         public bool CanSprint => !isDead;
         public bool IsDead => isDead;
 
+        // Events
         public event System.Action OnPlayerDied;
+        public event System.Action OnStatsChanged;
 
         private void Awake()
         {
@@ -70,23 +61,18 @@ namespace DucThanh
             isDead = false;
         }
 
-        private void Update()
+        private void Start()
         {
-            if (isDead) return;
-
-            // Tính năng tự trừ đói/thể lực theo thời gian đang tắt theo yêu cầu
+            OnStatsChanged?.Invoke();
         }
 
-        /// <summary>
-        /// Thay đổi máu của Player (Hỗ trợ cả sát thương lẫn hồi máu + Tự kích hoạt Die/Revive)
-        /// </summary>
         public void ModifyHealth(float amount)
         {
             if (isDead && amount <= 0f) return;
 
             currentHealth = Mathf.Clamp(currentHealth + amount, 0f, maxHealth);
+            OnStatsChanged?.Invoke();
 
-            // In log thông báo
             if (amount < 0f)
             {
                 Debug.Log($"<color=red><b>[Player Health]</b> Player bị đánh trúng! Mất {-amount:F1} máu. <b>Máu hiện tại: {currentHealth:F0} / {maxHealth:F0} HP</b></color>");
@@ -105,7 +91,7 @@ namespace DucThanh
                 Revive();
             }
         }
-            
+
         public void ModifyHealths(float amount)
         {
             ModifyHealth(amount);
@@ -115,17 +101,16 @@ namespace DucThanh
         {
             if (isDead) return;
             currentHunger = Mathf.Clamp(currentHunger + amount, 0f, maxHunger);
+            OnStatsChanged?.Invoke();
         }
 
         public void ModifyStamina(float amount)
         {
             if (isDead) return;
             currentStamina = Mathf.Clamp(currentStamina + amount, 0f, maxStamina);
+            OnStatsChanged?.Invoke();
         }
 
-        /// <summary>
-        /// Tiêu hao thể lực (stamina). Trả về true nếu đủ thể lực và tiêu hao thành công.
-        /// </summary>
         public bool ConsumeStamina(float amount)
         {
             if (isDead) return false;
@@ -134,6 +119,7 @@ namespace DucThanh
 
             currentStamina = Mathf.Clamp(currentStamina - amount, 0f, maxStamina);
             staminaCooldownTimer = regenDelay;
+            OnStatsChanged?.Invoke();
             return true;
         }
 
@@ -142,6 +128,7 @@ namespace DucThanh
             isDead = true;
             currentHealth = 0f;
             Debug.Log("<color=red><b>[Player] Player đã chết!</b></color>");
+            OnStatsChanged?.Invoke();
             OnPlayerDied?.Invoke();
         }
 
@@ -150,6 +137,7 @@ namespace DucThanh
             isDead = false;
             currentHealth = Mathf.Clamp(maxHealth * healthPercent, 1f, maxHealth);
             Debug.Log($"[Player] Player đã hồi sinh với {currentHealth} máu!");
+            OnStatsChanged?.Invoke();
         }
     }
 }
