@@ -101,6 +101,62 @@ namespace GameBackend.Migrations
                     b.ToTable("Players");
                 });
 
+            modelBuilder.Entity("GameBackend.Models.PlayerCraftingSlot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SlotIndex")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("PlayerId", "SlotIndex")
+                        .IsUnique();
+
+                    b.ToTable("PlayerCraftingSlots", t =>
+                        {
+                            t.HasCheckConstraint("CK_PlayerCraftingSlots_Amount", "\"Amount\" > 0");
+
+                            t.HasCheckConstraint("CK_PlayerCraftingSlots_SlotIndex", "\"SlotIndex\" >= 0 AND \"SlotIndex\" < 9");
+                        });
+                });
+
+            modelBuilder.Entity("GameBackend.Models.PlayerCursorSlot", b =>
+                {
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PlayerId");
+
+                    b.HasIndex("ItemId");
+
+                    b.ToTable("PlayerCursorSlots", t =>
+                        {
+                            t.HasCheckConstraint("CK_PlayerCursorSlots_Amount", "\"Amount\" > 0");
+                        });
+                });
+
             modelBuilder.Entity("GameBackend.Models.PlayerInventorySlot", b =>
                 {
                     b.Property<int>("Id")
@@ -184,6 +240,44 @@ namespace GameBackend.Migrations
                         .IsRequired();
 
                     b.Navigation("Item");
+                });
+
+            modelBuilder.Entity("GameBackend.Models.PlayerCraftingSlot", b =>
+                {
+                    b.HasOne("GameBackend.Models.Items", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GameBackend.Models.Player", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+
+                    b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("GameBackend.Models.PlayerCursorSlot", b =>
+                {
+                    b.HasOne("GameBackend.Models.Items", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GameBackend.Models.Player", "Player")
+                        .WithOne()
+                        .HasForeignKey("GameBackend.Models.PlayerCursorSlot", "PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+
+                    b.Navigation("Player");
                 });
 
             modelBuilder.Entity("GameBackend.Models.PlayerInventorySlot", b =>

@@ -7,6 +7,8 @@ public class ItemAPI : MonoBehaviour
     [SerializeField]
     private string apiUrl = "https://localhost:7133/api/Item/getallitem";
 
+    public bool IsLoaded { get; private set; }
+
     private void Start()
     {
         StartCoroutine(GetAllItems());
@@ -54,6 +56,8 @@ public class ItemAPI : MonoBehaviour
         }
 
         ItemDatabase.Instance.SetItems(response.data);
+
+        IsLoaded = true;
 
         Debug.Log("Đã tải thành công: " + response.data.Length + " Items");
     }

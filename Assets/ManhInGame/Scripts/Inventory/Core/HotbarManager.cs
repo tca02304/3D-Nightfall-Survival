@@ -191,7 +191,7 @@ public class HotbarManager : MonoBehaviour
     {
         int size = HotbarSize;
 
-        if (size < 0)
+        if (size <= 0)
             return;
 
         int newSlot = ((CurrentSlot + direction) % size + size) % size;

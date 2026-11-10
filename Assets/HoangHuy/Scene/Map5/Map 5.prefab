@@ -127,6 +127,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3373617131717812122}
+  - component: {fileID: 6956584876043946105}
   m_Layer: 0
   m_Name: ChestManager
   m_TagString: Untagged
@@ -149,6 +150,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 554731852638608558}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6956584876043946105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619357491491321352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc90d420818c7a74ab30993156b717c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  terrain: {fileID: 205167879297587557}
+  centerPoint: {fileID: 6655503521422787394}
+  spawnRadius: 500
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 8
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  checkOverlapRadius: 2
+  spawnOffsetY: 0.3
+  chestBeginningPrefab: {fileID: 1103971948622845867, guid: 6feffe5b4bc13ed4aa6dd3fce30ab712, type: 3}
+  countBeginning: 35
+  chestFreePrefab: {fileID: 4069082287224826612, guid: 7071a5672db581441a1e80e48cfea4f3, type: 3}
+  countFree: 10
+  chestGoldPrefab: {fileID: 316592635741254761, guid: 7b60b514aa45eb44693054cac24724e7, type: 3}
+  countGold: 15
+  chestMediumPrefab: {fileID: 8317799187935064827, guid: 8e7dd5005b058b7489bc2680c3cbc262, type: 3}
+  countMedium: 20
 --- !u!1 &1628908054921632967
 GameObject:
   m_ObjectHideFlags: 0
@@ -338,6 +370,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 642719438229259466}
+  - component: {fileID: 8625174361728261808}
   m_Layer: 0
   m_Name: OreManager
   m_TagString: Untagged
@@ -360,6 +393,48 @@ Transform:
   m_Children: []
   m_Father: {fileID: 554731852638608558}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8625174361728261808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2095011402024497661}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc84e4134a6693d48ae2c78303301e46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  terrain: {fileID: 205167879297587557}
+  centerPoint: {fileID: 2913220592909246147}
+  spawnRadius: 500
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 8
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  checkOverlapRadius: 1.5
+  spawnOffsetY: 0.1
+  oreList:
+  - oreName: Adamatite
+    orePrefab: {fileID: 301687698143526247, guid: 7d7fe0c83e43fc94ab75184cb83822f8, type: 3}
+    spawnCount: 30
+  - oreName: Coal
+    orePrefab: {fileID: 1475244732079135290, guid: 779d7510b161e364393ef249911d640a, type: 3}
+    spawnCount: 50
+  - oreName: Iron
+    orePrefab: {fileID: 8683354719038116051, guid: 4e072fdc93118f944b54651571eafc7e, type: 3}
+    spawnCount: 50
+  - oreName: Gold
+    orePrefab: {fileID: 5517968273533924186, guid: 66c256d75d245bd43b170e0745333842, type: 3}
+    spawnCount: 40
+  - oreName: Mithr
+    orePrefab: {fileID: 8316252382602924976, guid: d102c11d7551c3a42be715be025d2d98, type: 3}
+    spawnCount: 35
+  - oreName: Obanium
+    orePrefab: {fileID: 7665964216826654402, guid: 111a8f330f6c80f4e9b58421631d3858, type: 3}
+    spawnCount: 25
 --- !u!1 &2279211963004183250
 GameObject:
   m_ObjectHideFlags: 0
@@ -385,7 +460,7 @@ Transform:
   m_GameObject: {fileID: 2279211963004183250}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 152.16875, y: 127.92737, z: 290.46942}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -688,9 +763,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a671ade79d13e34cbec11d92aa509d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrains: {fileID: 0}
-  treePrefabss: []
-  numberOfTreess: 100
+  terrain: {fileID: 205167879297587557}
+  treePrefabs:
+  - {fileID: 4843524868254211946, guid: 0b7c39db641be5044ab85ba9f56a629a, type: 3}
+  centerPoint: {fileID: 8695131309638260896}
+  spawnRadius: 493.8
+  numberOfTrees: 30
   groundLayers:
     serializedVersion: 2
     m_Bits: 8
@@ -1041,9 +1119,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a671ade79d13e34cbec11d92aa509d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrains: {fileID: 0}
-  treePrefabss: []
-  numberOfTreess: 100
+  terrain: {fileID: 205167879297587557}
+  treePrefabs:
+  - {fileID: 9049249026398150631, guid: 9efd7882624f44f49a7465792a81c83e, type: 3}
+  centerPoint: {fileID: 6687598614185441858}
+  spawnRadius: 300
+  numberOfTrees: 40
   groundLayers:
     serializedVersion: 2
     m_Bits: 8
@@ -1209,9 +1290,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a671ade79d13e34cbec11d92aa509d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrains: {fileID: 0}
-  treePrefabss: []
-  numberOfTreess: 100
+  terrain: {fileID: 205167879297587557}
+  treePrefabs:
+  - {fileID: 3017537088126826170, guid: c631077cd73e1de4c9fa20f36a7154be, type: 3}
+  centerPoint: {fileID: 5364627146494519181}
+  spawnRadius: 300
+  numberOfTrees: 40
   groundLayers:
     serializedVersion: 2
     m_Bits: 8
@@ -1843,9 +1927,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a671ade79d13e34cbec11d92aa509d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrains: {fileID: 0}
-  treePrefabss: []
-  numberOfTreess: 100
+  terrain: {fileID: 205167879297587557}
+  treePrefabs:
+  - {fileID: 5452570388539148895, guid: 9de01b87804adf04fb9701e36d8cef18, type: 3}
+  centerPoint: {fileID: 2438609159529722563}
+  spawnRadius: 300
+  numberOfTrees: 50
   groundLayers:
     serializedVersion: 2
     m_Bits: 8
@@ -2042,9 +2129,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a671ade79d13e34cbec11d92aa509d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrains: {fileID: 0}
-  treePrefabss: []
-  numberOfTreess: 100
+  terrain: {fileID: 205167879297587557}
+  treePrefabs:
+  - {fileID: 4110785973445957803, guid: 9e3e32ea0327c194e98b265e1daf8d83, type: 3}
+  centerPoint: {fileID: 2046407289819518152}
+  spawnRadius: 500
+  numberOfTrees: 120
   groundLayers:
     serializedVersion: 2
     m_Bits: 8
@@ -3028,9 +3118,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8080944576136490323}
+  - component: {fileID: 5220737440736246381}
   m_Layer: 0
   m_Name: PlayerSpawn
-  m_TagString: PlayerSpawnPoint
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3044,12 +3135,28 @@ Transform:
   m_GameObject: {fileID: 7916126259564126273}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 12.731247, y: -2.07, z: -27.069427}
+  m_LocalPosition: {x: 12.731247, y: -3.5173645, z: -27.069427}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 554731852638608558}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5220737440736246381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7916126259564126273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2849e661ac512ce419482b1699da5191, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  terrain: {fileID: 205167879297587557}
+  centerPoint: {fileID: 8080944576136490323}
+  spawnRadius: 20
+  spawnOffsetY: 1
 --- !u!1 &8134658878013118172
 GameObject:
   m_ObjectHideFlags: 0
@@ -3243,9 +3350,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a671ade79d13e34cbec11d92aa509d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrains: {fileID: 0}
-  treePrefabss: []
-  numberOfTreess: 100
+  terrain: {fileID: 205167879297587557}
+  treePrefabs:
+  - {fileID: 5172779862636978998, guid: 66abe782235e73948a344f1742a3facb, type: 3}
+  centerPoint: {fileID: 4682718478050377096}
+  spawnRadius: 300
+  numberOfTrees: 70
   groundLayers:
     serializedVersion: 2
     m_Bits: 8

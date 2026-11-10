@@ -10,7 +10,7 @@ public class UIManager : MonoBehaviour
     
     public UiPauseGame uiPause;     // Kéo object UiPause vào đây
     public UiGameOver uiGameOver;   // Kéo object UiGameOver vào đây
-
+    public UiBase uiCrafting;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -36,6 +36,11 @@ public class UIManager : MonoBehaviour
         // Thêm sự kiện Pause/Resume
         GameEvents.OnPauseGame += ShowPauseMenu;
         GameEvents.OnResumeGame += HidePauseMenu;
+        // ... (các đăng ký cũ)
+        GameEvents.OnRequestCraftingUI += ShowCrafting; // Lắng nghe sự kiện
+                                                        // Thêm dòng này để lắng nghe yêu cầu mở túi đồ
+        GameEvents.OnRequestInventoryUI += ShowInventory;
+        GameEvents.OnToggleInventoryUI += ToggleInventory;
     }
 
     private void OnDisable()
@@ -46,17 +51,17 @@ public class UIManager : MonoBehaviour
         GameEvents.OnReturnToMainMenu -= LoadHomeScene;
         GameEvents.OnPauseGame -= ShowPauseMenu;
         GameEvents.OnResumeGame -= HidePauseMenu;
+        // ... (các hủy đăng ký cũ)
+        GameEvents.OnRequestCraftingUI -= ShowCrafting;
+        // Hủy lắng nghe
+        GameEvents.OnRequestInventoryUI -= ShowInventory;
+        GameEvents.OnToggleInventoryUI -= ToggleInventory;
     }
     private void Update()
     {
-        // Bật/tắt Inventory bằng phím I hoặc Tab
-        if (Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetKeyDown(KeyCode.I))
         {
-            if (uiInventory != null)
-            {
-                if (uiInventory.gameObject.activeInHierarchy) uiInventory.Hide();
-                else uiInventory.Show();
-            }
+            GameEvents.OnToggleInventoryUI?.Invoke();
         }
 
         // Bật tắt nút Tạm dừng (Pause) bằng phím ESC
@@ -74,6 +79,13 @@ public class UIManager : MonoBehaviour
             {
                 uiPause.Show();
             }
+        }
+
+        // Bắt sự kiện phím Tab
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            // Phát sự kiện yêu cầu bật/tắt túi đồ
+            GameEvents.OnToggleInventoryUI?.Invoke();
         }
     }
 
@@ -115,6 +127,45 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    // Hàm thực hiện chuyển đổi
+    private void ShowCrafting()
+    {
+        if (uiInventory != null) uiInventory.Hide(); // Tắt túi đồ
+
+        if (uiCrafting != null)
+        {
+            uiCrafting.gameObject.SetActive(true);
+            uiCrafting.Show(); // Bật chế tạo
+        }
+    }
+    // Hàm chuyển về Inventory
+    private void ShowInventory()
+    {
+        if (uiCrafting != null) uiCrafting.Hide(); // Tắt bảng chế tạo
+
+        if (uiInventory != null)
+        {
+            uiInventory.gameObject.SetActive(true);
+            uiInventory.Show(); // Bật lại túi đồ
+        }
+    }
+    // Hàm xử lý việc chuyển đổi trạng thái (Toggle)
+    private void ToggleInventory()
+    {
+        if (uiInventory != null)
+        {
+            // Quan trọng: Kiểm tra GameObject, KHÔNG phải check component
+            if (uiInventory.gameObject.activeSelf)
+            {
+                uiInventory.Hide(); // Tắt
+            }
+            else
+            {
+                uiInventory.gameObject.SetActive(true);
+                uiInventory.Show(); // Bật
+            }
+        }
+    }
     private void LoadHomeScene()
     {
         Time.timeScale = 1f; // Bắt buộc mở khóa thời gian trước khi chuyển cảnh
