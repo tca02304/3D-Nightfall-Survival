@@ -19,8 +19,10 @@ public class HomeMenuController : MonoBehaviour
 
     public void OnPlayButtonClicked()
     {
-        // Hàm cho nút Play (bạn có thể điền sau)
-        Debug.Log("Play button clicked");
+        // Nếu bạn chỉ muốn ẨN Menu đi để tái sử dụng sau:
+        this.gameObject.SetActive(false);
+        // Chuyển scene sang GamePlay
+        SceneManager.LoadScene("GamePlay");
     }
 
     public void OnQuitButtonClicked()

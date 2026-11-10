@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Hoanng/Home/Home.unity
     guid: cd2b725707dbfa443afa7285c28bc1ed
+  - enabled: 1
+    path: Assets/SceneGamePlay/GamePlay.unity
+    guid: c89775bbe22b73e419aa822a4c703689
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: caf7eb72065fc9c42a06fb60286bb300, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
