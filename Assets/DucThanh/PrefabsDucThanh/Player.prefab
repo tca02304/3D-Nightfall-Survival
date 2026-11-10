@@ -2374,6 +2374,8 @@ GameObject:
   - component: {fileID: 6688448218577272892}
   - component: {fileID: 4048373597632914588}
   - component: {fileID: 2992142659639510085}
+  - component: {fileID: -3180373726570680366}
+  - component: {fileID: 5747997519305905048}
   m_Layer: 12
   m_Name: Player
   m_TagString: Player
@@ -2615,6 +2617,57 @@ MonoBehaviour:
   bobSmooth: 8
   enableShake: 1
   shakeRecoverySpeed: 15
+--- !u!114 &-3180373726570680366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1276817446878940169}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2a90f61233c13c49b987330accd3be6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  powerupRuntime: {fileID: 5747997519305905048}
+--- !u!114 &5747997519305905048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1276817446878940169}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8fe4bff354eb6f42ba55b59c39b7959, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  powerupCatalog:
+  - {fileID: 11400000, guid: c7eb49eb7b09d38408bd321a9fa7f039, type: 2}
+  - {fileID: 11400000, guid: 1702324c7ff9d654cb7e6aef786dd1a8, type: 2}
+  - {fileID: 11400000, guid: a701b175820255345af0275b28e5f9c2, type: 2}
+  - {fileID: 11400000, guid: 1e7c3fdd11fb6c84fbca616bd2efe5a9, type: 2}
+  - {fileID: 11400000, guid: db111f1dac74b214385ff3eda9f45c18, type: 2}
+  - {fileID: 11400000, guid: af77490bc8bf0ec42b43846f1aa43eeb, type: 2}
+  - {fileID: 11400000, guid: 6f14dc4a6d157614c9f679e6d2403996, type: 2}
+  - {fileID: 11400000, guid: 172ad912373580d42981bd71d9a7f003, type: 2}
+  - {fileID: 11400000, guid: 1f706b16ee4aa654181f71d3ecada98b, type: 2}
+  - {fileID: 11400000, guid: 5cdacb414f9e48341ab5365d1d5ce40b, type: 2}
+  - {fileID: 11400000, guid: ad6d65be17e39f5438b6aab5023cadd1, type: 2}
+  - {fileID: 11400000, guid: 396b348791b8c5c4baf07282031e6b8c, type: 2}
+  - {fileID: 11400000, guid: 37eb0e71c60d7c741aa7c945c2e3ecaf, type: 2}
+  - {fileID: 11400000, guid: fcbe93c883369764c92e4ed94ba7579b, type: 2}
+  - {fileID: 11400000, guid: 777448404c2bff54a9b60689776334f3, type: 2}
+  - {fileID: 11400000, guid: ad8b079977b01bc43bfffba95ae72b51, type: 2}
+  - {fileID: 11400000, guid: 62a72f552024c014186d85d7cab1538d, type: 2}
+  - {fileID: 11400000, guid: 44920c2111bde3c498d46db471e10aba, type: 2}
+  - {fileID: 11400000, guid: e78f0584aca9b0e4ba7922e1718bc177, type: 2}
+  - {fileID: 11400000, guid: 567ffabf5ae50304598bdab945298286, type: 2}
+  - {fileID: 11400000, guid: 4636b6935ac0edb4e805c7904c951259, type: 2}
+  - {fileID: 11400000, guid: 6680b84b302cdc044b1dee88a3d9bf8a, type: 2}
+  - {fileID: 11400000, guid: 668ac5121913412498a8e893fb8dc780, type: 2}
+  - {fileID: 11400000, guid: fd5ce7d292eb3ad4399448771f45fbfc, type: 2}
+  ownedPowerups: []
 --- !u!1 &1389904953499065729
 GameObject:
   m_ObjectHideFlags: 0

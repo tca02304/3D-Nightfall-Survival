@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -48,6 +47,81 @@ namespace Nightfall.Powerups
             baseStats[StatType.HealthRegen] = 0f;
             baseStats[StatType.MaxStamina] = 100f;
         }
+
+
+        [ContextMenu("Powerups/Validate Catalog")]
+        public void ValidateCatalog()
+        {
+            HashSet<string> registeredIds =
+                new HashSet<string>(StringComparer.Ordinal);
+
+            int validCount = 0;
+            int errorCount = 0;
+
+            for (int i = 0; i < powerupCatalog.Count; i++)
+            {
+                PowerupDefinitionSO definition = powerupCatalog[i];
+
+                if (definition == null)
+                {
+                    Debug.LogError(
+                        $"[PowerupCatalog] Element {i} is NULL.",
+                        this);
+
+                    errorCount++;
+                    continue;
+                }
+
+                string id = definition.powerupId;
+
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    Debug.LogError(
+                        $"[PowerupCatalog] {definition.name} has empty ID.",
+                        definition);
+
+                    errorCount++;
+                    continue;
+                }
+
+                if (!registeredIds.Add(id))
+                {
+                    Debug.LogError(
+                        $"[PowerupCatalog] Duplicate ID: {id}",
+                        definition);
+
+                    errorCount++;
+                    continue;
+                }
+
+                if (definition.maxStacks < 1)
+                {
+                    Debug.LogError(
+                        $"[PowerupCatalog] Invalid MaxStacks: {id}",
+                        definition);
+
+                    errorCount++;
+                    continue;
+                }
+
+                if (definition.effects == null ||
+                    definition.effects.Length == 0)
+                {
+                    Debug.LogWarning(
+                        $"[PowerupCatalog] {id} has no effects.",
+                        definition);
+                }
+
+                validCount++;
+            }
+
+            Debug.Log(
+                $"[PowerupCatalog] Validation completed. " +
+                $"Valid={validCount}, Errors={errorCount}, " +
+                $"Total={powerupCatalog.Count}",
+                this);
+        }
+
 
         public bool AddPowerup(string powerupId, int amount = 1)
         {
