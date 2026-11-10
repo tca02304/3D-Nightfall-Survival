@@ -847,12 +847,12 @@ GameObject:
   - component: {fileID: 6334202528965760436}
   - component: {fileID: 7737995059304886907}
   - component: {fileID: 6109639394028174512}
-  - component: {fileID: 5125641353439152426}
   - component: {fileID: 5118300628086593982}
   - component: {fileID: 7986577684026736831}
+  - component: {fileID: -246566153605624421}
   m_Layer: 13
   m_Name: Goblin
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -983,19 +983,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 2
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &5125641353439152426
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7823557862899870471}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e8f1c30b42a945d8b76e5114209df34a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enemyStats: {fileID: 0}
 --- !u!114 &5118300628086593982
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1039,6 +1026,19 @@ MonoBehaviour:
   currentDamage: 0
   registeredDay: 1
   destroyDelay: 0.3
+--- !u!114 &-246566153605624421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7823557862899870471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8f1c30b42a945d8b76e5114209df34a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyStats: {fileID: 0}
 --- !u!1 &8750307756109017220
 GameObject:
   m_ObjectHideFlags: 0

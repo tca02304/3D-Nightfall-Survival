@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c78104b3e3014733aa499a2c68e80123, type: 3}
-  m_Name: Gobin
+  m_Name: LilDave
   m_EditorClassIdentifier: 
   enemyTypeName: Normal Monster
-  baseMaxHealth: 100
-  baseDamage: 15
+  baseMaxHealth: 50
+  baseDamage: 10
   growthType: 0
-  healthGrowthRatePerDay: 0.15
-  damageGrowthRatePerDay: 0.1
+  healthGrowthRatePerDay: 0.2
+  damageGrowthRatePerDay: 0.15
   maxDamageCap: 0
   maxHealthCap: 0

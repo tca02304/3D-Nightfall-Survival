@@ -159,9 +159,11 @@ namespace DucThanh
         /// </summary>
         public int GetWeightForNight(int night)
         {
-            if (night < unlockNight) return 0;
-            int nightOffset = Mathf.Max(0, night - unlockNight);
-            int finalWeight = baseWeight + (nightOffset * weightGrowthPerNight);
+            int requiredNight = Mathf.Max(1, unlockNight);
+            if (night < requiredNight) return 0;
+            int nightOffset = Mathf.Max(0, night - requiredNight);
+            int effectiveBaseWeight = Mathf.Max(1, baseWeight);
+            int finalWeight = effectiveBaseWeight + (nightOffset * Mathf.Max(0, weightGrowthPerNight));
             return Mathf.Max(1, finalWeight);
         }
     }

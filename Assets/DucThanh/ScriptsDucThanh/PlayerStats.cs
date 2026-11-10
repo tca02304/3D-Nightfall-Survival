@@ -10,6 +10,8 @@ namespace DucThanh
         [Header("Health Settings")]
         [SerializeField] private float maxHealth = 100f;
         [SerializeField] private float currentHealth;
+        [Tooltip("Thời gian chờ trước khi Destroy Player sau khi hết máu")]
+        [SerializeField] private float destroyDelayOnDeath = 2.0f;
 
         [Header("Hunger Settings")]
         [Tooltip("Tổng điểm đói tối đa")]
@@ -125,12 +127,8 @@ namespace DucThanh
 
             currentHealth = Mathf.Clamp(currentHealth + amount, 0f, maxHealth);
 
-            // In rõ ràng ra Console mỗi khi Player mất/thay đổi máu
-            if (amount < 0f)
-            {
-                Debug.Log($"<color=red><b>[Player Health]</b> Player bị đánh trúng! Mất {-amount:F1} máu. <b>Máu hiện tại: {currentHealth:F0} / {maxHealth:F0} HP</b></color>");
-            }
-            else if (amount > 0f)
+            // In rõ ràng ra Console mỗi khi Player thay đổi máu
+            if (amount > 0f)
             {
                 Debug.Log($"<color=green><b>[Player Health]</b> Player được hồi {amount:F1} máu. Máu hiện tại: {currentHealth:F0} / {maxHealth:F0} HP</color>");
             }
@@ -180,8 +178,11 @@ namespace DucThanh
         {
             isDead = true;
             currentHealth = 0f;
-            Debug.Log("<color=red><b>[Player] Player đã chết!</b></color>");
+            Debug.Log("<color=red><b>[Player] Player đã chết! Quái ngừng tấn công, hủy Player sau 2s.</b></color>");
             OnPlayerDied?.Invoke();
+
+            // Destroy Player sau 2 giây
+            Destroy(gameObject, destroyDelayOnDeath);
         }
 
         public void Revive(float healthPercent = 1f)

@@ -2486,8 +2486,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1284562fa3a4d46bd450098df24181a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 10000
   currentHealth: 0
+  destroyDelayOnDeath: 2
   maxHunger: 100
   currentHunger: 0
   hungerInterval: 10
@@ -2561,7 +2562,7 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 4294967295
-  targetTag: 
+  targetTag: Enemy
   ignoreDeadTargets: 1
   requireTargetToAttack: 0
 --- !u!1 &1389904953499065729

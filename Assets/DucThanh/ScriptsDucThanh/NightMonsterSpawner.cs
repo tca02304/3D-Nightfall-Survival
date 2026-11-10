@@ -215,27 +215,27 @@ namespace DucThanh
             if (selectedEntry == null || selectedEntry.prefab == null) return;
 
             int entryCost = Mathf.Max(1, selectedEntry.cost);
-            int enemiesRemainingInBudget = remainingBudget / entryCost;
+            int enemiesRemainingInBudget = Mathf.Max(1, remainingBudget / entryCost);
 
             // Xác định thời gian giãn cách lý tưởng để xả hết số quái trong quỹ thời gian còn lại
-            // Để an toàn, chúng ta nhắm mục tiêu hoàn thành trước mốc kết thúc 10% (buffer)
-            float targetDuration = Mathf.Max(1f, remainingRealSeconds * 0.85f);
-            float targetInterval = targetDuration / Mathf.Max(1, enemiesRemainingInBudget);
+            // Nhắm mục tiêu hoàn thành trước mốc kết thúc để đảm bảo đủ số lượng quái yêu cầu
+            float targetDuration = Mathf.Max(1f, remainingRealSeconds * 0.8f);
+            float targetInterval = targetDuration / enemiesRemainingInBudget;
 
-            // Nếu thời gian còn lại quá gấp hoặc ngân sách còn nhiều, cho phép sinh theo bầy nhưng KHÔNG ĐƯỢC VƯỢT QUÁ GIỚI HẠN (mặc định tối đa 1 con/lần)
-            int maxAllowedPerBatch = config != null ? Mathf.Max(1, config.MaxEnemiesPerSingleSpawn) : 1;
+            // Số lượng quái tối đa trong một đợt sinh
+            int maxAllowedPerBatch = config != null ? Mathf.Max(1, config.MaxEnemiesPerSingleSpawn) : 3;
             int countToSpawn = Mathf.Clamp(selectedEntry.countPerSpawn, 1, maxAllowedPerBatch);
 
+            // Nếu thời gian còn lại gấp hoặc số lượng quái còn nhiều, tăng quy mô đợt spawn để kịp xả hết ngân sách
             if (targetInterval < 1.0f && enemiesRemainingInBudget > 1)
             {
-                // Khi cần đẩy nhanh tiến độ, tăng dần theo bầy nhưng luôn bị chặn ở maxAllowedPerBatch (tối đa 1 con)
-                int boostCluster = Mathf.CeilToInt(1.0f / Mathf.Max(0.1f, targetInterval));
+                int boostCluster = Mathf.CeilToInt(1.0f / Mathf.Max(0.05f, targetInterval));
                 countToSpawn = Mathf.Clamp(Mathf.Max(countToSpawn, boostCluster), 1, maxAllowedPerBatch);
                 targetInterval = 0.5f;
             }
 
-            // Giới hạn trong khoảng an toàn (0.3s - 5.0s)
-            targetInterval = Mathf.Clamp(targetInterval, 0.3f, 5.0f);
+            // Giới hạn trong khoảng an toàn (0.2s - 4.0s)
+            targetInterval = Mathf.Clamp(targetInterval, 0.2f, 4.0f);
 
             int actuallySpawnedCount = 0;
             for (int i = 0; i < countToSpawn; i++)
@@ -251,8 +251,17 @@ namespace DucThanh
                 }
             }
 
-            // Lập lịch lần spawn kế tiếp
-            nextSpawnTimeReal = Time.time + targetInterval;
+            // Nếu lượt này không sinh được con nào (do trúng lúc activeEnemiesList kịch trần hoặc raycast trượt),
+            // hẹn giờ kiểm tra lại rất nhanh (0.5s) thay vì chờ cả interval dài
+            if (actuallySpawnedCount == 0)
+            {
+                nextSpawnTimeReal = Time.time + 0.5f;
+            }
+            else
+            {
+                // Lập lịch lần spawn kế tiếp
+                nextSpawnTimeReal = Time.time + targetInterval;
+            }
         }
 
         /// <summary>
@@ -269,8 +278,11 @@ namespace DucThanh
             foreach (var entry in config.EnemyEntries)
             {
                 if (entry == null || entry.prefab == null) continue;
-                if (entry.unlockNight > night) continue;
-                if (entry.cost > currentBudget) continue;
+                int entryCost = Mathf.Max(1, entry.cost);
+                int reqNight = Mathf.Max(1, entry.unlockNight);
+
+                if (reqNight > night) continue;
+                if (entryCost > currentBudget) continue;
 
                 int weight = entry.GetWeightForNight(night);
                 if (weight > 0)
@@ -280,7 +292,18 @@ namespace DucThanh
                 }
             }
 
-            if (eligibleEntries.Count == 0 || totalWeight <= 0) return null;
+            if (eligibleEntries.Count == 0 || totalWeight <= 0)
+            {
+                // Fallback cứu hộ: nếu không lọt bộ lọc (do cấu hình unlockNight hoặc cost), chọn entry hợp lệ đầu tiên có prefab
+                foreach (var entry in config.EnemyEntries)
+                {
+                    if (entry != null && entry.prefab != null)
+                    {
+                        return entry;
+                    }
+                }
+                return null;
+            }
 
             int randomValue = UnityEngine.Random.Range(0, totalWeight);
             int cumulative = 0;
@@ -316,6 +339,12 @@ namespace DucThanh
             }
 
             if (enemyObj == null) return;
+
+            // Đảm bảo quái sinh ra luôn có tag "Enemy"
+            if (!enemyObj.CompareTag("Enemy"))
+            {
+                enemyObj.tag = "Enemy";
+            }
 
             // Thiết lập hoặc cập nhật chỉ số theo loại quái & đêm hiện tại
             EnemyStats stats = enemyObj.GetComponent<EnemyStats>();

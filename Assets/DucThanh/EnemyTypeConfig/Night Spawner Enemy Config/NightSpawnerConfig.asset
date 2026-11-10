@@ -24,15 +24,31 @@ MonoBehaviour:
   maxAliveGrowthPerNight: 2
   absoluteMaxAliveCap: 100
   maxEnemiesPerSingleSpawn: 3
-  minSpawnRadius: 18
-  maxSpawnRadius: 38
+  minSpawnRadius: 25
+  maxSpawnRadius: 50
   despawnRemainingAtDawn: 0
   enemyEntries:
-  - label: a
+  - label: Gobin
     prefab: {fileID: 7823557862899870471, guid: 67a0db4eb9745074f819bbfc4a7d0b96, type: 3}
     typeConfig: {fileID: 11400000, guid: cf427d68aeb6f6148a7e2784b54fc824, type: 2}
-    unlockNight: 0
-    baseWeight: 0
+    unlockNight: 2
+    baseWeight: 100
     weightGrowthPerNight: 0
-    cost: 0
-    countPerSpawn: 0
+    cost: 1
+    countPerSpawn: 1
+  - label: LilDave
+    prefab: {fileID: 1408715526692010511, guid: b9e18243666fd4048bf1f612a57ea132, type: 3}
+    typeConfig: {fileID: 11400000, guid: 4d64cae0beb44df41bc2c769af679b2b, type: 2}
+    unlockNight: 1
+    baseWeight: 100
+    weightGrowthPerNight: 0
+    cost: 1
+    countPerSpawn: 1
+  - label: Wolf
+    prefab: {fileID: 2643771054221018191, guid: 54fd0d5b9c1c82e4eb1a45b421e41629, type: 3}
+    typeConfig: {fileID: 11400000, guid: 552ab55bc96f76c44ad1d9ce693d7bd2, type: 2}
+    unlockNight: 3
+    baseWeight: 100
+    weightGrowthPerNight: 0
+    cost: 1
+    countPerSpawn: 1
