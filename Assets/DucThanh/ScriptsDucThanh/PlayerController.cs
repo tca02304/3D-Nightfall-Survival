@@ -49,6 +49,7 @@ namespace DucThanh
         private CharacterController characterController;
         private PlayerStats playerStats;
         private PlayerCombat playerCombat;
+        private PlayerInventory playerInventory;
         private Vector3 verticalVelocity;
         private Vector2 moveInput;
         private bool isSprinting;
@@ -60,6 +61,7 @@ namespace DucThanh
         public bool IsMoving => moveInput.sqrMagnitude > 0.01f;
         public bool IsSprinting => isSprinting;
         public Animator Animator => animator;
+        public PlayerInventory PlayerInventory => playerInventory;
 
         // Chuyển tiếp HasWeapon sang PlayerCombat để duy trì tương thích cho KatanaPickup
         public bool HasWeapon => playerCombat != null && playerCombat.HasWeapon;
@@ -85,6 +87,12 @@ namespace DucThanh
             if (playerCombat == null)
             {
                 playerCombat = gameObject.AddComponent<PlayerCombat>();
+            }
+
+            playerInventory = GetComponent<PlayerInventory>();
+            if (playerInventory == null)
+            {
+                playerInventory = gameObject.AddComponent<PlayerInventory>();
             }
 
             if (cameraTransform == null && Camera.main != null)
