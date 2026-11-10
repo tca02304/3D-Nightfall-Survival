@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 114518489005915545}
   - component: {fileID: 114220653531496868}
   - component: {fileID: 114841364053301648}
+  - component: {fileID: 114999100000000001}
   m_Layer: 13
   m_Name: Gronk
   m_TagString: NoHpBar
@@ -855,6 +856,37 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   forceUI: 0
+--- !u!114 &114999100000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1709254077376921}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72947873c75943ccb26d28af4e8fc997, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  playerTag: Player
+  meleeRange: 5
+  rangedMinDistance: 20
+  meleeCountToUnlockRanged: 2
+  resetMeleeCountAfterRanged: 0
+  meleeCooldown: 1
+  rangedCooldown: 3
+  turnSpeed: 540
+  locomotionState: Blend Tree
+  speedParameter: Speed
+  runBlendValue: 1
+  blendDamp: 0.1
+  meleeState: Attack1_Hogoblin
+  rangedState: Range_Hogoblin
+  animatorLayer: 0
+  crossFade: 0.1
+  state: 0
+  meleeCount: 0
 --- !u!4 &4967328832014496
 Transform:
   m_ObjectHideFlags: 0
