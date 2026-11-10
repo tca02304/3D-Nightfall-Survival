@@ -19,6 +19,8 @@ public class GronkBossAI : MonoBehaviour
     [Tooltip("Để trống: tự tìm GameObject có tag Player")]
     public Transform player;
     public string playerTag = "Player";
+    [Tooltip("Mỗi bao nhiêu giây tìm lại Player gần nhất")]
+    public float retargetInterval = 1f;
 
     [Header("Khoảng cách")]
     public float meleeRange = 5f;
@@ -55,13 +57,25 @@ public class GronkBossAI : MonoBehaviour
     [SerializeField] State state = State.Chase;
     [SerializeField] int meleeCount;
     [SerializeField] float cooldownLeft;
+    [Tooltip("Lý do Gronk đang làm gì / vì sao đứng im")]
+    [SerializeField] string status;
+    [SerializeField] float playerDistance;
 
     NavMeshAgent agent;
     Animator animator;
+    GronkSwordThrower swordThrower;
     bool hasSpeedParam;
     int meleeLayer = -1, rangedLayer = -1;
     float nextAttackTime, nextMeleeTime, nextRangedTime;
     Coroutine attackRoutine;
+    float nextRetargetTime;
+    readonly System.Collections.Generic.HashSet<string> warned = new System.Collections.Generic.HashSet<string>();
+
+    void WarnOnce(string key, string msg)
+    {
+        status = msg;
+        if (warned.Add(key)) Debug.LogWarning("[GronkBossAI] " + msg, this);
+    }
 
     public State CurrentState => state;
     public int MeleeCount => meleeCount;
@@ -70,6 +84,7 @@ public class GronkBossAI : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponentInChildren<Animator>();
+        swordThrower = GetComponent<GronkSwordThrower>();
     }
 
     void Start()
@@ -116,31 +131,54 @@ public class GronkBossAI : MonoBehaviour
         return -1;
     }
 
+    /// Chọn Player gần nhất có tag playerTag (hỗ trợ nhiều Player / Player spawn sau).
     void FindPlayer()
     {
-        if (player) return;
-        var go = GameObject.FindGameObjectWithTag(playerTag);
-        if (go) player = go.transform;
+        nextRetargetTime = Time.time + retargetInterval;
+        GameObject[] all;
+        try { all = GameObject.FindGameObjectsWithTag(playerTag); }
+        catch (UnityException) { WarnOnce("tag", $"Tag '{playerTag}' chưa được khai báo trong Tags & Layers."); return; }
+
+        Transform best = null; float bestD = float.MaxValue;
+        foreach (var go in all)
+        {
+            if (!go.activeInHierarchy || go.transform.IsChildOf(transform)) continue;
+            float d = FlatDistance(go.transform.position);
+            if (d < bestD) { bestD = d; best = go.transform; }
+        }
+        if (best) player = best;
     }
 
     // ---------- Main loop ----------
     void Update()
     {
         cooldownLeft = Mathf.Max(0f, nextAttackTime - Time.time);
-        if (!player) { FindPlayer(); SetRunBlend(false); return; }
         if (state != State.Chase) return; // đang ra đòn: coroutine điều khiển cho tới khi animation xong
 
+        if (!player || Time.time >= nextRetargetTime) FindPlayer();
+        if (!player)
+        {
+            WarnOnce("noplayer", $"Không tìm thấy GameObject nào đang bật có tag '{playerTag}'. Gắn tag đó cho Player hoặc kéo Player vào ô Player.");
+            SetRunBlend(false);
+            return;
+        }
+
         float dist = FlatDistance(player.position);
+        playerDistance = dist;
         bool globalReady = Time.time >= nextAttackTime;
 
+        if (dist <= meleeRange && meleeLayer < 0)
+            WarnOnce("nomelee", $"Player trong tầm đánh nhưng không có state '{meleeState}' trong Animator.");
         if (globalReady && dist <= meleeRange && Time.time >= nextMeleeTime && meleeLayer >= 0)
         {
+            status = "Đánh gần";
             attackRoutine = StartCoroutine(Attack(State.MeleeAttack, meleeState, meleeLayer));
             return;
         }
         if (globalReady && dist > rangedMinDistance && meleeCount >= meleeCountToUnlockRanged
             && Time.time >= nextRangedTime && rangedLayer >= 0)
         {
+            status = "Tấn công xa";
             attackRoutine = StartCoroutine(Attack(State.RangedAttack, rangedState, rangedLayer));
             return;
         }
@@ -150,10 +188,24 @@ public class GronkBossAI : MonoBehaviour
     // ---------- State 1: Chase ----------
     void Chase(float dist)
     {
-        if (!agent.isOnNavMesh) return;
+        if (!agent.enabled)
+        {
+            WarnOnce("agentoff", "NavMeshAgent đang bị tắt (có thể do script AI cũ). Gronk không thể di chuyển.");
+            FacePlayer();
+            return;
+        }
+        if (!agent.isOnNavMesh)
+        {
+            // thử kéo Gronk về điểm NavMesh gần nhất
+            if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 10f, NavMesh.AllAreas)) agent.Warp(hit.position);
+            else WarnOnce("nonavmesh", "Gronk không đứng trên NavMesh (chưa Bake NavMesh, hoặc NavMesh không khớp Agent Type/kích thước của Gronk).");
+            FacePlayer();
+            return;
+        }
 
         if (dist <= meleeRange)
         {
+            status = meleeLayer < 0 ? status : $"Trong tầm đánh, đang hồi chiêu ({cooldownLeft:0.0}s)";
             // trong tầm đánh nhưng đang hồi chiêu: đứng yên, quay mặt về Player
             agent.isStopped = true;
             agent.updateRotation = false;
@@ -163,7 +215,9 @@ public class GronkBossAI : MonoBehaviour
         }
         agent.isStopped = false;
         agent.updateRotation = true;
-        agent.SetDestination(player.position);
+        if (!agent.SetDestination(player.position))
+            WarnOnce("nopath", "SetDestination thất bại: vị trí Player không tới được trên NavMesh.");
+        else status = agent.pathPending ? "Đang tính đường" : $"Đuổi theo {player.name} ({dist:0.0}m)";
         SetRunBlend(agent.velocity.sqrMagnitude > 0.01f);
     }
 
@@ -191,13 +245,15 @@ public class GronkBossAI : MonoBehaviour
 
         // chạy HẾT animation: đợi đủ thời lượng clip, kể cả khi controller có transition thoát sớm
         float length = IsIn(hash, layer) ? StateInfo(layer).length : 0f;
+        if (attackState == State.RangedAttack && swordThrower) swordThrower.BeginThrowSequence(length);
         float elapsed = 0f;
         while (elapsed < length)
         {
-            if (attackState == State.MeleeAttack) FacePlayer();
+            FacePlayer(); // kiếm ném ra theo hướng mặt boss -> luôn hướng về Player
             elapsed += Time.deltaTime;
             yield return null;
         }
+        if (attackState == State.RangedAttack && swordThrower) swordThrower.EndThrowSequence();
 
         // hồi chiêu bắt đầu tính từ lúc animation kết thúc
         nextAttackTime = Time.time + attackCooldown;
@@ -249,6 +305,7 @@ public class GronkBossAI : MonoBehaviour
     {
         if (attackRoutine != null) StopCoroutine(attackRoutine);
         attackRoutine = null;
+        if (state == State.RangedAttack && swordThrower) swordThrower.EndThrowSequence(false);
         state = State.Chase;
     }
 
