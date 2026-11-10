@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5936827144239716797
+--- !u!1 &2464132252235720308
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,46 +8,46 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7848949813134279758}
-  - component: {fileID: 3698878184572807738}
-  - component: {fileID: 476316205122784569}
+  - component: {fileID: 6650432610506466624}
+  - component: {fileID: 8588941787207262680}
+  - component: {fileID: 1916648754150566037}
   m_Layer: 0
-  m_Name: SteelSword
-  m_TagString: Weapon
+  m_Name: GulponShroom
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7848949813134279758
+--- !u!4 &6650432610506466624
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5936827144239716797}
+  m_GameObject: {fileID: 2464132252235720308}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.099, y: 0.649, z: 0}
+  m_LocalPosition: {x: 487.2, y: 130.18636, z: 498.546}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &3698878184572807738
+--- !u!33 &8588941787207262680
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5936827144239716797}
-  m_Mesh: {fileID: 4300000, guid: 55001a3e5db69ef4bb7e9be47dc8819e, type: 2}
---- !u!23 &476316205122784569
+  m_GameObject: {fileID: 2464132252235720308}
+  m_Mesh: {fileID: 4300000, guid: af9e5f9b84bac954da099a7d36822652, type: 2}
+--- !u!23 &1916648754150566037
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5936827144239716797}
+  m_GameObject: {fileID: 2464132252235720308}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -64,7 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c5f7a9fc3d2d2814597280ff379ffd14, type: 2}
+  - {fileID: 2100000, guid: 8d0cd1c95349fcf468555af9208c18a5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

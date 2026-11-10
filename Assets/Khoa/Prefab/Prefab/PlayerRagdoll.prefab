@@ -709,21 +709,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   walkSpeed: 5
   sprintSpeed: 8
-  rotationSpeed: 12
+  groundAcceleration: 45
+  groundDeceleration: 55
+  airAcceleration: 12
+  moveSpeedWhileAttacking: 1
   jumpHeight: 1.5
   gravity: -19.62
-  cameraTransform: {fileID: 0}
+  coyoteTime: 0.12
+  jumpBufferTime: 0.12
+  groundStickForce: 2
+  enableMouseLook: 0
+  lockCursor: 1
+  cameraPivot: {fileID: 0}
+  lookSensitivity: 0.15
+  lookSmoothing: 0
+  minPitch: -85
+  maxPitch: 85
   animator: {fileID: 0}
-  attackCooldown: 0.8
+  freezeAnimationOnDeath: 1
+  attackLimiter: {fileID: 0}
   attackStaminaCost: 10
   attackDamage: 25
   attackRange: 2.2
   attackRadius: 1.2
-  attackHitDelay: 0.15
+  attackOriginHeight: 1
   targetLayer:
     serializedVersion: 2
     m_Bits: 4294967295
+  useAnimationEventForHit: 0
+  attackHitDelay: 0.15
   hasWeapon: 0
+  requireWeapon: 0
+  autoSetupKatana: 1
 --- !u!95 &8801504448265985766
 Animator:
   serializedVersion: 7
