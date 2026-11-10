@@ -220,6 +220,7 @@ GameObject:
   - component: {fileID: 4228529137202235898}
   - component: {fileID: 4341198215630421034}
   - component: {fileID: 4795729087111613099}
+  - component: {fileID: 9066583927751698261}
   m_Layer: 0
   m_Name: SM_Rocks_01
   m_TagString: Untagged
@@ -335,6 +336,21 @@ MonoBehaviour:
   currentHealth: 0
   hpUI: {fileID: 0}
   dropSpawnPoint: {fileID: 4380082137597936252}
+--- !u!114 &9066583927751698261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4843524868254211946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9429d56b6d9562144b4995dd76392234, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactDistance: 3
+  itemGivenName: Stone
+  quantity: 1
 --- !u!1 &4913035120448230744
 GameObject:
   m_ObjectHideFlags: 0

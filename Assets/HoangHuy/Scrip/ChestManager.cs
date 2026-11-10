@@ -9,6 +9,10 @@ public class ChestManager : MonoBehaviour
     public float spawnRadius = 100f; // Bán kính khu vực rương xuất hiện
     public LayerMask groundLayers;   // Layer của Terrain hoặc mặt đất
 
+    [Header("Kiểm tra va chạm tránh Làng")]
+    public LayerMask obstacleLayers; // Chọn Layer "Village" ở đây trên Inspector để rương né ra
+    public float checkOverlapRadius = 2.0f; // Bán kính kiểm tra xung quanh rương tránh đè nhà cửa
+
     [Header("Độ cao bù trừ để rương không bị chìm")]
     public float spawnOffsetY = 0.3f; // Tăng giảm giá trị này nếu rương vẫn hơi lún hoặc lơ lửng
 
@@ -72,16 +76,19 @@ public class ChestManager : MonoBehaviour
                 // Chỉ spawn nếu mặt đất không quá dốc (góc nhỏ hơn 30 độ)
                 if (Vector3.Angle(hit.normal, Vector3.up) < 30f)
                 {
-                    // Xoay ngẫu nhiên hướng của rương quanh trục Y cho tự nhiên
-                    Quaternion randomRotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
-
-                    // 3. Tính toán vị trí spawn và cộng thêm khoảng bù trừ chiều cao (spawnOffsetY)
                     Vector3 spawnPosition = hit.point + new Vector3(0, spawnOffsetY, 0);
 
-                    // Khởi tạo rương và đặt làm con của Manager này cho gọn Hierarchy
-                    Instantiate(prefab, spawnPosition, randomRotation, transform);
+                    // 3. KIỂM TRA: Nếu vị trí này không bị vướng nhà cửa/làng (Layer Village) thì mới cho spawn
+                    if (!Physics.CheckSphere(spawnPosition, checkOverlapRadius, obstacleLayers))
+                    {
+                        // Xoay ngẫu nhiên hướng của rương quanh trục Y cho tự nhiên
+                        Quaternion randomRotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
 
-                    spawned++;
+                        // Khởi tạo rương và đặt làm con của Manager này cho gọn Hierarchy
+                        Instantiate(prefab, spawnPosition, randomRotation, transform);
+
+                        spawned++;
+                    }
                 }
             }
         }
