@@ -286,16 +286,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2799c5faf13a36d46b348b6d172b5233, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrain: {fileID: 1299287508}
-  treePrefabs:
-  - {fileID: 5172779862636978998, guid: 66abe782235e73948a344f1742a3facb, type: 3}
-  - {fileID: 5452570388539148895, guid: 9de01b87804adf04fb9701e36d8cef18, type: 3}
-  - {fileID: 3017537088126826170, guid: c631077cd73e1de4c9fa20f36a7154be, type: 3}
-  - {fileID: 9049249026398150631, guid: 9efd7882624f44f49a7465792a81c83e, type: 3}
-  numberOfTrees: 200
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 8
 --- !u!1 &520321597
 GameObject:
   m_ObjectHideFlags: 0
@@ -2342,7 +2332,6 @@ SceneRoots:
   - {fileID: 1299287509}
   - {fileID: 483033939}
   - {fileID: 1417802167}
-  - {fileID: 886946105}
   - {fileID: 226307187}
   - {fileID: 1356499977}
   - {fileID: 1373174812}
