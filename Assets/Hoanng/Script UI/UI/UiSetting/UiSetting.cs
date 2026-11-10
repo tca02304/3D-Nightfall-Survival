@@ -67,10 +67,10 @@ public class UiSetting : UiBase
     // Nút Close gọi hàm này
     public void CloseSettings()
     {
-        // Cách 1: Gọi trực tiếp hàm Hide() được kế thừa từ UiBase (nó sẽ SetActive(false))
+        // Ẩn UI Settings bằng cách gọi hàm Hide() của UiBase
         Hide();
 
-        // Cách 2: Báo cho UIManager ẩn đi (Khuyên dùng để hệ thống quản lý tập trung hơn)
+        // (Tùy chọn) Gọi UIManager nếu cần xử lý logic riêng biệt (ví dụ: bật lại Pause Menu)
         // UIManager.Instance.HideSetting();
     }
 }

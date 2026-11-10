@@ -1,55 +1,75 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class UiLoadGame : UiBase
 {
     [Header("UI Components")]
-    public Slider loadingBar;            // Kéo LoadingBar (Slider) vào đây
-    public TextMeshProUGUI progressText; // Kéo Text % hoặc "Loading..." vào đây
-    
+    public Slider loadingBar;
+    public TextMeshProUGUI progressText;
 
-    private void OnEnable()
-    {
-        // 1. Đăng ký (Subscribe) lắng nghe sự kiện tiến độ load từ GameManager (Member 1)
-        GameEvents.OnLoadingProgressUpdated += UpdateLoadingProgress;
-    }
+    [Header("Scene Settings")]
+    public string nextSceneName = "Home"; // Tên scene để chuyển tiếp
 
-    private void OnDisable()
+    private void Start()
     {
-        // 3. Hủy đăng ký (Unsubscribe) khi ẩn màn hình Load để tránh rò rỉ bộ nhớ
-        GameEvents.OnLoadingProgressUpdated -= UpdateLoadingProgress;
+        // Khi đối tượng này (UI Load Game) được kích hoạt, 
+        // Coroutine giả lập tiến trình load sẽ bắt đầu ngay lập tức
+        StartCoroutine(FakeLoadingProcess());
     }
 
     public override void Show()
     {
-        base.Show(); // Bật Panel lên
+        base.Show();
 
-        // Reset lại thanh load về 0 khi mới bắt đầu mở
+        // Reset hiển thị ban đầu
         if (loadingBar != null) loadingBar.value = 0f;
         if (progressText != null) progressText.text = "0%";
     }
 
-    // 2. Nhận thông tin (Notify): Hàm này tự chạy khi Member 1 phát tín hiệu tiến độ load (từ 0.0 đến 1.0)
+    // Hàm cập nhật giao diện hiển thị
     private void UpdateLoadingProgress(float progress)
     {
+        // 1. Ép giá trị tiến độ luôn nằm trong giới hạn từ 0.0 đến 1.0
+        float clampedProgress = Mathf.Clamp01(progress);
+
         if (loadingBar != null)
         {
-            loadingBar.value = progress; // Slider thường chạy từ 0 đến 1
+            loadingBar.value = clampedProgress;
         }
 
         if (progressText != null)
         {
-            // Đổi số thập phân (ví dụ 0.5) thành dạng phần trăm (50%)
-            int percent = Mathf.RoundToInt(progress * 100);
+            int percent = Mathf.RoundToInt(clampedProgress * 100);
             progressText.text = $"Loading... {percent}%";
         }
 
-        // Tự động tắt màn hình Load khi tiến trình đạt 100%
-        if (progress >= 1f)
+        // Tự động chuyển Scene khi tiến trình đạt 100%
+        if (clampedProgress >= 1f)
         {
-            // Bạn có thể hoãn tắt 0.5s để người chơi thấy chữ 100% (nếu cần), ở đây ta tắt luôn:
-            Invoke(nameof(Hide), 0.5f);
+            // 2. TẮT giao diện Load trước khi sang cảnh mới để không bị đè
+            Hide();
+
+            SceneManager.LoadScene(nextSceneName);
+        }
+    }
+
+    // --- HÀM GIẢ LẬP ĐỂ TEST ĐỘC LẬP TRÊN GIAO DIỆN ---
+    private IEnumerator FakeLoadingProcess()
+    {
+        float fakeProgress = 0f;
+
+        // Mô phỏng thanh load chạy từ 0 đến 1 trong vòng 3 giây
+        while (fakeProgress < 1f)
+        {
+            fakeProgress += Time.deltaTime / 3f;
+
+            // Cập nhật lên màn hình
+            UpdateLoadingProgress(fakeProgress);
+
+            yield return null; // Đợi khung hình (frame) tiếp theo
         }
     }
 }
