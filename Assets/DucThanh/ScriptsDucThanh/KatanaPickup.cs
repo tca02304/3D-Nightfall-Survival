@@ -36,7 +36,7 @@ namespace DucThanh
 
         private Collider pickupCollider;
         private bool isEquipped = false;
-        private PlayerController cachedPlayer;
+        private PlayerMove cachedPlayer;
 
         public bool IsEquipped => isEquipped;
 
@@ -95,7 +95,7 @@ namespace DucThanh
         {
             if (cachedPlayer == null)
             {
-                cachedPlayer = FindAnyObjectByType<PlayerController>();
+                cachedPlayer = FindAnyObjectByType<PlayerMove>();
             }
 
             if (targetHand == null && cachedPlayer != null)
@@ -182,7 +182,7 @@ namespace DucThanh
         {
             if (isEquipped) return;
 
-            PlayerController player = other.GetComponentInParent<PlayerController>();
+            PlayerMove player = other.GetComponentInParent<PlayerMove>();
             if (player != null)
             {
                 EquipToHand(player);
@@ -207,7 +207,7 @@ namespace DucThanh
         /// <summary>
         /// Nhảy lên tay của Player đúng vị trí, góc độ và tỉ lệ đã setup sẵn
         /// </summary>
-        public void EquipToHand(PlayerController player = null)
+        public void EquipToHand(PlayerMove player = null)
         {
             if (isEquipped) return;
 
