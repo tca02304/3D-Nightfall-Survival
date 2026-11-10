@@ -32,7 +32,7 @@ public static class GameEvents
     public static Action OnPlayerDied;
 
     // UI của bạn sẽ phát các sự kiện này khi người chơi bấm nút, Member 1 sẽ lắng nghe
-    public static Action OnResumeGame;
+    //public static Action OnResumeGame;
     public static Action OnRestartGame;
     public static Action OnReturnToMainMenu;
 
@@ -64,4 +64,11 @@ public static class GameEvents
 
     // Thông báo khi Wave kết thúc (dọn sạch quái)
     public static Action OnWaveEnded;
+
+    // Yêu cầu bật màn hình Settings (dùng khi chuyển từ Home sang SPLASH)
+    public static System.Action OnRequestSettingsUI;
+
+    // Yêu cầu tạm dừng/tiếp tục game
+    public static System.Action OnPauseGame;
+    public static System.Action OnResumeGame;
 }

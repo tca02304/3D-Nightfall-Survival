@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Hoanng/SPLASH/SPLASH.unity
     guid: 59b11b35d699f154b8cfa007174217ba
   - enabled: 1
-    path: Assets/Hoanng/Home/hoang.unity
+    path: Assets/Hoanng/Home/Home.unity
     guid: cd2b725707dbfa443afa7285c28bc1ed
   - enabled: 1
     path: Assets/SceneGamePlay/GamePlay.unity
