@@ -160,14 +160,140 @@ public sealed class GridCraftingController : MonoBehaviour
 
     public bool TryReturnCellAnywhere(int sourceCell) => TryReturnOneCellAnywhere(sourceCell);
 
+
     public bool TryReturnAll()
     {
-        // Best effort; unreturned stacks remain in crafting grid.
-        for (int i = 0; i < 9; i++)
-            while (grid[i].itemId > 0)
-                if (!TryReturnOneCellAnywhere(i)) return false;
+        return TryReturnAll(out _);
+    }
+
+    public bool TryReturnAll(out string message)
+    {
+        InventoryManager inv = InventoryManager.Instance;
+
+        if (inv == null)
+        {
+            message = "InventoryManager not found";
+            return false;
+        }
+
+        // Khong dong Crafting khi nguoi cho dang cam Item.
+        if (!inv.CursorSlot.isEmpty())
+        {
+            message = "Put the cursor-held item away first";
+            return false;
+        }
+
+        int slotCount = inv.Slots.Count;
+
+        // Trang thai mo phong: chua sua Inventory that.
+        int[] plannedItemIds = new int[slotCount];
+        int[] plannedAmounts = new int[slotCount];
+
+        for (int i = 0; i < slotCount; i++)
+        {
+            InventorySlotData slot = inv.Slots[i];
+
+            if (slot == null)
+            {
+                message = $"Inventory slot {i} is null";
+                return false;
+            }
+
+            plannedItemIds[i] = slot.isEmpty() ? 0 : slot.ItemId;
+            plannedAmounts[i] = slot.isEmpty() ? 0 : slot.Amount;
+        }
+
+        // GIAI DOAN 1: Mo phong viec tra toan bo 9 o.
+        for (int cellIndex = 0; cellIndex < grid.Length; cellIndex++)
+        {
+            GridIngredient cell = grid[cellIndex];
+
+            if (cell.itemId <= 0 || cell.amount <= 0)
+                continue;
+
+            ItemData item = inv.GetItemData(cell.itemId);
+
+            if (item == null || item.maxStack <= 0)
+            {
+                message = $"Invalid item in crafting cell {cellIndex}";
+                return false;
+            }
+
+            int remaining = cell.amount;
+
+            // Uu tien gop vao nhung stack cung ItemId.
+            for (int i = 0; i < slotCount && remaining > 0; i++)
+            {
+                if (plannedItemIds[i] != cell.itemId)
+                    continue;
+
+                int capacity = item.maxStack - plannedAmounts[i];
+
+                if (capacity <= 0)
+                    continue;
+
+                int moved = Mathf.Min(remaining, capacity);
+
+                plannedAmounts[i] += moved;
+                remaining -= moved;
+            }
+
+            // Sau do phan bo vao cac o trong.
+            for (int i = 0; i < slotCount && remaining > 0; i++)
+            {
+                if (plannedItemIds[i] != 0)
+                    continue;
+
+                int moved = Mathf.Min(remaining, item.maxStack);
+
+                plannedItemIds[i] = cell.itemId;
+                plannedAmounts[i] = moved;
+                remaining -= moved;
+            }
+
+            if (remaining > 0)
+            {
+                message =
+                    $"Not enough inventory space. " +
+                    $"Cannot return item {cell.itemId} x{remaining}";
+
+                // Inventory va Crafting Grid van nguyen ven.
+                return false;
+            }
+        }
+
+        // GIAI DOAN 2: Tat ca da du cho.
+        // Bat dau ghi du lieu that vao Inventory.
+        for (int i = 0; i < slotCount; i++)
+        {
+            InventorySlotData slot = inv.Slots[i];
+
+            if (plannedItemIds[i] <= 0)
+                continue;
+
+            ItemData item = inv.GetItemData(plannedItemIds[i]);
+
+            // Da kiem tra item trong buoc mo phong.
+            slot.ItemId = item.id;
+            slot.ItemCode = item.itemCode;
+            slot.ItemName = item.name;
+            slot.MaxStack = item.maxStack;
+            slot.Amount = plannedAmounts[i];
+        }
+
+        // Chi lam trong Grid SAU KHI ghi Inventory thanh cong.
+        for (int i = 0; i < grid.Length; i++)
+            grid[i] = default;
+
+        // Day la chuyen vi tri Item, khong phai tao Item moi.
+        // Khong goi NotifyAdded/NotifyRemoved.
+        inv.NotifyChanged();
+        Refresh();
+
+        message = "All crafting ingredients returned";
         return true;
     }
+
 
 
     public bool TryTakeOneResultToCursor(out string message)
@@ -641,6 +767,132 @@ public sealed class GridCraftingController : MonoBehaviour
 
         return true;
     }
+
+
+    public GridIngredient[] CreateSnapshot()
+    {
+        GridIngredient[] snapshot =
+            new GridIngredient[grid.Length];
+
+        for (int i = 0; i < grid.Length; i++)
+            snapshot[i] = grid[i];
+
+        return snapshot;
+    }
+
+
+    public bool TryLoadGridFromResponse(
+        InventorySlotResponse[] records)
+    {
+        if (records == null)
+            return false;
+
+        InventoryManager inventory = InventoryManager.Instance;
+
+        if (inventory == null)
+            return false;
+
+        // Tao mang tam, khong sua Grid hien tai ngay.
+        GridIngredient[] restored =
+            new GridIngredient[grid.Length];
+
+        HashSet<int> used = new HashSet<int>();
+
+        // Kiem tra du lieu tu Backend.
+        foreach (InventorySlotResponse record in records)
+        {
+            if (record == null ||
+                record.slotIndex < 0 ||
+                record.slotIndex >= grid.Length ||
+                !used.Add(record.slotIndex))
+            {
+                Debug.LogError(
+                    "[GridCrafting] Invalid or duplicate grid index.");
+                return false;
+            }
+
+            ItemData item =
+                inventory.GetItemData(record.itemId);
+
+            if (item == null ||
+                record.amount <= 0 ||
+                record.amount > item.maxStack)
+            {
+                Debug.LogError(
+                    $"[GridCrafting] Invalid saved item: " +
+                    $"ItemId={record.itemId}, Amount={record.amount}");
+                return false;
+            }
+
+            restored[record.slotIndex] =
+                new GridIngredient(
+                    record.itemId,
+                    record.amount);
+        }
+
+        // Chi cap nhat khi tat ca du lieu hop le.
+        Array.Copy(restored, grid, grid.Length);
+
+        // Kiem tra lai CSV recipe va cap nhat UI.
+        Refresh();
+
+        Debug.Log(
+            $"[GridCrafting] Restored {records.Length} crafting slots.");
+
+        return true;
+    }
+
+
+    public bool TryLoadGrid(
+        IReadOnlyList<InventorySlotRecord> records)
+    {
+        if (records == null)
+            return false;
+
+        InventoryManager inv = InventoryManager.Instance;
+
+        if (inv == null)
+            return false;
+
+        GridIngredient[] restored =
+            new GridIngredient[grid.Length];
+
+        HashSet<int> used = new HashSet<int>();
+
+        // Kiểm tra toàn bộ dữ liệu trước khi thay đổi Grid.
+        foreach (InventorySlotRecord record in records)
+        {
+            if (record.SlotIndex < 0 ||
+                record.SlotIndex >= grid.Length ||
+                !used.Add(record.SlotIndex))
+            {
+                return false;
+            }
+
+            ItemData item = inv.GetItemData(record.ItemId);
+
+            if (item == null ||
+                record.Amount <= 0 ||
+                record.Amount > item.maxStack)
+            {
+                return false;
+            }
+
+            restored[record.SlotIndex] =
+                new GridIngredient(
+                    record.ItemId,
+                    record.Amount
+                );
+        }
+
+        // Dữ liệu hợp lệ: khôi phục đủ 9 ô.
+        for (int i = 0; i < grid.Length; i++)
+            grid[i] = restored[i];
+
+        Refresh();
+        return true;
+    }
+
 
 
     [Obsolete("Use TryMoveAmountFromInventory; virtual cell assignment is disabled.")]
