@@ -3,8 +3,8 @@ using UnityEngine.InputSystem;
 
 public class ItemDropper : MonoBehaviour
 {
-    [Header("World Item")]
-    [SerializeField] private WorldItem worldItemPrefab;
+    [Header("World Item Registry")]
+    [SerializeField] private WorldItemPrefabRegistry prefabRegistry;
 
     [Header("Drop Position")]
     [SerializeField, Min(0.1f)] private float dropDistance = 1.5f;
@@ -49,10 +49,10 @@ public class ItemDropper : MonoBehaviour
             return false;
         }
 
-        if (worldItemPrefab == null)
+        if (prefabRegistry == null)
         {
             Debug.LogError(
-                "[ItemDropper] WorldItem Prefab missing");
+                "[ItemDropper] WorldItemPrefabRegistry missing");
             return false;
         }
 
@@ -153,7 +153,15 @@ public class ItemDropper : MonoBehaviour
 
         try
         {
-            worldItem = Instantiate(worldItemPrefab, spawnPosition, Quaternion.identity);
+            WorldItem prefab = prefabRegistry.GetPrefab(itemId);
+
+            if(prefab == null)
+            {
+                Debug.LogWarning($"[ItemDropper] No WorldItem Prefab for ItemId={itemId}");
+                return null;
+            }
+
+            worldItem = Instantiate(prefab, spawnPosition, Quaternion.identity);
         }
         catch(System.Exception ex)
         {

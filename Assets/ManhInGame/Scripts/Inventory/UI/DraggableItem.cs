@@ -15,6 +15,8 @@ public class DraggableItem : MonoBehaviour,
     private GameObject dragGhost;
     private RectTransform dragGhostRect;
 
+    private InventoryWorldDropHandler worldDropHandler;
+
     public static DraggableItem ActiveDrag { get; private set; }
 
     public ItemSlot sourceSlot { get; private set; }
@@ -25,6 +27,7 @@ public class DraggableItem : MonoBehaviour,
         canvas = GetComponentInParent<Canvas>();
         canvasGroup = GetComponent<CanvasGroup>();
         itemUI = GetComponent<ItemUI>();
+        worldDropHandler = GetComponentInParent<InventoryWorldDropHandler>();
     }
 
     public void OnInitializePotentialDrag(PointerEventData eventData)
@@ -72,8 +75,30 @@ public class DraggableItem : MonoBehaviour,
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (ActiveDrag == this &&
+        sourceSlot != null &&
+        dragAmount > 0 &&
+        worldDropHandler != null &&
+        eventData.button == PointerEventData.InputButton.Left)
+        {
+            bool dropped = worldDropHandler.TryDropOutsideUI(
+                sourceSlot.SlotIndex,
+                dragAmount,
+                eventData.position,
+                eventData.pressEventCamera
+            );
+
+            if (dropped)
+            {
+                Debug.Log(
+                    $"[DraggableItem] World drop success. " +
+                    $"Amount={dragAmount}");
+            }
+        }
+
         CleanupDrag();
         sourceSlot = null;
+        dragAmount = 0;
     }
 
     private void UpdateGhostPosition(PointerEventData evnetData)

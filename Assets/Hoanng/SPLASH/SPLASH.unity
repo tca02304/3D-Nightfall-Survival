@@ -26013,6 +26013,7 @@ GameObject:
   - component: {fileID: 2034191628}
   - component: {fileID: 2034191627}
   - component: {fileID: 2034191626}
+  - component: {fileID: 2034191635}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -26061,7 +26062,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1ed109c53b108541a583e00c7c2ad51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  worldItemPrefab: {fileID: 0}
+  prefabRegistry: {fileID: 2034191635}
   dropDistance: 1.5
   dropHeight: 0.5
   enableDropHotkey: 1
@@ -26275,6 +26276,20 @@ Transform:
   - {fileID: 1310783535}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2034191635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2034191625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9db291bb7ce96494ca2f60ff56b124f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  overrides: []
+  fallbackPrefab: {fileID: 0}
 --- !u!1 &2041654019 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 256427133316069059, guid: e6fdddf76c7fd7b4a9d44860714a579a, type: 3}
