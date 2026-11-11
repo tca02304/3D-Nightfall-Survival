@@ -75,6 +75,7 @@ GameObject:
   - component: {fileID: 137099118695303065}
   - component: {fileID: 65061268324235159}
   - component: {fileID: 208587765826080250}
+  - component: {fileID: 6407152802305036851}
   m_Layer: 10
   m_Name: ChestPlayer
   m_TagString: Build
@@ -193,6 +194,24 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0.425, z: 0.061000004}
   m_TimeToStationary: 0.5
+--- !u!114 &6407152802305036851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1709254077376921}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e2b7e9c64fe39f469353bcebd00784b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactDistance: 3
+  isOpen: 0
+  possibleRewards:
+  - itemName: aaaa
+    itemPrefab: {fileID: 301687698143526247, guid: 7d7fe0c83e43fc94ab75184cb83822f8, type: 3}
+    dropRate: 0
 --- !u!1 &1724804207875695
 GameObject:
   m_ObjectHideFlags: 0

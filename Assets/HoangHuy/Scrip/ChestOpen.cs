@@ -1,26 +1,50 @@
 ﻿using UnityEngine;
 
+public enum ItemRarity
+{
+    Common,   // Đồ phổ biến
+    Rare,     // Đồ hiếm
+    Epic      // Đồ cực hiếm
+}
+
 [System.Serializable]
 public class RewardItem
 {
-    public string itemName;      // Tên vật phẩm/buff
-    public GameObject itemPrefab; // Prefab của vật phẩm rơi ra
+    public string itemName;
+    public GameObject itemPrefab;
+    public ItemRarity rarity;
+
     [Range(0f, 100f)]
-    public float dropRate = 50f;  // Tỉ lệ xuất hiện
+    public float dropRate = 50f;
 }
 
 public class ChestOpen : MonoBehaviour
 {
     [Header("Cấu hình tương tác")]
-    public float interactDistance = 3f; // Khoảng cách tối đa để mở rương
+    public float interactDistance = 3f;
     public bool isOpen = false;
 
-    [Header("Danh sách phần thưởng có thể nhận (Random theo tỉ lệ)")]
-    public RewardItem[] possibleRewards; // Kéo thả các item và chỉnh % tỉ lệ vào đây
+    [Header("Animator của Rương")]
+    private Animator anim;
+
+    [Header("Điểm gắn vật phẩm (Nắp rương)")]
+    [Tooltip("Kéo đối tượng nắp rương vào đây để vật phẩm bay lên cùng nắp")]
+    public Transform lidTransform;
+
+    [Header("Danh sách phần thưởng")]
+    public RewardItem[] possibleRewards;
+
+    void Start()
+    {
+        anim = GetComponentInChildren<Animator>();
+        if (anim == null)
+        {
+            anim = GetComponent<Animator>();
+        }
+    }
 
     void Update()
     {
-        // Đã đổi lại thành KeyCode.E để mở rương
         if (!isOpen && Input.GetKeyDown(KeyCode.E))
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -37,13 +61,31 @@ public class ChestOpen : MonoBehaviour
         isOpen = true;
         Debug.Log("Rương đã mở bằng phím E!");
 
-        // Random phần thưởng dựa trên tỉ lệ dropRate
+        // 1. Chạy Animator mở rương
+        if (anim != null)
+        {
+            anim.SetTrigger("Use");
+        }
+
+        // 2. Random và sinh ra ĐÚNG 1 phần thưởng duy nhất
         GameObject rewardToSpawn = GetRandomReward();
         if (rewardToSpawn != null)
         {
-            // Sinh ra vật phẩm lơ lửng trên đầu rương (cao hơn 1 đơn vị)
-            Vector3 spawnPos = transform.position + new Vector3(0, 1f, 0);
-            Instantiate(rewardToSpawn, spawnPos, Quaternion.identity);
+            if (lidTransform != null)
+            {
+                // Sinh vật phẩm làm con của nắp rương ở chính giữa tâm
+                GameObject spawnedItem = Instantiate(rewardToSpawn, lidTransform);
+                spawnedItem.transform.localPosition = new Vector3(0f, 0.5f, 0f);
+                spawnedItem.transform.localRotation = Quaternion.identity;
+            }
+            else
+            {
+                // Sinh ra phía trên rương nếu không dùng nắp
+                Vector3 spawnPos = transform.position + new Vector3(0f, 1.5f, 0f);
+                Instantiate(rewardToSpawn, spawnPos, Quaternion.identity);
+            }
+
+            Debug.Log("✨ Đã rơi ra đúng 1 vật phẩm từ rương!");
         }
     }
 
@@ -65,6 +107,7 @@ public class ChestOpen : MonoBehaviour
             currentSum += reward.dropRate;
             if (randomValue <= currentSum)
             {
+                Debug.Log($"🎉 Random trúng đồ loại [{reward.rarity}]: {reward.itemName}");
                 return reward.itemPrefab;
             }
         }

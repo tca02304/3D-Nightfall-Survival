@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1638575078202981182}
   - component: {fileID: 1909255725912416372}
   - component: {fileID: 7870575336568611139}
+  - component: {fileID: 9177708210354240933}
   m_Layer: 0
   m_Name: Speed
   m_TagString: PowerUps
@@ -86,3 +87,17 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &9177708210354240933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2293723518102404272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6f613e78aff6dd499fe152ea734d2d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  amplitude: 0.2
+  frequency: 2
