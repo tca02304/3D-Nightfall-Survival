@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb2ec7f666777a0479765a0822e2d311, type: 3}
-  m_Name: Katana
+  m_Name: test
   m_EditorClassIdentifier: 
-  itemId: item_katana
-  itemName: Katana
-  description: "Thanh ki\u1EBFm Katana s\u1EAFc b\xE9n."
+  itemId: id_test
+  itemName: Test
+  description: "V\u0169 kh\xED c\u1EADn chi\u1EBFn s\u1EAFc b\xE9n."
   icon: {fileID: 0}
   itemType: 0
-  heldPrefab: {fileID: 348727873602218722, guid: 0876007b5d2dc59429f1ccdb6163c2f9, type: 3}
-  dropPrefab: {fileID: 348727873602218722, guid: 0876007b5d2dc59429f1ccdb6163c2f9, type: 3}
+  heldPrefab: {fileID: 276050693000938924, guid: 2d0441294f1292145b81f94116cd7c5f, type: 3}
+  dropPrefab: {fileID: 276050693000938924, guid: 2d0441294f1292145b81f94116cd7c5f, type: 3}
   handBoneName: Weapon (1)
   handLocalPosition: {x: -0.03, y: 0, z: -0.24}
-  handLocalEulerAngles: {x: -190.923, y: 103.418, z: 0.39}
+  handLocalEulerAngles: {x: 10.923008, y: 283.418, z: 180.39}
   handLocalScale: {x: 2.6312, y: 0.52624, z: 2.6312}
-  attackDamage: 25
+  attackDamage: 30
   attackRange: 2.2
   attackRadius: 1.2
   maxStack: 1

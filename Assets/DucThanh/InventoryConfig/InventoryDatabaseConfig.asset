@@ -19,7 +19,10 @@ MonoBehaviour:
     equipAtStart: 0
   registeredItems:
   - {fileID: 11400000, guid: 4268d248f6ef15a48832a0b8c536a7e4, type: 2}
-  - {fileID: 11400000, guid: 57d81234a9b6c0e8124ef5a9b0c12345, type: 2}
+  - {fileID: 11400000, guid: 0b7256757bffc6343bb4942bd3322f0a, type: 2}
   - {fileID: 11400000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 2}
   - {fileID: 11400000, guid: 62ec99db4f7e8ac4fb29c2aee04e2297, type: 2}
   - {fileID: 11400000, guid: 016339906e4fa66488ac075355cf1e36, type: 2}
+  - {fileID: 11400000, guid: 3a1fdb133650a3344ae7026cabdc057d, type: 2}
+  - {fileID: 11400000, guid: 1873930771fa77140bf8a35f004eea2c, type: 2}
+  - {fileID: 11400000, guid: b58e74ec865315945bb4bb7d7fd6cd2f, type: 2}

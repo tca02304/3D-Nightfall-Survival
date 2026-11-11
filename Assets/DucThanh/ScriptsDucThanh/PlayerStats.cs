@@ -64,6 +64,17 @@ namespace DucThanh
             currentHunger = maxHunger;
             currentStamina = maxStamina;
             isDead = false;
+
+            // Đảm bảo Player có PlayerInventory và PlayerCombat để nhặt và sử dụng vũ khí
+            if (GetComponent<PlayerInventory>() == null)
+            {
+                gameObject.AddComponent<PlayerInventory>();
+            }
+
+            if (GetComponent<PlayerCombat>() == null)
+            {
+                gameObject.AddComponent<PlayerCombat>();
+            }
         }
 
         private void Start()

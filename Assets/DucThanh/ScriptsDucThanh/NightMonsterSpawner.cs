@@ -38,6 +38,17 @@ namespace DucThanh
         [Tooltip("Số lần thử tìm vị trí hợp lệ tối đa mỗi lần spawn")]
         [SerializeField] private int maxPlacementAttempts = 10;
 
+        [Header("Scene Overrides (Tùy chọn ghi đè cấu hình quái tại Scene)")]
+        [Tooltip("Bật nếu muốn tự chỉnh danh sách quái và số lượng ngay trên Inspector của GameObject này mà không cần sửa file ScriptableObject")]
+        [SerializeField] private bool overrideConfigOnThisSpawner = false;
+
+        [Tooltip("Danh sách cấu hình quái riêng của Spawner này (chỉ hoạt động khi overrideConfigOnThisSpawner = true)")]
+        [SerializeField] private List<EnemySpawnEntry> customEnemyEntries = new List<EnemySpawnEntry>();
+
+        [Header("Tonight Spawning Quotas (Tiến độ sinh từng loại quái đêm nay)")]
+        [Tooltip("Danh sách số lượng từng loại quái được lập lịch đêm nay và số lượng đã sinh (Cập nhật thời gian thực khi chơi)")]
+        [SerializeField] private List<MonsterNightTracker> tonightMonsterTrackers = new List<MonsterNightTracker>();
+
         [Header("Debug & Monitor (Runtime State - Chỉ hiển thị trạng thái)")]
         [SerializeField] private bool isNightSpawningActive = false;
         [SerializeField] private int currentNight = 1;
@@ -139,24 +150,79 @@ namespace DucThanh
         }
 
         /// <summary>
-        /// Tạo ngẫu nhiên giờ bắt đầu (8h - 12h tối) và giờ kết thúc (3h - 5h sáng) cho đêm chỉ định
+        /// Tạo ngẫu nhiên giờ bắt đầu (8h - 12h tối) và giờ kết thúc (3h - 5h sáng) cho đêm chỉ định,
+        /// đồng thời nạp danh sách số lượng của từng loại quái cần sinh trong đêm nay.
         /// </summary>
         public void ScheduleNightHoursForDay(int night)
         {
-            if (config == null) return;
+            if (config == null && !overrideConfigOnThisSpawner) return;
+
+            float minStart = config != null ? config.MinStartHour : 20f;
+            float maxStart = config != null ? config.MaxStartHour : 24f;
+            float minEnd = config != null ? config.MinEndHour : 3f;
+            float maxEnd = config != null ? config.MaxEndHour : 5f;
 
             // Random từ 20h00 đến 24h00 (8h - 12h tối)
-            scheduledStartHour = UnityEngine.Random.Range(config.MinStartHour, config.MaxStartHour);
+            scheduledStartHour = UnityEngine.Random.Range(minStart, maxStart);
 
             // Random từ 3h00 đến 5h00 sáng hôm sau
-            scheduledEndHour = UnityEngine.Random.Range(config.MinEndHour, config.MaxEndHour);
+            scheduledEndHour = UnityEngine.Random.Range(minEnd, maxEnd);
 
-            // Tính toán ngân sách quái cho đêm này
-            currentNightTotalBudget = config.CalculateBudgetForNight(night);
-            remainingBudget = currentNightTotalBudget;
+            // Thu thập danh sách entries (từ Scene override hoặc từ ScriptableObject Config)
+            IEnumerable<EnemySpawnEntry> activeEntries = null;
+            if (overrideConfigOnThisSpawner && customEnemyEntries != null && customEnemyEntries.Count > 0)
+            {
+                activeEntries = customEnemyEntries;
+            }
+            else if (config != null && config.EnemyEntries != null)
+            {
+                activeEntries = config.EnemyEntries;
+            }
+
+            tonightMonsterTrackers.Clear();
+            int totalMonstersTonight = 0;
+
+            if (activeEntries != null)
+            {
+                foreach (var entry in activeEntries)
+                {
+                    if (entry == null || entry.prefab == null) continue;
+                    int count = entry.GetSpawnCountForNight(night);
+                    if (count > 0)
+                    {
+                        var tracker = new MonsterNightTracker
+                        {
+                            label = !string.IsNullOrEmpty(entry.label) ? entry.label : entry.prefab.name,
+                            totalQuota = count,
+                            spawnedCount = 0,
+                            entry = entry
+                        };
+                        tonightMonsterTrackers.Add(tracker);
+                        totalMonstersTonight += count;
+                    }
+                }
+            }
+
+            // Nếu chưa có quota nào từ entries, fallback theo công thức tính tổng ngân sách cũ
+            if (totalMonstersTonight == 0 && config != null)
+            {
+                totalMonstersTonight = config.CalculateBudgetForNight(night);
+            }
+
+            currentNightTotalBudget = totalMonstersTonight;
+            remainingBudget = totalMonstersTonight;
             currentNightMaxAliveAllowed = EffectiveMaxAliveMonsters;
 
-            Debug.Log($"<color=cyan>[NightMonsterSpawner] Lập lịch đêm {night}: Spawn từ {FormatHour(scheduledStartHour)} -> {FormatHour(scheduledEndHour)} (Ngân sách: {currentNightTotalBudget} | Giới hạn sống tối đa đêm nay: {currentNightMaxAliveAllowed})</color>");
+            // Log chi tiết danh sách từng loại quái cho đêm này
+            System.Text.StringBuilder quotaSummary = new System.Text.StringBuilder();
+            foreach (var t in tonightMonsterTrackers)
+            {
+                if (quotaSummary.Length > 0) quotaSummary.Append(", ");
+                quotaSummary.Append($"{t.label}: {t.totalQuota} con");
+            }
+
+            string quotaInfo = quotaSummary.Length > 0 ? quotaSummary.ToString() : "Mặc định";
+            Debug.Log($"<color=cyan>[NightMonsterSpawner] Lập lịch Đêm {night}: Spawn từ {FormatHour(scheduledStartHour)} -> {FormatHour(scheduledEndHour)} (Tổng {currentNightTotalBudget} quái | Chi tiết: [{quotaInfo}] | Tối đa sống: {currentNightMaxAliveAllowed})</color>");
         }
 
         /// <summary>
@@ -173,7 +239,7 @@ namespace DucThanh
         }
 
         /// <summary>
-        /// Xử lý việc sinh quái theo nhịp điệu và thuật toán phân bổ tối ưu
+        /// Xử lý việc sinh quái theo nhịp điệu và thuật toán phân bổ tối ưu theo từng loại quái
         /// </summary>
         private void HandleNightSpawning(float currentHour)
         {
@@ -209,28 +275,26 @@ namespace DucThanh
             // Kiểm tra nhịp thời gian giữa các lần spawn
             if (Time.time < nextSpawnTimeReal) return;
 
-            // Thuật toán Adaptive Auto-Pacing:
-            // Tự động tính toán số đợt spawn và số quái cần sinh sao cho dùng HẾT SẠCH ngân sách trước khi remainingRealSeconds về 0
-            EnemySpawnEntry selectedEntry = SelectEnemyByWeightedRoulette(currentNight, remainingBudget);
+            // 4. Chọn tracker quái tiếp theo cần sinh dựa trên quota còn lại và trọng số
+            MonsterNightTracker selectedTracker = SelectNextMonsterTracker(currentNight);
+            EnemySpawnEntry selectedEntry = (selectedTracker != null) ? selectedTracker.entry : SelectEnemyByWeightedRoulette(currentNight, remainingBudget);
+
             if (selectedEntry == null || selectedEntry.prefab == null) return;
 
-            int entryCost = Mathf.Max(1, selectedEntry.cost);
-            int enemiesRemainingInBudget = Mathf.Max(1, remainingBudget / entryCost);
-
             // Xác định thời gian giãn cách lý tưởng để xả hết số quái trong quỹ thời gian còn lại
-            // Nhắm mục tiêu hoàn thành trước mốc kết thúc để đảm bảo đủ số lượng quái yêu cầu
             float targetDuration = Mathf.Max(1f, remainingRealSeconds * 0.8f);
-            float targetInterval = targetDuration / enemiesRemainingInBudget;
+            float targetInterval = targetDuration / Mathf.Max(1, remainingBudget);
 
-            // Số lượng quái tối đa trong một đợt sinh
+            // Số lượng quái tối đa trong một đợt sinh (không vượt quá số lượng còn lại của quái này)
             int maxAllowedPerBatch = config != null ? Mathf.Max(1, config.MaxEnemiesPerSingleSpawn) : 3;
-            int countToSpawn = Mathf.Clamp(selectedEntry.countPerSpawn, 1, maxAllowedPerBatch);
+            int remainingQuotaForEntry = (selectedTracker != null) ? selectedTracker.Remaining : remainingBudget;
+            int countToSpawn = Mathf.Clamp(selectedEntry.countPerSpawn, 1, Mathf.Min(maxAllowedPerBatch, remainingQuotaForEntry));
 
-            // Nếu thời gian còn lại gấp hoặc số lượng quái còn nhiều, tăng quy mô đợt spawn để kịp xả hết ngân sách
-            if (targetInterval < 1.0f && enemiesRemainingInBudget > 1)
+            // Nếu thời gian còn lại gấp hoặc số lượng quái còn nhiều, tăng quy mô đợt spawn để kịp xả hết
+            if (targetInterval < 1.0f && remainingBudget > 1)
             {
                 int boostCluster = Mathf.CeilToInt(1.0f / Mathf.Max(0.05f, targetInterval));
-                countToSpawn = Mathf.Clamp(Mathf.Max(countToSpawn, boostCluster), 1, maxAllowedPerBatch);
+                countToSpawn = Mathf.Clamp(Mathf.Max(countToSpawn, boostCluster), 1, Mathf.Min(maxAllowedPerBatch, remainingQuotaForEntry));
                 targetInterval = 0.5f;
             }
 
@@ -240,28 +304,80 @@ namespace DucThanh
             int actuallySpawnedCount = 0;
             for (int i = 0; i < countToSpawn; i++)
             {
-                if (remainingBudget < entryCost) break;
+                if (selectedTracker != null && selectedTracker.Remaining <= 0) break;
+                if (remainingBudget <= 0) break;
                 if (activeEnemiesList.Count >= maxAllowed) break;
 
                 if (TryGetValidSpawnPosition(out Vector3 spawnPos))
                 {
                     SpawnSingleEnemy(selectedEntry, spawnPos);
-                    remainingBudget -= entryCost;
+                    if (selectedTracker != null)
+                    {
+                        selectedTracker.spawnedCount++;
+                    }
+                    remainingBudget--;
                     actuallySpawnedCount++;
                 }
             }
 
-            // Nếu lượt này không sinh được con nào (do trúng lúc activeEnemiesList kịch trần hoặc raycast trượt),
-            // hẹn giờ kiểm tra lại rất nhanh (0.5s) thay vì chờ cả interval dài
+            // Nếu lượt này không sinh được con nào (do activeEnemiesList kịch trần hoặc raycast trượt), kiểm tra lại sau 0.5s
             if (actuallySpawnedCount == 0)
             {
                 nextSpawnTimeReal = Time.time + 0.5f;
             }
             else
             {
-                // Lập lịch lần spawn kế tiếp
                 nextSpawnTimeReal = Time.time + targetInterval;
             }
+        }
+
+        /// <summary>
+        /// Lựa chọn loại quái tiếp theo để sinh dựa trên số lượng còn lại (Remaining quota) và trọng số xuất hiện
+        /// </summary>
+        private MonsterNightTracker SelectNextMonsterTracker(int night)
+        {
+            if (tonightMonsterTrackers == null || tonightMonsterTrackers.Count == 0) return null;
+
+            int totalWeight = 0;
+            List<KeyValuePair<MonsterNightTracker, int>> eligible = new List<KeyValuePair<MonsterNightTracker, int>>();
+
+            foreach (var tracker in tonightMonsterTrackers)
+            {
+                if (tracker == null || tracker.Remaining <= 0 || tracker.entry == null || tracker.entry.prefab == null) continue;
+
+                int weight = tracker.entry.GetWeightForNight(night);
+                if (weight > 0)
+                {
+                    totalWeight += weight;
+                    eligible.Add(new KeyValuePair<MonsterNightTracker, int>(tracker, weight));
+                }
+            }
+
+            if (eligible.Count == 0)
+            {
+                // Fallback tracker đầu tiên còn Remaining > 0
+                foreach (var tracker in tonightMonsterTrackers)
+                {
+                    if (tracker != null && tracker.Remaining > 0 && tracker.entry != null && tracker.entry.prefab != null)
+                    {
+                        return tracker;
+                    }
+                }
+                return null;
+            }
+
+            int rnd = UnityEngine.Random.Range(0, totalWeight);
+            int cumulative = 0;
+            foreach (var pair in eligible)
+            {
+                cumulative += pair.Value;
+                if (rnd < cumulative)
+                {
+                    return pair.Key;
+                }
+            }
+
+            return eligible[eligible.Count - 1].Key;
         }
 
         /// <summary>
@@ -469,5 +585,26 @@ namespace DucThanh
             Gizmos.color = new Color(1f, 0f, 0f, 0.3f);
             Gizmos.DrawWireSphere(center, config.MaxSpawnRadius);
         }
+    }
+
+    /// <summary>
+    /// Đối tượng theo dõi số lượng và tiến độ sinh của từng loại quái trong đêm hiện tại
+    /// </summary>
+    [System.Serializable]
+    public class MonsterNightTracker
+    {
+        [Tooltip("Tên loại quái")]
+        public string label;
+
+        [Tooltip("Tổng số lượng cần sinh trong đêm nay")]
+        public int totalQuota;
+
+        [Tooltip("Số lượng đã sinh ra")]
+        public int spawnedCount;
+
+        [HideInInspector]
+        public EnemySpawnEntry entry;
+
+        public int Remaining => Mathf.Max(0, totalQuota - spawnedCount);
     }
 }

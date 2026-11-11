@@ -69,7 +69,6 @@ namespace DucThanh
         [Header("Weapon")]
         [SerializeField] private bool hasWeapon = false;
         [SerializeField] private bool requireWeapon = false;
-        [SerializeField] private bool autoSetupKatana = true;
 
         // =========================================================
         // COMPONENTS
@@ -190,12 +189,6 @@ namespace DucThanh
         {
             if (playerStats != null)
                 playerStats.OnPlayerDied -= HandlePlayerDied;
-        }
-
-        private void Start()
-        {
-            if (autoSetupKatana)
-                EnsureKatanaSetup();
         }
 
         private void Update()
@@ -572,37 +565,6 @@ namespace DucThanh
 
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(center, attackRadius);
-        }
-
-        // =========================================================
-        // WEAPON SETUP
-        // =========================================================
-
-        private void EnsureKatanaSetup()
-        {
-            if (FindAnyObjectByType<KatanaPickup>() != null)
-                return;
-
-            GameObject katanaObj = GameObject.Find("Katana");
-
-            if (katanaObj == null)
-            {
-                foreach (Transform child in
-                         GetComponentsInChildren<Transform>(true))
-                {
-                    if (child.name == "Katana")
-                    {
-                        katanaObj = child.gameObject;
-                        break;
-                    }
-                }
-            }
-
-            if (katanaObj != null &&
-                katanaObj.GetComponent<KatanaPickup>() == null)
-            {
-                katanaObj.AddComponent<KatanaPickup>();
-            }
         }
 
         // =========================================================

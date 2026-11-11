@@ -102,11 +102,33 @@ namespace DucThanh
         }
 
         /// <summary>
-        /// Tính toán tổng số lượng/điểm quái được sinh ra cho đêm thứ `night`
-        /// Sử dụng công thức tối ưu kết hợp Tuyến tính + Tăng trưởng bền vững có trần (Cap)
+        /// Tính toán tổng số lượng quái được sinh ra cho đêm thứ `night`.
+        /// Tự động cộng tổng số lượng của tất cả loại quái được cấu hình sinh trong đêm này.
         /// </summary>
         public int CalculateBudgetForNight(int night)
         {
+            if (enemyEntries != null && enemyEntries.Length > 0)
+            {
+                int totalFromEntries = 0;
+                foreach (var entry in enemyEntries)
+                {
+                    if (entry != null && entry.prefab != null)
+                    {
+                        totalFromEntries += entry.GetSpawnCountForNight(night);
+                    }
+                }
+
+                if (totalFromEntries > 0)
+                {
+                    if (maxNightSpawnBudgetCap > 0)
+                    {
+                        totalFromEntries = Mathf.Min(totalFromEntries, maxNightSpawnBudgetCap);
+                    }
+                    return totalFromEntries;
+                }
+            }
+
+            // Fallback theo công thức cũ nếu chưa cấu hình số lượng từng loại quái
             int nightOffset = Mathf.Max(0, night - 1);
             float budget = (baseBudgetNight1 + (nightOffset * budgetGrowthPerNight)) * Mathf.Pow(budgetMultiplierPerNight, nightOffset);
             int finalBudget = Mathf.RoundToInt(budget);
@@ -126,7 +148,7 @@ namespace DucThanh
     [Serializable]
     public class EnemySpawnEntry
     {
-        [Tooltip("Tên gợi nhớ")]
+        [Tooltip("Tên gợi nhớ của quái")]
         public string label = "Normal Monster";
 
         [Tooltip("Prefab của quái sẽ được Instantiate hoặc lấy từ Object Pool")]
@@ -139,7 +161,24 @@ namespace DucThanh
         [Range(1, 100)]
         public int unlockNight = 1;
 
-        [Tooltip("Trọng số xuất hiện cơ bản (càng cao tỉ lệ random ra quái này càng lớn)")]
+        [Header("Số Lượng Sinh Mỗi Đêm (Spawn Count Per Night)")]
+        [Tooltip("Số lượng quái này sinh ra ở đêm đầu tiên nó mở khóa (unlockNight)")]
+        [Min(0)]
+        public int baseCountPerNight = 5;
+
+        [Tooltip("Số lượng quái này cộng thêm sau mỗi đêm tiếp theo (+1, +2 con mỗi đêm...)")]
+        [Min(0)]
+        public int countGrowthPerNight = 1;
+
+        [Tooltip("Giới hạn số lượng tối đa của quái này trong 1 đêm (0 = không giới hạn)")]
+        [Min(0)]
+        public int maxCountPerNight = 50;
+
+        [Tooltip("CHỈNH TAY SỐ LƯỢNG CHO TỪNG ĐÊM CỤ THỂ:\nPhần tử 0 = Đêm 1, Phần tử 1 = Đêm 2, Phần tử 2 = Đêm 3...\nNếu mảng này có dữ liệu cho đêm đó, game sẽ lấy CHÍNH XÁC số này!")]
+        public int[] exactCountPerNight = new int[0];
+
+        [Header("Thông Số Phân Bổ & Trọng Số (Weights)")]
+        [Tooltip("Trọng số xuất hiện cơ bản (càng cao thì quái này càng ưu tiên xuất hiện trước/nhiều hơn so với các quái khác trong đêm)")]
         [Range(1, 1000)]
         public int baseWeight = 100;
 
@@ -165,6 +204,31 @@ namespace DucThanh
             int effectiveBaseWeight = Mathf.Max(1, baseWeight);
             int finalWeight = effectiveBaseWeight + (nightOffset * Mathf.Max(0, weightGrowthPerNight));
             return Mathf.Max(1, finalWeight);
+        }
+
+        /// <summary>
+        /// Lấy chính xác số lượng quái loại này cần sinh trong đêm thứ `night`
+        /// </summary>
+        public int GetSpawnCountForNight(int night)
+        {
+            int reqNight = Mathf.Max(1, unlockNight);
+            if (night < reqNight) return 0;
+
+            // 1. Ưu tiên cấu hình chỉnh tay theo từng đêm cụ thể (exactCountPerNight)
+            int nightIndex = night - 1;
+            if (exactCountPerNight != null && nightIndex >= 0 && nightIndex < exactCountPerNight.Length)
+            {
+                return Mathf.Max(0, exactCountPerNight[nightIndex]);
+            }
+
+            // 2. Tính theo số lượng cơ bản + mức tăng mỗi đêm
+            int nightOffset = Mathf.Max(0, night - reqNight);
+            int count = baseCountPerNight + (nightOffset * countGrowthPerNight);
+            if (maxCountPerNight > 0)
+            {
+                count = Mathf.Min(count, maxCountPerNight);
+            }
+            return Mathf.Max(0, count);
         }
     }
 }
