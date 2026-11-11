@@ -197,12 +197,42 @@ namespace DucThanh
 
             if (attackLimiter == null) return;
 
-            List<EnemyTest> targets = attackLimiter.GetTargetsToDamage();
-            foreach (var enemy in targets)
+            List<GameObject> targets = attackLimiter.GetTargetsToDamage();
+            foreach (var target in targets)
             {
-                if (enemy != null && !enemy.IsDead)
+                if (target == null) continue;
+
+                // 1. Ưu tiên EnemyStats (hệ thống chỉ số quái trong DucThanh)
+                EnemyStats enemyStats = target.GetComponentInParent<EnemyStats>();
+                if (enemyStats != null)
                 {
-                    enemy.TakeDamage(attackDamage);
+                    if (!enemyStats.IsDead)
+                    {
+                        string enemyType = enemyStats.TypeConfig != null ? enemyStats.TypeConfig.EnemyTypeName : enemyStats.gameObject.name;
+                        Debug.Log($"<color=green><b>[Combat] Player đã đánh trúng quái [{enemyType}] gây {attackDamage:F1} dame!</b> (Máu còn: {Mathf.Max(0f, enemyStats.CurrentHealth - attackDamage):F1}/{enemyStats.MaxHealth:F1})</color>");
+                        enemyStats.TakeDamage(attackDamage);
+                    }
+                    continue;
+                }
+
+                // 2. EnemyTest
+                EnemyTest enemyTest = target.GetComponentInParent<EnemyTest>();
+                if (enemyTest != null)
+                {
+                    if (!enemyTest.IsDead)
+                    {
+                        Debug.Log($"<color=green><b>[Combat] Player đã đánh trúng quái [{enemyTest.gameObject.name}] gây {attackDamage:F1} dame!</b></color>");
+                        enemyTest.TakeDamage(attackDamage);
+                    }
+                    continue;
+                }
+
+                // 3. MobHealthBar (hệ thống máu của Khoa)
+                MobHealthBar mobHealth = target.GetComponentInParent<MobHealthBar>();
+                if (mobHealth != null)
+                {
+                    Debug.Log($"<color=green><b>[Combat] Player đã đánh trúng quái [{mobHealth.gameObject.name}] gây {attackDamage:F1} dame!</b></color>");
+                    mobHealth.TakeDamage(attackDamage);
                 }
             }
         }

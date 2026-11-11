@@ -9,6 +9,7 @@ TagManager:
   - PowerUps
   - Weapon
   - Tools
+  - PlayerSpawnPoint
   layers:
   - Default
   - TransparentFX
@@ -16,8 +17,8 @@ TagManager:
   - Ground
   - Water
   - UI
-  - 
-  - 
+  - PlayerBody
+  - WorldWeapon
   - 
   - 
   - 

@@ -334,9 +334,12 @@ GameObject:
   - component: {fileID: 3802539543656407518}
   - component: {fileID: 5318840828100787763}
   - component: {fileID: 7042791466316255934}
+  - component: {fileID: 4922324480778330255}
+  - component: {fileID: -8483838499073522916}
+  - component: {fileID: 2610805967364111059}
   m_Layer: 13
   m_Name: Wolf (1)
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -431,20 +434,49 @@ MonoBehaviour:
   m_GameObject: {fileID: 2643771054221018191}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f607182930415263748596, type: 3}
+  m_Script: {fileID: 11500000, guid: 6fd7385733e18234083879fbaece204f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   currentState: 0
   patrolDistance: 50
   chaseDistance: 49
+  attackReach: 0.5
+  attackExitMargin: 0.4
+  attackAngle: 50
+  attackPoint: {fileID: 0}
   patrolRadius: 5
   patrolSpeed: 2.5
-  angularSpeed: 1
+  angularSpeed: 1.2
   chaseSpeed: 5
-  attackCooldown: 1.2
+  speedDampTime: 0.1
+  maxSlopeAngle: 35
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  slopeSampleStep: 1
+  navSampleDistance: 3
+  navSampleDistanceFar: 15
+  repathInterval: 0.25
+  groundOffset: 0
+  attackCooldown: 1
+  fxPrefab: {fileID: 0}
+  fxPoint: {fileID: 0}
+  fxLifeTime: 2
+  spawnFxAtHitPoint: 1
+  hitOriginHeight: 1
+  hitPointPullBack: 0.1
+  useAnimationEvent: 1
   playerTarget: {fileID: 0}
   playerTag: Player
-  triggerRadius: 2
+  useTriggerForAttack: 0
+  triggerRadius: 2.5
+  bodyColliderOnly: 1
+  dieTriggerName: Die
+  deathStateNames:
+  - Death
+  - Die
+  - LilDave_Death
+  corpseLifetime: 0
 --- !u!135 &7042791466316255934
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -466,6 +498,62 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 2
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &4922324480778330255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2643771054221018191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebc1617366880d04a82b84d106a5a0aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseDamage: 15
+  attackInterval: 1
+  hitDelay: 0.15
+  maxAttackRange: 2.5
+  playerTag: Player
+  autoDealDamageInRange: 1
+  useArmorMitigation: 0
+  targetArmor: 0
+--- !u!114 &-8483838499073522916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2643771054221018191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d89201a4e4024844bb5a9b1c78e91024, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  typeConfig: {fileID: 0}
+  baseMaxHealth: 100
+  baseDamage: 15
+  fallbackGrowthType: 0
+  fallbackHealthGrowthRate: 0.2
+  fallbackDamageGrowthRate: 0.15
+  currentMaxHealth: 0
+  currentHealth: 0
+  currentDamage: 0
+  registeredDay: 1
+  destroyDelay: 0.3
+--- !u!114 &2610805967364111059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2643771054221018191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8f1c30b42a945d8b76e5114209df34a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyStats: {fileID: 0}
 --- !u!1 &2969330090403016072
 GameObject:
   m_ObjectHideFlags: 0

@@ -106,11 +106,14 @@ GameObject:
   - component: {fileID: 3748603922248222431}
   - component: {fileID: 8097159341790110211}
   - component: {fileID: 1913734637928690202}
-  - component: {fileID: 8033270458842522008}
   - component: {fileID: 9082997998224518711}
+  - component: {fileID: -8616614307124048979}
+  - component: {fileID: -4034989814277191226}
+  - component: {fileID: -5065346811552539076}
+  - component: {fileID: 8033270458842522008}
   m_Layer: 13
   m_Name: LilDave
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -175,29 +178,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &8033270458842522008
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1408715526692010511}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f607182930415263748596, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentState: 0
-  patrolDistance: 50
-  chaseDistance: 49
-  patrolRadius: 5
-  patrolSpeed: 2.5
-  angularSpeed: 1
-  chaseSpeed: 5
-  attackCooldown: 1.2
-  playerTarget: {fileID: 0}
-  playerTag: Player
-  triggerRadius: 2
 --- !u!135 &9082997998224518711
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -219,6 +199,114 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 2
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &-8616614307124048979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1408715526692010511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebc1617366880d04a82b84d106a5a0aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseDamage: 15
+  attackInterval: 1
+  hitDelay: 0.15
+  maxAttackRange: 2.5
+  playerTag: Player
+  autoDealDamageInRange: 1
+  useArmorMitigation: 0
+  targetArmor: 0
+--- !u!114 &-4034989814277191226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1408715526692010511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d89201a4e4024844bb5a9b1c78e91024, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  typeConfig: {fileID: 0}
+  baseMaxHealth: 100
+  baseDamage: 15
+  fallbackGrowthType: 0
+  fallbackHealthGrowthRate: 0.2
+  fallbackDamageGrowthRate: 0.15
+  currentMaxHealth: 0
+  currentHealth: 0
+  currentDamage: 0
+  registeredDay: 1
+  destroyDelay: 0.3
+--- !u!114 &-5065346811552539076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1408715526692010511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8f1c30b42a945d8b76e5114209df34a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyStats: {fileID: 0}
+--- !u!114 &8033270458842522008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1408715526692010511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fd7385733e18234083879fbaece204f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentState: 0
+  patrolDistance: 50
+  chaseDistance: 49
+  attackReach: 0.5
+  attackExitMargin: 0.4
+  attackAngle: 50
+  attackPoint: {fileID: 0}
+  patrolRadius: 5
+  patrolSpeed: 2.5
+  angularSpeed: 1.2
+  chaseSpeed: 5
+  speedDampTime: 0.1
+  maxSlopeAngle: 35
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  slopeSampleStep: 1
+  navSampleDistance: 3
+  navSampleDistanceFar: 15
+  repathInterval: 0.25
+  groundOffset: 0
+  attackCooldown: 1
+  fxPrefab: {fileID: 0}
+  fxPoint: {fileID: 0}
+  fxLifeTime: 2
+  spawnFxAtHitPoint: 1
+  hitOriginHeight: 1
+  hitPointPullBack: 0.1
+  useAnimationEvent: 1
+  playerTarget: {fileID: 0}
+  playerTag: Player
+  useTriggerForAttack: 0
+  triggerRadius: 2.5
+  bodyColliderOnly: 1
+  dieTriggerName: Die
+  deathStateNames:
+  - Death
+  - Die
+  - LilDave_Death
+  corpseLifetime: 0
 --- !u!1 &2447159214004215969
 GameObject:
   m_ObjectHideFlags: 0

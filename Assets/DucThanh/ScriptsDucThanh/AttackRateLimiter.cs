@@ -30,8 +30,8 @@ namespace DucThanh
         [Tooltip("LayerMask chứa các đối tượng có thể bị tấn công")]
         [SerializeField] private LayerMask targetLayer = ~0;
 
-        [Tooltip("Tag mục tiêu hợp lệ (để trống nếu chấp nhận tất cả layer)")]
-        [SerializeField] private string targetTag = "";
+        [Tooltip("Tag mục tiêu hợp lệ để nhận sát thương (Mặc định 'Enemy')")]
+        [SerializeField] private string targetTag = "Enemy";
 
         [Tooltip("Bỏ qua các mục tiêu đã chết")]
         [SerializeField] private bool ignoreDeadTargets = true;
@@ -123,29 +123,31 @@ namespace DucThanh
         }
 
         /// <summary>
-        /// Quét và trả về danh sách các EnemyTest hợp lệ trong vùng đánh.
+        /// Quét và trả về danh sách các đối tượng nhận sát thương hợp lệ (dựa trên tag Enemy).
+        /// Hỗ trợ cả QueryTriggerInteraction.Collide để chém trúng các mob chỉ có trigger collider (như LilDave).
         /// </summary>
-        public List<EnemyTest> GetTargetsToDamage()
+        public List<GameObject> GetTargetsToDamage()
         {
-            var targets = new List<EnemyTest>();
+            var targets = new List<GameObject>();
             Vector3 origin = transform.position + Vector3.up * 1f;
             Vector3 forward = transform.forward;
             Vector3 center = origin + forward * (attackRange * 0.5f);
 
-            Collider[] hits = Physics.OverlapSphere(center, attackRadius, targetLayer, QueryTriggerInteraction.Ignore);
-            var uniqueEnemies = new HashSet<EnemyTest>();
+            // Cho phép quét trúng cả Trigger collider để mob như LilDave (chỉ có trigger collider) vẫn nhận sát thương
+            Collider[] hits = Physics.OverlapSphere(center, attackRadius, targetLayer, QueryTriggerInteraction.Collide);
+            var uniqueRoots = new HashSet<GameObject>();
 
             foreach (var hit in hits)
             {
                 if (hit.gameObject == gameObject || hit.transform.IsChildOf(transform)) continue;
 
-                EnemyTest enemy = hit.GetComponentInParent<EnemyTest>();
-                if (enemy != null && !uniqueEnemies.Contains(enemy))
+                GameObject enemyRoot = GetEnemyRoot(hit.gameObject);
+                if (enemyRoot != null && !uniqueRoots.Contains(enemyRoot))
                 {
-                    if (IsValidTarget(enemy.gameObject, origin, forward, enemy.IsDead))
+                    if (IsValidTarget(enemyRoot, origin, forward))
                     {
-                        uniqueEnemies.Add(enemy);
-                        targets.Add(enemy);
+                        uniqueRoots.Add(enemyRoot);
+                        targets.Add(enemyRoot);
                     }
                 }
             }
@@ -154,14 +156,14 @@ namespace DucThanh
             if (targets.Count == 0)
             {
                 Ray ray = new Ray(origin, forward);
-                if (Physics.SphereCast(ray, 0.5f, out RaycastHit hitInfo, attackRange, targetLayer, QueryTriggerInteraction.Ignore))
+                if (Physics.SphereCast(ray, 0.5f, out RaycastHit hitInfo, attackRange, targetLayer, QueryTriggerInteraction.Collide))
                 {
                     if (hitInfo.collider.gameObject != gameObject && !hitInfo.collider.transform.IsChildOf(transform))
                     {
-                        EnemyTest enemy = hitInfo.collider.GetComponentInParent<EnemyTest>();
-                        if (enemy != null && IsValidTarget(enemy.gameObject, origin, forward, enemy.IsDead))
+                        GameObject enemyRoot = GetEnemyRoot(hitInfo.collider.gameObject);
+                        if (enemyRoot != null && IsValidTarget(enemyRoot, origin, forward))
                         {
-                            targets.Add(enemy);
+                            targets.Add(enemyRoot);
                         }
                     }
                 }
@@ -179,12 +181,12 @@ namespace DucThanh
             Vector3 forward = transform.forward;
             Vector3 center = origin + forward * (attackRange * 0.5f);
 
-            Collider[] hits = Physics.OverlapSphere(center, attackRadius, targetLayer, QueryTriggerInteraction.Ignore);
+            Collider[] hits = Physics.OverlapSphere(center, attackRadius, targetLayer, QueryTriggerInteraction.Collide);
             foreach (var hit in hits)
             {
                 if (hit.gameObject == gameObject || hit.transform.IsChildOf(transform)) continue;
-                EnemyTest enemy = hit.GetComponentInParent<EnemyTest>();
-                if (enemy != null && IsValidTarget(enemy.gameObject, origin, forward, enemy.IsDead))
+                GameObject enemyRoot = GetEnemyRoot(hit.gameObject);
+                if (enemyRoot != null && IsValidTarget(enemyRoot, origin, forward))
                 {
                     return true;
                 }
@@ -192,13 +194,47 @@ namespace DucThanh
             return false;
         }
 
-        private bool IsValidTarget(GameObject obj, Vector3 origin, Vector3 forward, bool isDead)
+        /// <summary>
+        /// Lấy GameObject gốc của Enemy nếu đối tượng hoặc cha của nó có tag Enemy (hoặc có component Enemy)
+        /// </summary>
+        private GameObject GetEnemyRoot(GameObject hitObj)
         {
-            if (ignoreDeadTargets && isDead) return false;
+            if (hitObj == null) return null;
 
-            if (!string.IsNullOrEmpty(targetTag) && !obj.CompareTag(targetTag) && !obj.transform.root.CompareTag(targetTag))
+            // 1. Kiểm tra tag targetTag ("Enemy") trên hitObj hoặc root/parent
+            if (!string.IsNullOrEmpty(targetTag))
             {
-                return false;
+                if (hitObj.CompareTag(targetTag)) return hitObj;
+                if (hitObj.transform.root.CompareTag(targetTag)) return hitObj.transform.root.gameObject;
+
+                Transform current = hitObj.transform.parent;
+                while (current != null)
+                {
+                    if (current.CompareTag(targetTag)) return current.gameObject;
+                    current = current.parent;
+                }
+            }
+
+            // 2. Fallback nếu prefab chưa kịp gắn tag: kiểm tra xem có EnemyStats / EnemyTest / MobHealthBar không
+            EnemyStats stats = hitObj.GetComponentInParent<EnemyStats>();
+            if (stats != null) return stats.gameObject;
+
+            EnemyTest test = hitObj.GetComponentInParent<EnemyTest>();
+            if (test != null) return test.gameObject;
+
+            return null;
+        }
+
+        private bool IsValidTarget(GameObject obj, Vector3 origin, Vector3 forward)
+        {
+            if (ignoreDeadTargets)
+            {
+                // Kiểm tra xem mục tiêu đã chết chưa qua EnemyStats / EnemyTest / MobHealthBar
+                EnemyStats stats = obj.GetComponent<EnemyStats>();
+                if (stats != null && stats.IsDead) return false;
+
+                EnemyTest test = obj.GetComponent<EnemyTest>();
+                if (test != null && test.IsDead) return false;
             }
 
             Vector3 dir = (obj.transform.position - transform.position);

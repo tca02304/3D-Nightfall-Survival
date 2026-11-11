@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6555141858605157133}
   - component: {fileID: 3572732414424820274}
   - component: {fileID: 4170556216180789978}
+  - component: {fileID: 3192383607663121741}
   m_Layer: 0
   m_Name: WoodAxe
   m_TagString: Tools
@@ -86,3 +87,24 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &3192383607663121741
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7556745662051601336}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.43297377, y: 0.15098803, z: 0.38214022}
+  m_Center: {x: 0.22687499, y: 0, z: 0.75455153}

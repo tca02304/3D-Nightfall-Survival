@@ -216,6 +216,27 @@ namespace DucThanh
                 cachedPlayer = player;
             }
 
+            // Nếu player có PlayerInventory, ưu tiên thêm Katana vào hệ thống túi đồ
+            if (cachedPlayer != null)
+            {
+                PlayerInventory inv = cachedPlayer.GetComponent<PlayerInventory>();
+                if (inv != null)
+                {
+                    ItemConfigSO katanaConfig = FindKatanaConfig();
+                    if (katanaConfig != null)
+                    {
+                        int slot = inv.AddItem(katanaConfig, 1);
+                        if (slot != -1)
+                        {
+                            inv.EquipSlot(slot);
+                            Debug.Log("<color=green><b>[Katana] Đã nhặt Katana vào Túi Đồ thành công!</b></color>");
+                            Destroy(gameObject);
+                            return;
+                        }
+                    }
+                }
+            }
+
             if (targetHand == null)
             {
                 FindPlayerAndHand();
@@ -249,6 +270,19 @@ namespace DucThanh
             }
 
             Debug.Log("<color=green><b>[Katana] Player đã chạm vào Katana! Katana đã nhảy lên tay đúng vị trí & góc độ đã setup!</b></color>");
+        }
+
+        private ItemConfigSO FindKatanaConfig()
+        {
+#if UNITY_EDITOR
+            string[] guids = UnityEditor.AssetDatabase.FindAssets("Katana t:ItemConfigSO");
+            if (guids.Length > 0)
+            {
+                string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                return UnityEditor.AssetDatabase.LoadAssetAtPath<ItemConfigSO>(path);
+            }
+#endif
+            return null;
         }
 
         #region Context Menu Helpers for Unity Editor
