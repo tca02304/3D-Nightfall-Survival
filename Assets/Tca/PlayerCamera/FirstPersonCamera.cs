@@ -1,5 +1,5 @@
-﻿
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -96,7 +96,15 @@ public class FirstPersonCamera : MonoBehaviour
     private void Start()
     {
         SetFOV(fieldOfView);
-        LockCursor();
+        // Chỉ khóa chuột nếu game không ở trạng thái pause
+        if (Time.timeScale > 0f)
+        {
+            LockCursor();
+        }
+        else
+        {
+            UnlockCursor();
+        }
     }
 
     // =========================================================
@@ -107,10 +115,12 @@ public class FirstPersonCamera : MonoBehaviour
     {
         HandleCursor();
 
-        if (Cursor.lockState == CursorLockMode.Locked)
+        // Chỉ quay camera khi game không pause và chuột đang bị khóa điều khiển game
+        if (Time.timeScale > 0f && Cursor.lockState == CursorLockMode.Locked)
         {
             HandleMouseLook();
             HandleBobbing();
+            HandleShake();
         }
         else
         {
@@ -120,11 +130,9 @@ public class FirstPersonCamera : MonoBehaviour
             bobOffset = Vector3.Lerp(
                 bobOffset,
                 Vector3.zero,
-                Time.deltaTime * bobSmooth
+                Time.unscaledDeltaTime * bobSmooth
             );
         }
-
-        HandleShake();
     }
 
     private void LateUpdate()
@@ -303,6 +311,20 @@ public class FirstPersonCamera : MonoBehaviour
 
     private void HandleCursor()
     {
+        // 1. Khi game đang pause (Time.timeScale == 0), LUÔN LUÔN mở khóa chuột và không can thiệp
+        if (Time.timeScale == 0f)
+        {
+            if (Cursor.lockState != CursorLockMode.None)
+            {
+                Cursor.lockState = CursorLockMode.None;
+            }
+            if (!Cursor.visible)
+            {
+                Cursor.visible = true;
+            }
+            return;
+        }
+
         bool unlockPressed = false;
         bool lockPressed = false;
 
@@ -325,9 +347,19 @@ public class FirstPersonCamera : MonoBehaviour
 #endif
 
         if (unlockPressed)
+        {
             UnlockCursor();
+        }
         else if (lockPressed)
+        {
+            // Nếu con trỏ chuột đang nằm trên UI (Button, Panel, Menu...), click này là để tương tác UI -> KHÔNG KHÓA CHUỘT
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            {
+                return;
+            }
+
             LockCursor();
+        }
     }
 
     public void LockCursor()

@@ -565,8 +565,12 @@ GameObject:
   - component: {fileID: 133368491441441679}
   - component: {fileID: 5524146820323421192}
   - component: {fileID: 2261591247893605777}
+  - component: {fileID: 2262721533678068549}
   - component: {fileID: 2876168845227934523}
+  - component: {fileID: 3767226822710765509}
   - component: {fileID: 417683503416121945}
+  - component: {fileID: 2008918264899289067}
+  - component: {fileID: 8482300265039258442}
   - component: {fileID: 546730589801359809}
   - component: {fileID: 8801504448265985766}
   - component: {fileID: 2884386509273036805}
@@ -646,6 +650,31 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2262721533678068549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3322190313533134227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1284562fa3a4d46bd450098df24181a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  maxHunger: 100
+  currentHunger: 0
+  hungerInterval: 10
+  takeDamageWhenStarving: 1
+  starvingDamageRate: 2
+  maxStamina: 100
+  currentStamina: 0
+  walkDrainRate: 1.5
+  sprintDrainRate: 12
+  staminaRegenRate: 8
+  regenDelay: 1.5
 --- !u!143 &2876168845227934523
 CharacterController:
   m_ObjectHideFlags: 0
@@ -671,6 +700,28 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3767226822710765509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3322190313533134227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab1fd6d11d21d11469b8b3a0d3d611e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackCooldown: 0.8
+  attackRange: 2.2
+  attackRadius: 1.2
+  attackAngle: 140
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  targetTag: 
+  ignoreDeadTargets: 1
+  requireTargetToAttack: 0
 --- !u!114 &417683503416121945
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -696,6 +747,44 @@ MonoBehaviour:
   sprintDrainRate: 12
   staminaRegenRate: 8
   regenDelay: 1.5
+--- !u!114 &2008918264899289067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3322190313533134227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be5bd83e1bf8eb14c957a56dd5706294, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mode: 0
+  movementSubject: {fileID: 8482300265039258442}
+  audioSource: {fileID: 0}
+  walkFootstepClips:
+  - {fileID: 8300000, guid: 3668a9fd84385b64db88880d00743017, type: 3}
+  volume: 0.1
+  minPitch: 0.92
+  maxPitch: 1.08
+  avoidRepeatingClip: 1
+--- !u!114 &8482300265039258442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3322190313533134227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 001dcac2d743f0e48a7fc69a721dd495, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minMoveSpeed: 0.05
+  walkStepInterval: 0.5
+  sprintStepInterval: 0.36
+  sprintThresholdSpeed: 6
+  minStepCooldown: 0.28
 --- !u!114 &546730589801359809
 MonoBehaviour:
   m_ObjectHideFlags: 0

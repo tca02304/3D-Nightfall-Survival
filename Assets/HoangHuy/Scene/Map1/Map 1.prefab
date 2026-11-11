@@ -55,7 +55,7 @@ MonoBehaviour:
     m_Bits: 64
   checkOverlapRadius: 2
   spawnOffsetY: 0.3
-  chestBeginningPrefab: {fileID: 1103971948622845867, guid: 6feffe5b4bc13ed4aa6dd3fce30ab712, type: 3}
+  chestBeginningPrefab: {fileID: 1709254077376921, guid: 37762ff6a7441044c8542601ce25387d, type: 3}
   countBeginning: 40
   chestFreePrefab: {fileID: 4069082287224826612, guid: 7071a5672db581441a1e80e48cfea4f3, type: 3}
   countFree: 10

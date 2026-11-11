@@ -256,7 +256,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   realSecondsPerInGameHour: 30
-  startHour: 20
+  startHour: 8
   pauseTime: 0
   enableFastForward: 1
   fastForwardKey: 112

@@ -331,7 +331,16 @@ MonoBehaviour:
     m_Height: 86
   - m_X: 120
     m_Y: 0
-    m_Width: 391
+    m_Width: 57
+    m_Height: 57
+  m_FreeGlyphRects:
+  - m_X: 0
+    m_Y: 57
+    m_Width: 511
+    m_Height: 454
+  - m_X: 57
+    m_Y: 0
+    m_Width: 454
     m_Height: 511
   - m_X: 63
     m_Y: 167
@@ -398,27 +407,27 @@ MonoBehaviour:
   italicStyle: 35
   tabSize: 10
   m_fontInfo:
-    Name: 
-    PointSize: 0
-    Scale: 0
-    CharacterCount: 0
-    LineHeight: 0
+    Name: Liberation Sans
+    PointSize: 86
+    Scale: 1
+    CharacterCount: 250
+    LineHeight: 98.90625
     Baseline: 0
-    Ascender: 0
-    CapHeight: 0
-    Descender: 0
+    Ascender: 77.84375
+    CapHeight: 59.1875
+    Descender: -18.21875
     CenterLine: 0
-    SuperscriptOffset: 0
-    SubscriptOffset: 0
-    SubSize: 0
-    Underline: 0
-    UnderlineThickness: 0
-    strikethrough: 0
+    SuperscriptOffset: 77.84375
+    SubscriptOffset: -12.261719
+    SubSize: 0.5
+    Underline: -12.261719
+    UnderlineThickness: 6.298828
+    strikethrough: 23.675
     strikethroughThickness: 0
-    TabWidth: 0
-    Padding: 0
-    AtlasWidth: 0
-    AtlasHeight: 0
+    TabWidth: 239.0625
+    Padding: 9
+    AtlasWidth: 1024
+    AtlasHeight: 1024
   m_glyphInfoList: []
   m_KerningTable:
     kerningPairs: []

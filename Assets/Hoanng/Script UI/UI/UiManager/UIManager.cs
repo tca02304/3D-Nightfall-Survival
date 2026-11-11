@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 public class UIManager : MonoBehaviour
 {
@@ -29,8 +29,7 @@ public class UIManager : MonoBehaviour
 
     private void OnEnable()
     {
-        // 1. Đăng ký (Subscribe): Lắng nghe tín hiệu từ Scene Home Menu
-        GameEvents.OnRequestSettingsUI += ShowSetting;
+        
         // Đăng ký thêm các sự kiện Game Over và Load Menu
         GameEvents.OnPlayerDied += ShowGameOver;
         GameEvents.OnReturnToMainMenu += LoadHomeScene;
@@ -43,13 +42,13 @@ public class UIManager : MonoBehaviour
                                                         // Thêm dòng này để lắng nghe yêu cầu mở túi đồ
         GameEvents.OnRequestInventoryUI += ShowInventory;
         GameEvents.OnToggleInventoryUI += ToggleInventory;
-        GameEvents.OnSettingsClosed += HandleSettingsClosed;
+        
     }
 
     private void OnDisable()
     {
         // 2. Hủy đăng ký (Unsubscribe): Tránh lỗi Memory Leak
-        GameEvents.OnRequestSettingsUI -= ShowSetting;
+        
         GameEvents.OnPlayerDied -= ShowGameOver;
         GameEvents.OnReturnToMainMenu -= LoadHomeScene;
         GameEvents.OnPauseGame -= ShowPauseMenu;
@@ -59,7 +58,7 @@ public class UIManager : MonoBehaviour
         // Hủy lắng nghe
         GameEvents.OnRequestInventoryUI -= ShowInventory;
         GameEvents.OnToggleInventoryUI -= ToggleInventory;
-        GameEvents.OnSettingsClosed -= HandleSettingsClosed;
+        
     }
     private void Update()
     {
@@ -74,14 +73,16 @@ public class UIManager : MonoBehaviour
             // Không cho bật Pause nếu đang ở màn hình Game Over
             if (uiGameOver != null && uiGameOver.gameObject.activeInHierarchy) return;
 
-            if (uiPause.gameObject.activeInHierarchy)
+            if (uiPause != null)
             {
-                // Nếu đang bật thì giả lập bấm nút Resume
-                uiPause.resumeButton.onClick.Invoke();
-            }
-            else
-            {
-                uiPause.Show();
+                if (uiPause.gameObject.activeInHierarchy)
+                {
+                    uiPause.ResumeGame();
+                }
+                else
+                {
+                    ShowPauseMenu();
+                }
             }
         }
 
@@ -111,13 +112,31 @@ public class UIManager : MonoBehaviour
 
     public void HideSetting()
     {
-        if (uiSetting != null) uiSetting.Hide();
-        // Nếu thời gian đang bị đóng băng (Time.timeScale == 0), tức là game đang Pause
-        // thì hãy bật lại UI Pause sau khi đã đóng Setting.
-        if (Time.timeScale == 0f && uiPause != null)
+        // 1. Táº¯t báº£ng UiSetting ngay láº­p tá»©c
+        if (uiSetting != null)
         {
-            uiPause.gameObject.SetActive(true);
-            uiPause.Show();
+            uiSetting.Hide();
+            uiSetting.gameObject.SetActive(false);
+        }
+
+        // 2. Äiá»u hÆ°á»›ng láº¡i theo ngá»¯ cáº£nh scene trÆ°á»›c Ä‘Ã³
+        if (previousSceneName == "Home")
+        {
+            previousSceneName = "";
+            if (SceneManager.GetActiveScene().name != "Home")
+            {
+                SceneManager.LoadScene("Home");
+            }
+        }
+        else if (previousSceneName == "GamePlay")
+        {
+            previousSceneName = "";
+            // Báº­t láº¡i UI Pause sau khi Ä‘Ã£ Ä‘Ã³ng Setting
+            if (uiPause != null)
+            {
+                uiPause.gameObject.SetActive(true);
+                uiPause.Show();
+            }
         }
     }
 
@@ -182,38 +201,24 @@ public class UIManager : MonoBehaviour
     }
 
     // --- Hàm xử lý Pause/Resume ---
+    // --- Ham xu ly Pause/Resume ---
     private void ShowPauseMenu()
     {
         if (uiPause != null)
         {
             uiPause.gameObject.SetActive(true);
             uiPause.Show();
-            Time.timeScale = 0f; // Đóng băng thời gian
+            Time.timeScale = 0f;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
     }
 
-    private void HandleSettingsClosed()
-    {
-        // Nếu trước đó người chơi đi từ màn hình chính vào
-        if (previousSceneName == "Home")
-        {
-            // Chuyển lại về scene Home
-            SceneManager.LoadScene("Home");
-        }
-        // Nếu trước đó đi từ GamePlay (đang chơi pause game lại)
-        else if (previousSceneName == "GamePlay")
-        {
-            // Chỉ cần bật lại Pause Menu, không cần LoadScene
-            // Giả sử có event: GameEvents.OnPauseGame?.Invoke();
-        }
-    }
-
-    private void HidePauseMenu()
+    public void HidePauseMenu()
     {
         if (uiPause != null)
         {
-            uiPause.Hide();
-            Time.timeScale = 1f; // Tiếp tục thời gian
+            uiPause.ResumeGame();
         }
     }
 }

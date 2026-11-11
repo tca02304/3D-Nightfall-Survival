@@ -89,9 +89,9 @@ namespace DucThanh
             transform.position = Vector3.Lerp(transform.position, desiredPosition, followSmoothSpeed * Time.deltaTime);
             transform.rotation = rotation;
         }
-
         private void HandleMouseOrbit()
         {
+            if (Time.timeScale == 0f) return;
             bool rightMouseDown = false;
             Vector2 mouseDelta = Vector2.zero;
 
