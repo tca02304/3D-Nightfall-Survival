@@ -7130,6 +7130,7 @@ GameObject:
   - component: {fileID: 554901611}
   - component: {fileID: 554901610}
   - component: {fileID: 554901614}
+  - component: {fileID: 554901615}
   m_Layer: 5
   m_Name: UIManager
   m_TagString: Untagged
@@ -7245,6 +7246,22 @@ MonoBehaviour:
   uiInventory: {fileID: 1951111205}
   uiPause: {fileID: 1987193451}
   uiGameOver: {fileID: 1698696457}
+--- !u!114 &554901615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 554901609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e49f43e1490c832409483d46d4e1f505, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemDropper: {fileID: 2034191628}
+  protectedAreas:
+  - {fileID: 502529334}
+  - {fileID: 819824728}
 --- !u!1 &555387720
 GameObject:
   m_ObjectHideFlags: 0
@@ -10195,6 +10212,37 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5547794739324934498, guid: 52dd90ed57eaebd469ea26650d114b37, type: 3}
   m_PrefabInstance: {fileID: 737776234}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &751804116
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 751804117}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &751804117
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 751804116}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 709, y: 382.90002, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &753446560
 GameObject:
   m_ObjectHideFlags: 0
@@ -26065,9 +26113,10 @@ MonoBehaviour:
   prefabRegistry: {fileID: 2034191635}
   dropDistance: 1.5
   dropHeight: 0.5
+  itemSpacing: 0.5
   enableDropHotkey: 1
   dropAmount: 1
-  playerRoot: {fileID: 0}
+  playerRoot: {fileID: 751804117}
   dropOrigin: {fileID: 0}
 --- !u!114 &2034191629
 MonoBehaviour:
@@ -28433,3 +28482,4 @@ SceneRoots:
   - {fileID: 559064125}
   - {fileID: 1954910508}
   - {fileID: 2034191634}
+  - {fileID: 751804117}

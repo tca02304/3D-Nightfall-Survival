@@ -32,8 +32,8 @@ public class WorldItem : MonoBehaviour
 
         sphere.isTrigger = true;
 
-        rb.isKinematic = true;
-        rb.useGravity = false;
+        rb.isKinematic = false;
+        rb.useGravity = true;
 
         pickupEnableTime = Time.time + pickupDelay;
         nextPickupAttemptTime = pickupEnableTime;

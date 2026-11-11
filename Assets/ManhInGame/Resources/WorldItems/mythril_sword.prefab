@@ -12,6 +12,9 @@ GameObject:
   - component: {fileID: 5540150394162299252}
   - component: {fileID: 6237154011679468170}
   - component: {fileID: 5668777863428912624}
+  - component: {fileID: -8561124654269319358}
+  - component: {fileID: 3107320702852415464}
+  - component: {fileID: 1630444356921662892}
   m_Layer: 0
   m_Name: mythril_sword
   m_TagString: Weapon
@@ -108,3 +111,67 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.08153474, y: 0.19816905, z: 1.5044324}
   m_Center: {x: 0, y: -0.000092715025, z: 0.95096576}
+--- !u!135 &-8561124654269319358
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6514840788610638239}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 1.0547311
+  m_Center: {x: 0, y: 0, z: 0.6484509}
+--- !u!54 &3107320702852415464
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6514840788610638239}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &1630444356921662892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6514840788610638239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 539b51ee805417f4a944ed4e168f3257, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemId: 0
+  amount: 1
+  pickupDelay: 0.5
+  retryInterval: 0.35
