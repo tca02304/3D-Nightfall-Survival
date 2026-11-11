@@ -213,8 +213,7 @@ namespace DucThanh
         {
             moveInput = Vector2.zero;
             isSprinting = false;
-
-            if (IsDead)
+            if (IsDead || Time.timeScale == 0f || Cursor.lockState != CursorLockMode.Locked)
                 return;
 
             float horizontal = 0f;
@@ -514,7 +513,7 @@ namespace DucThanh
 
         private void CheckHitAndDamageEnemies()
         {
-            if (IsDead)
+            if (IsDead || Time.timeScale == 0f || Cursor.lockState != CursorLockMode.Locked)
                 return;
 
             Vector3 origin =

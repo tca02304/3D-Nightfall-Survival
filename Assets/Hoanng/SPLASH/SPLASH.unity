@@ -7552,6 +7552,7 @@ MonoBehaviour:
   uiPause: {fileID: 1987193451}
   uiGameOver: {fileID: 1698696457}
   uiCrafting: {fileID: 2145387778}
+  previousSceneName: 
 --- !u!1 &555387720
 GameObject:
   m_ObjectHideFlags: 0
@@ -17880,6 +17881,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1407507341}
   - component: {fileID: 1407507342}
+  - component: {fileID: 1407507344}
+  - component: {fileID: 1407507343}
   m_Layer: 5
   m_Name: UiSetting
   m_TagString: Untagged
@@ -17922,6 +17925,47 @@ MonoBehaviour:
   sensitivitySlider: {fileID: 1884881061}
   volumeSlider: {fileID: 549279042}
   fullscreenToggle: {fileID: 1595925598}
+  closeButton: {fileID: 1027734779}
+--- !u!114 &1407507343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1407507340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!223 &1407507344
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1407507340}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 5
+  m_TargetDisplay: 0
 --- !u!1 &1422107001
 GameObject:
   m_ObjectHideFlags: 0
@@ -20523,7 +20567,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1613955699}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1987193451}
+        m_TargetAssemblyTypeName: UiPauseGame, Assembly-CSharp
+        m_MethodName: OpenSettings
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1001 &1623922886
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21640,6 +21696,8 @@ GameObject:
   - component: {fileID: 1698696459}
   - component: {fileID: 1698696458}
   - component: {fileID: 1698696457}
+  - component: {fileID: 1698696461}
+  - component: {fileID: 1698696460}
   m_Layer: 5
   m_Name: UiGameOver
   m_TagString: Untagged
@@ -21721,6 +21779,46 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1698696455}
   m_CullTransparentMesh: 1
+--- !u!114 &1698696460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1698696455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!223 &1698696461
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1698696455}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 10
+  m_TargetDisplay: 0
 --- !u!1 &1727125010
 GameObject:
   m_ObjectHideFlags: 0
@@ -23732,7 +23830,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1858455338}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1987193451}
+        m_TargetAssemblyTypeName: UiPauseGame, Assembly-CSharp
+        m_MethodName: ResumeGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1859232490
 GameObject:
   m_ObjectHideFlags: 0
@@ -24779,6 +24889,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1951111204}
   - component: {fileID: 1951111205}
+  - component: {fileID: 1951111207}
+  - component: {fileID: 1951111206}
   m_Layer: 5
   m_Name: UiInventory
   m_TagString: Untagged
@@ -24827,6 +24939,46 @@ MonoBehaviour:
   speedText: {fileID: 499851668}
   attackText: {fileID: 1315028288}
   btnOpenCrafting: {fileID: 128481839}
+--- !u!114 &1951111206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1951111203}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!223 &1951111207
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1951111203}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 5
+  m_TargetDisplay: 0
 --- !u!1 &1953688999
 GameObject:
   m_ObjectHideFlags: 0
@@ -25560,6 +25712,7 @@ MonoBehaviour:
   resumeButton: {fileID: 1858455340}
   settingButton: {fileID: 1613955701}
   menuButton: {fileID: 1379337703}
+  homeSceneName: Home
 --- !u!224 &1987193452
 RectTransform:
   m_ObjectHideFlags: 0

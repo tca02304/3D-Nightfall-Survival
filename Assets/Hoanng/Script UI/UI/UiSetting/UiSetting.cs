@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+
 public class UiSetting : UiBase
 {
     [Header("UI Elements")]
@@ -8,13 +9,49 @@ public class UiSetting : UiBase
     public Slider volumeSlider;
     public Toggle fullscreenToggle;
 
+    [Header("Buttons")]
+    public Button closeButton;
+
+    private void Awake()
+    {
+        SetupCloseButton();
+    }
+
     private void Start()
     {
+        SetupCloseButton();
+
         // Khởi tạo các sự kiện lắng nghe (Listener) khi kéo thả slider hoặc bấm toggle
-        // Viết ở đây giúp bạn không phải kéo thả thủ công từng sự kiện trong Inspector
-        sensitivitySlider.onValueChanged.AddListener(OnSensitivityChanged);
-        volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
-        fullscreenToggle.onValueChanged.AddListener(OnFullscreenToggled);
+        if (sensitivitySlider != null)
+            sensitivitySlider.onValueChanged.AddListener(OnSensitivityChanged);
+        if (volumeSlider != null)
+            volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
+        if (fullscreenToggle != null)
+            fullscreenToggle.onValueChanged.AddListener(OnFullscreenToggled);
+    }
+
+    private void OnEnable()
+    {
+        SetupCloseButton();
+    }
+
+    private void SetupCloseButton()
+    {
+        if (closeButton == null)
+        {
+            Transform closeTrans = transform.Find("Close");
+            if (closeTrans == null) closeTrans = transform.Find("CloseButton");
+            if (closeTrans != null)
+            {
+                closeButton = closeTrans.GetComponent<Button>();
+            }
+        }
+
+        if (closeButton != null)
+        {
+            closeButton.onClick.RemoveListener(CloseSettings);
+            closeButton.onClick.AddListener(CloseSettings);
+        }
     }
 
     // Ghi đè hàm Show() của UiBase
@@ -29,9 +66,12 @@ public class UiSetting : UiBase
     private void LoadCurrentSettings()
     {
         // Lấy dữ liệu đã lưu (dùng PlayerPrefs) hoặc gán giá trị mặc định
-        sensitivitySlider.value = PlayerPrefs.GetFloat("Sensitivity", 0.5f);
-        volumeSlider.value = PlayerPrefs.GetFloat("Volume", 1f);
-        fullscreenToggle.isOn = Screen.fullScreen;
+        if (sensitivitySlider != null)
+            sensitivitySlider.value = PlayerPrefs.GetFloat("Sensitivity", 0.5f);
+        if (volumeSlider != null)
+            volumeSlider.value = PlayerPrefs.GetFloat("Volume", 1f);
+        if (fullscreenToggle != null)
+            fullscreenToggle.isOn = Screen.fullScreen;
     }
 
     // --- Các hàm xử lý logic ---
@@ -57,8 +97,10 @@ public class UiSetting : UiBase
     public void SaveSettings()
     {
         // Lưu thông số vào hệ thống máy tính bằng PlayerPrefs
-        PlayerPrefs.SetFloat("Sensitivity", sensitivitySlider.value);
-        PlayerPrefs.SetFloat("Volume", volumeSlider.value);
+        if (sensitivitySlider != null)
+            PlayerPrefs.SetFloat("Sensitivity", sensitivitySlider.value);
+        if (volumeSlider != null)
+            PlayerPrefs.SetFloat("Volume", volumeSlider.value);
         PlayerPrefs.Save();
 
         Debug.Log("Đã lưu cấu hình Settings!");
@@ -67,10 +109,14 @@ public class UiSetting : UiBase
     // Nút Close gọi hàm này
     public void CloseSettings()
     {
-        // 1. Tự ẩn chính nó
+        // 1. Luôn luôn tắt giao diện Setting này ngay lập tức
         Hide();
+        gameObject.SetActive(false);
 
-        // 2. Phát tín hiệu báo rằng UI Setting đã đóng
-        GameEvents.OnSettingsClosed?.Invoke();
+        // 2. Thông báo cho UIManager xử lý điều hướng tiếp theo (về Home hoặc mở lại Pause)
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.HideSetting();
+        }
     }
 }
