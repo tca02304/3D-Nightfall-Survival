@@ -11,6 +11,8 @@ public class UIManager : MonoBehaviour
     public UiPauseGame uiPause;     // Kéo object UiPause vào đây
     public UiGameOver uiGameOver;   // Kéo object UiGameOver vào đây
     public UiBase uiCrafting;
+    // Khai báo thêm biến này ở đầu class UIManager
+    public string previousSceneName = "";
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -41,6 +43,7 @@ public class UIManager : MonoBehaviour
                                                         // Thêm dòng này để lắng nghe yêu cầu mở túi đồ
         GameEvents.OnRequestInventoryUI += ShowInventory;
         GameEvents.OnToggleInventoryUI += ToggleInventory;
+        GameEvents.OnSettingsClosed += HandleSettingsClosed;
     }
 
     private void OnDisable()
@@ -56,6 +59,7 @@ public class UIManager : MonoBehaviour
         // Hủy lắng nghe
         GameEvents.OnRequestInventoryUI -= ShowInventory;
         GameEvents.OnToggleInventoryUI -= ToggleInventory;
+        GameEvents.OnSettingsClosed -= HandleSettingsClosed;
     }
     private void Update()
     {
@@ -185,6 +189,22 @@ public class UIManager : MonoBehaviour
             uiPause.gameObject.SetActive(true);
             uiPause.Show();
             Time.timeScale = 0f; // Đóng băng thời gian
+        }
+    }
+
+    private void HandleSettingsClosed()
+    {
+        // Nếu trước đó người chơi đi từ màn hình chính vào
+        if (previousSceneName == "Home")
+        {
+            // Chuyển lại về scene Home
+            SceneManager.LoadScene("Home");
+        }
+        // Nếu trước đó đi từ GamePlay (đang chơi pause game lại)
+        else if (previousSceneName == "GamePlay")
+        {
+            // Chỉ cần bật lại Pause Menu, không cần LoadScene
+            // Giả sử có event: GameEvents.OnPauseGame?.Invoke();
         }
     }
 

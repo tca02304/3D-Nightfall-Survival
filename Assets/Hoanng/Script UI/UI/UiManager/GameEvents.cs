@@ -65,6 +65,7 @@ public static class GameEvents
 
     // Yêu cầu bật màn hình Settings (dùng khi chuyển từ Home sang SPLASH)
     public static System.Action OnRequestSettingsUI;
+    public static Action OnSettingsClosed;
 
     // Yêu cầu tạm dừng/tiếp tục game
     public static System.Action OnPauseGame;

@@ -9,12 +9,20 @@ public class HomeMenuController : MonoBehaviour
     // Hàm này sẽ được gọi khi người chơi bấm nút Settings
     public void OnSettingsButtonClicked()
     {
-        // 1. Chuyển scene sang SPLASH
-        SceneManager.LoadScene(targetSceneName);
+        // 1. Báo cho UIManager nhớ rằng ta đang ở Home
+        // (Giả sử UIManager của bạn là một Singleton)
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.previousSceneName = "Home";
+        }
 
-        // 2. Kích hoạt giao diện Settings thông qua Event
-        // Giả sử trong hệ thống GameEvents của bạn đã có: public static Action OnRequestSettingsUI;
+        // 2. Kích hoạt giao diện Settings thông qua Event 
+        // (Sự kiện này sẽ được UIManager bên SPLASH nhận)
         GameEvents.OnRequestSettingsUI?.Invoke();
+
+        // 3. Chuyển scene sang SPLASH 
+        // LƯU Ý: Phải gọi LoadScene cuối cùng để Event kịp gửi đi
+        SceneManager.LoadScene("SPLASH");
     }
 
     public void OnPlayButtonClicked()
