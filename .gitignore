@@ -107,3 +107,7 @@ InitTestScene*.unity*
 
 *.tif
 Library/
+
+# ASP.NET Core / .NET generated files
+**/bin/
+**/obj/
