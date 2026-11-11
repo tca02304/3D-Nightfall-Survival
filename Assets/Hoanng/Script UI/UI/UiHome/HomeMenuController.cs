@@ -18,7 +18,11 @@ public class HomeMenuController : MonoBehaviour
 
         // 2. Kích hoạt giao diện Settings thông qua Event 
         // (Sự kiện này sẽ được UIManager bên SPLASH nhận)
-        GameEvents.OnRequestSettingsUI?.Invoke();
+        // 2. Gọi UIManager để bật Settings thay vì dùng Event
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowSetting();
+        }
 
         // 3. Chuyển scene sang SPLASH 
         // LƯU Ý: Phải gọi LoadScene cuối cùng để Event kịp gửi đi
