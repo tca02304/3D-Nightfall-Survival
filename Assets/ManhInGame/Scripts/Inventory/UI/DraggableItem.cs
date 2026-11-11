@@ -15,6 +15,8 @@ public class DraggableItem : MonoBehaviour,
     private GameObject dragGhost;
     private RectTransform dragGhostRect;
 
+    private InventoryWorldDropHandler worldDropHandler;
+
     public static DraggableItem ActiveDrag { get; private set; }
 
     public ItemSlot sourceSlot { get; private set; }
@@ -25,6 +27,7 @@ public class DraggableItem : MonoBehaviour,
         canvas = GetComponentInParent<Canvas>();
         canvasGroup = GetComponent<CanvasGroup>();
         itemUI = GetComponent<ItemUI>();
+        worldDropHandler = GetComponentInParent<InventoryWorldDropHandler>();
     }
 
     public void OnInitializePotentialDrag(PointerEventData eventData)
@@ -70,11 +73,43 @@ public class DraggableItem : MonoBehaviour,
         UpdateGhostPosition(eventData);
     }
 
+
     public void OnEndDrag(PointerEventData eventData)
     {
+        // [DEBUG] Check whether dragging is actually active.
+        Debug.Log(
+            $"[DraggableItem] EndDrag | " +
+            $"Active={ActiveDrag == this} | " +
+            $"Source={(sourceSlot != null ? sourceSlot.SlotIndex : -1)} | " +
+            $"Amount={dragAmount} | " +
+            $"Handler={(worldDropHandler != null)}");
+
+        // [ADD] Try dropping into the world.
+        if (ActiveDrag == this &&
+            sourceSlot != null &&
+            dragAmount > 0 &&
+            worldDropHandler != null &&
+            eventData.button == PointerEventData.InputButton.Left)
+        {
+            bool success = worldDropHandler.TryDropOutsideUI(
+                sourceSlot.SlotIndex,
+                dragAmount,
+                eventData.position,
+                eventData.pressEventCamera
+            );
+
+            if (success)
+            {
+                Debug.Log("[DraggableItem] World drop successful");
+            }
+        }
+
+        // [KEEP] Existing cleanup.
         CleanupDrag();
         sourceSlot = null;
+        dragAmount = 0;
     }
+
 
     private void UpdateGhostPosition(PointerEventData evnetData)
     {

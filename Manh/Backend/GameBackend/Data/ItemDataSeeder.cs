@@ -624,7 +624,7 @@ namespace GameBackend.Data
                 BuyPrice = null,
                 SellPrice = null,
                 IsActive = true,
-                IconKey = "steel_melee"
+                IconKey = "steel_sword"
             },
 
             new Items
@@ -637,7 +637,7 @@ namespace GameBackend.Data
                 BuyPrice = null,
                 SellPrice = null,
                 IsActive = true,
-                IconKey = "gold_melee"
+                IconKey = "gold_sword"
             },
 
             new Items
@@ -650,7 +650,7 @@ namespace GameBackend.Data
                 BuyPrice = null,
                 SellPrice = null,
                 IsActive = true,
-                IconKey = "mithril_melee"
+                IconKey = "mithril_sword"
             },
 
             new Items
@@ -663,7 +663,8 @@ namespace GameBackend.Data
                 BuyPrice = null,
                 SellPrice = null,
                 IsActive = true,
-                IconKey = "adamantite_melee"
+                IconKey = "adamantite_sword" +
+                ""
             },
 
             new Items
@@ -676,7 +677,7 @@ namespace GameBackend.Data
                 BuyPrice = null,
                 SellPrice = null,
                 IsActive = true,
-                IconKey = "obanium_melee"
+                IconKey = "obanium_sword"
             },
 
             new Items
