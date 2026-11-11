@@ -63,7 +63,14 @@ public class GuideNPCDialogue : MonoBehaviour
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
     }
-
+    private void Update()
+    {
+        // Nếu khung thoại đang mở và người chơi bấm phím E
+        if (IsOpen && Input.GetKeyDown(KeyCode.E))
+        {
+            NextLine();
+        }
+    }
     public void StartDialogue()
     {
         if (IsOpen)
