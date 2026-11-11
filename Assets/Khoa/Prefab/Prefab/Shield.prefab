@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1480384052895678451}
   - component: {fileID: 5182672669701922208}
   - component: {fileID: 5150487659346807367}
+  - component: {fileID: 5396430815937200169}
   m_Layer: 0
   m_Name: Shield
   m_TagString: PowerUps
@@ -86,3 +87,17 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &5396430815937200169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9150005475505368790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6f613e78aff6dd499fe152ea734d2d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  amplitude: 0.2
+  frequency: 2

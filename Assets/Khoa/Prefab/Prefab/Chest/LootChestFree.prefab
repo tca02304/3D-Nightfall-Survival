@@ -252,7 +252,7 @@ Transform:
   m_Children:
   - {fileID: 4372920208702427}
   m_Father: {fileID: 4044625135789424}
-  m_LocalEulerAnglesHint: {x: 91.0858, y: -0.000028474262, z: 0.0015023716}
+  m_LocalEulerAnglesHint: {x: 91.086, y: 0.07899475, z: 0.07899475}
 --- !u!1 &1730242686860875
 GameObject:
   m_ObjectHideFlags: 0

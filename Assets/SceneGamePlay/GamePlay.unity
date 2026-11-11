@@ -209,7 +209,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapPrefabs:
-  - {fileID: 5156258892926547391, guid: 3c4eed7892224884ca699c1cbd38d5cd, type: 3}
+  - {fileID: 2279211963004183250, guid: fc249de4c326420469dd3f07f1347ae5, type: 3}
   playerPrefab: {fileID: 3110114742508631718, guid: f568385198ff6b240b5d76b674207ce2, type: 3}
 --- !u!4 &378603544
 Transform:
@@ -256,7 +256,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   realSecondsPerInGameHour: 30
-  startHour: 20
+  startHour: 8
   pauseTime: 0
   enableFastForward: 1
   fastForwardKey: 112

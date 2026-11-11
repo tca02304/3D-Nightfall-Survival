@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1463773092350057449}
   - component: {fileID: 6132382484814908101}
   - component: {fileID: 328855098004624144}
+  - component: {fileID: 5756935727689443505}
   m_Layer: 0
   m_Name: LifeSteal
   m_TagString: PowerUps
@@ -86,3 +87,17 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &5756935727689443505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 775674846993740843}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6f613e78aff6dd499fe152ea734d2d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  amplitude: 0.2
+  frequency: 2

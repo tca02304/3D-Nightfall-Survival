@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4798397933412038923}
   - component: {fileID: 8935583670087816129}
   - component: {fileID: 3177580463338904177}
+  - component: {fileID: 8385088215331363004}
   m_Layer: 0
   m_Name: HpRegen
   m_TagString: PowerUps
@@ -86,3 +87,17 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &8385088215331363004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5547578224132864682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6f613e78aff6dd499fe152ea734d2d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  amplitude: 0.2
+  frequency: 2

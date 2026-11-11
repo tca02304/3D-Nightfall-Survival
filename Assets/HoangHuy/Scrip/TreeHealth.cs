@@ -37,11 +37,7 @@ public class TreeHealths : MonoBehaviour
 
     void Update()
     {
-        // Phím test nhanh (Bấm Space để trừ máu cây)
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            TakeDamage(20f);
-        }
+        
     }
 
     public void TakeDamage(float damage)

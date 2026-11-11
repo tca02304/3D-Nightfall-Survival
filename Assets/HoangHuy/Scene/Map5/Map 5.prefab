@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 6975803686981845117}
   - component: {fileID: 4897517320651010160}
   - component: {fileID: 4158672736444592145}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Planks_Floor (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -172,10 +172,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   checkOverlapRadius: 2
-  spawnOffsetY: 0.3
-  chestBeginningPrefab: {fileID: 1103971948622845867, guid: 6feffe5b4bc13ed4aa6dd3fce30ab712, type: 3}
-  countBeginning: 35
-  chestFreePrefab: {fileID: 4069082287224826612, guid: 7071a5672db581441a1e80e48cfea4f3, type: 3}
+  spawnOffsetY: 0
+  chestBeginningPrefab: {fileID: 4601779885014458569, guid: 9c4a199906cc8704690c5f275d2e5846, type: 3}
+  countBeginning: 100
+  chestFreePrefab: {fileID: 301687698143526247, guid: 7d7fe0c83e43fc94ab75184cb83822f8, type: 3}
   countFree: 10
   chestGoldPrefab: {fileID: 316592635741254761, guid: 7b60b514aa45eb44693054cac24724e7, type: 3}
   countGold: 15
@@ -190,7 +190,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2417777572268624976}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Village
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -227,7 +227,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6420283423817051398}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: House (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -415,7 +415,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   checkOverlapRadius: 1.5
-  spawnOffsetY: 0.1
+  spawnOffsetY: 0
   oreList:
   - oreName: Adamatite
     orePrefab: {fileID: 301687698143526247, guid: 7d7fe0c83e43fc94ab75184cb83822f8, type: 3}
@@ -492,7 +492,7 @@ GameObject:
   - component: {fileID: 4875042002307034429}
   - component: {fileID: 6962515199598173488}
   - component: {fileID: 1936049145564814673}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Planks_Floor (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -644,7 +644,7 @@ GameObject:
   - component: {fileID: 126391828396953941}
   - component: {fileID: 1725402366215398465}
   - component: {fileID: 8586353263583104073}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -891,7 +891,7 @@ GameObject:
   - component: {fileID: 3867292222348870126}
   - component: {fileID: 5753845898126832981}
   - component: {fileID: 8698604816637541748}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Planks_Floor (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -978,7 +978,7 @@ GameObject:
   - component: {fileID: 8929357178581927067}
   - component: {fileID: 5041630653546907807}
   - component: {fileID: 4357687042138337859}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Wooden (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1170,7 +1170,7 @@ GameObject:
   - component: {fileID: 6084877181243136242}
   - component: {fileID: 5202833439421485104}
   - component: {fileID: 7868340363765755139}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Campfire
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1310,7 +1310,7 @@ GameObject:
   - component: {fileID: 5331192431905560585}
   - component: {fileID: 8841914786332729496}
   - component: {fileID: 3754934890169446637}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: WareHouse
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1399,7 +1399,7 @@ GameObject:
   - component: {fileID: 8307346312825728987}
   - component: {fileID: 5572522981226669023}
   - component: {fileID: 3808762397404911875}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Wooden
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1506,7 +1506,7 @@ GameObject:
   - component: {fileID: 8987101571922729465}
   - component: {fileID: 6140948907897039037}
   - component: {fileID: 216244879472264857}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Planks_Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1652,7 +1652,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 939839311347901024}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: House (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1721,7 +1721,7 @@ GameObject:
   - component: {fileID: 4814451861843895240}
   - component: {fileID: 4081101183867950963}
   - component: {fileID: 1138453318322790226}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Planks_Floor (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1807,7 +1807,7 @@ GameObject:
   - component: {fileID: 847704769360247775}
   - component: {fileID: 2468596853622868635}
   - component: {fileID: 8393441070857397439}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Planks_Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2010,7 +2010,7 @@ GameObject:
   - component: {fileID: 3809094635524886299}
   - component: {fileID: 1721761627073593110}
   - component: {fileID: 7900727495891550071}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Planks_Floor (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2149,7 +2149,7 @@ GameObject:
   - component: {fileID: 8555210976567030643}
   - component: {fileID: 6956623211441358439}
   - component: {fileID: 23614694299479663}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2499,7 +2499,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3342324576848809760}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: House
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2537,7 +2537,7 @@ GameObject:
   - component: {fileID: 3012029551960567179}
   - component: {fileID: 1716130659925303695}
   - component: {fileID: 7952810101744147283}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Wooden (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2644,7 +2644,7 @@ GameObject:
   - component: {fileID: 7041649410347568776}
   - component: {fileID: 2002504545390262835}
   - component: {fileID: 3216750887326839314}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Planks_Floor (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2730,7 +2730,7 @@ GameObject:
   - component: {fileID: 2007374690940104985}
   - component: {fileID: 2923778743795288456}
   - component: {fileID: 7366664698661853693}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: WareHouse (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2818,7 +2818,7 @@ GameObject:
   - component: {fileID: 2930451780932753055}
   - component: {fileID: 84054790948120539}
   - component: {fileID: 6274594618517899775}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Planks_Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2905,7 +2905,7 @@ GameObject:
   - component: {fileID: 2408876685152978635}
   - component: {fileID: 2265882085796612815}
   - component: {fileID: 7421055705610465299}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Wooden
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3121,7 +3121,7 @@ GameObject:
   - component: {fileID: 5220737440736246381}
   m_Layer: 0
   m_Name: PlayerSpawn
-  m_TagString: Untagged
+  m_TagString: PlayerSpawnPoint
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3230,7 +3230,7 @@ GameObject:
   - component: {fileID: 6184180812456107571}
   - component: {fileID: 4891554963920284455}
   - component: {fileID: 2538708375882187567}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
