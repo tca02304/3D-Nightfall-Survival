@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   treeName: Oak
   maxHealth: 100
-  woodPrefab: {fileID: 1408715526692010511, guid: b9e18243666fd4048bf1f612a57ea132, type: 3}
+  woodPrefab: {fileID: 0}
   minWoodCount: 1
   maxWoodCount: 3
   shakeDuration: 0.15

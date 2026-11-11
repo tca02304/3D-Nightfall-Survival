@@ -221,6 +221,7 @@ GameObject:
   - component: {fileID: 4341198215630421034}
   - component: {fileID: 4795729087111613099}
   - component: {fileID: 9066583927751698261}
+  - component: {fileID: -6920683874953068973}
   m_Layer: 0
   m_Name: SM_Rocks_01
   m_TagString: Untagged
@@ -351,6 +352,27 @@ MonoBehaviour:
   interactDistance: 3
   itemGivenName: Stone
   quantity: 1
+--- !u!114 &-6920683874953068973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4843524868254211946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a7e538059acb8b44b3cb91695d27589, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemConfig: {fileID: 11400000, guid: 016339906e4fa66488ac075355cf1e36, type: 2}
+  quantity: 1
+  pickupDistance: 1.8
+  pickupDelay: 1.5
+  rotateOnGround: 1
+  rotationSpeed: 60
+  bobbingEffect: 1
+  bobbingAmplitude: 0.08
+  bobbingFrequency: 2
 --- !u!1 &4913035120448230744
 GameObject:
   m_ObjectHideFlags: 0
