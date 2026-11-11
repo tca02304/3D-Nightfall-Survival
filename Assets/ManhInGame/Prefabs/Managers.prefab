@@ -1,0 +1,290 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &9180069381648926864
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2245671485424643061}
+  - component: {fileID: 3179007273725959198}
+  - component: {fileID: 8568030017089595085}
+  - component: {fileID: 7283041373787770458}
+  - component: {fileID: 1853166814430325907}
+  - component: {fileID: 4807271214877550753}
+  - component: {fileID: 722762342650281122}
+  - component: {fileID: 445251650204767168}
+  - component: {fileID: 8794216613805678949}
+  m_Layer: 0
+  m_Name: Managers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2245671485424643061
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9180069381648926864}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3179007273725959198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9180069381648926864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 987cd55c0a6b7e44481d861467a46e63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iconEntries:
+  - iconKey: wood
+    icon: {fileID: 21300000, guid: c6f28d6e601a9ab4aa18b0dbdb3ec349, type: 3}
+  - iconKey: wood_birch
+    icon: {fileID: 21300000, guid: f48d91e5afae9a24d820036888777a1d, type: 3}
+  - iconKey: wood_fir
+    icon: {fileID: 21300000, guid: 458088a4cb4d0ce4d88ead6d529e4195, type: 3}
+  - iconKey: wood_oak
+    icon: {fileID: 21300000, guid: cf348bdaa39595645a493d9efaac8a90, type: 3}
+  - iconKey: wood_dark_oak
+    icon: {fileID: 21300000, guid: 091bf4c224e450f4aab9a3e7f22ce9de, type: 3}
+  - iconKey: stone
+    icon: {fileID: 21300000, guid: 712498b159812784a8642abdbc424658, type: 3}
+  - iconKey: coal
+    icon: {fileID: 21300000, guid: 6054ebe09c7b2a24982e67d1b51df32c, type: 3}
+  - iconKey: iron_ore
+    icon: {fileID: 21300000, guid: dec4e079d3876f54e9b661d77d36e8f9, type: 3}
+  - iconKey: gold_ore
+    icon: {fileID: 21300000, guid: 11b4d9b6f82ed0d4cb85437e675f2a40, type: 3}
+  - iconKey: mithril_ore
+    icon: {fileID: 21300000, guid: ae1068d4f58a5b642b160c27e9707501, type: 3}
+  - iconKey: adamantite_ore
+    icon: {fileID: 21300000, guid: ed32238faa905974dbfbd70c89e90cd6, type: 3}
+  - iconKey: obanium_ore
+    icon: {fileID: 21300000, guid: d8afea3b6e20cdb4683f421bc08d0a59, type: 3}
+  - iconKey: chunkium_ore
+    icon: {fileID: 21300000, guid: f0ce50347079bcf4b90e5d9ca4fec241, type: 3}
+  - iconKey: iron_bar
+    icon: {fileID: 21300000, guid: 4f36331fd117a644e9526d98b67cde51, type: 3}
+  - iconKey: gold_bar
+    icon: {fileID: 21300000, guid: 3bdad455ee0c2014bb3f4a2e7089ee37, type: 3}
+  - iconKey: mithril_bar
+    icon: {fileID: 21300000, guid: ba278e306025fb94b88a1a58723ff2c6, type: 3}
+  - iconKey: adamantite_bar
+    icon: {fileID: 21300000, guid: 0737a77737001184fb93cac30baa00b7, type: 3}
+  - iconKey: obanium_bar
+    icon: {fileID: 21300000, guid: 771106381a50aa64185b8a6237b53cd0, type: 3}
+  - iconKey: chunkium_bar
+    icon: {fileID: 21300000, guid: e649e6813e6fff44a97905bda05c9e28, type: 3}
+  - iconKey: bone
+    icon: {fileID: 21300000, guid: 4c17ca786d1f77442a44568ad121bc26, type: 3}
+  - iconKey: wolf_claw
+    icon: {fileID: 21300000, guid: 79e1208e921081042b7ae7770cf88a1e, type: 3}
+  - iconKey: wyvern_claw
+    icon: {fileID: 21300000, guid: aca4d9149f3ddef4b9a17c40d8f23217, type: 3}
+  - iconKey: apple
+    icon: {fileID: 21300000, guid: be56bf90be5f5614287e94cadd2c0c58, type: 3}
+  - iconKey: wheat
+    icon: {fileID: 21300000, guid: a73c903ed7165194584ea375cf9ef1ee, type: 3}
+  - iconKey: sugon_mushroom
+    icon: {fileID: 21300000, guid: ffc3170f8e31f114780a5eb35be1883d, type: 3}
+  - iconKey: ligon_mushroom
+    icon: {fileID: 21300000, guid: af19486ac5e0ae84b996d16b453274f0, type: 3}
+  - iconKey: slurp_mushroom
+    icon: {fileID: 21300000, guid: 7ea862337fb727f42b280b885a089644, type: 3}
+  - iconKey: gulpon_mushroom
+    icon: {fileID: 21300000, guid: bdd713465dc3e76478facef8ae8550b3, type: 3}
+  - iconKey: raw_meat
+    icon: {fileID: 21300000, guid: 67566414c1736d14d86b22f9f6f6b0ff, type: 3}
+  - iconKey: cooked_meat
+    icon: {fileID: 21300000, guid: 6cbf9e509d9eba6458b69948352cf9ca, type: 3}
+  - iconKey: bark
+    icon: {fileID: 21300000, guid: d63d2a75521de5e408d5feef7e15a5d2, type: 3}
+  - iconKey: blade
+    icon: {fileID: 21300000, guid: 98cb4c7e53bb0c0418ddcb686c470821, type: 3}
+  - iconKey: wood_axe
+    icon: {fileID: 21300000, guid: 4bf894ec79fdd814eafa241dffeeca0f, type: 3}
+  - iconKey: steel_axe
+    icon: {fileID: 21300000, guid: 211eeb96215e99749a3a79e6bb5c2cd2, type: 3}
+  - iconKey: gold_axe
+    icon: {fileID: 21300000, guid: 0e949cc1ed5cc6d41831216454b6b7ce, type: 3}
+  - iconKey: mithril_axe
+    icon: {fileID: 21300000, guid: 6083e0e1009905741a397404c36f2cbf, type: 3}
+  - iconKey: adamantite_axe
+    icon: {fileID: 21300000, guid: 5ef0e6c1033f34a41add5b21c19d3bcc, type: 3}
+  - iconKey: wood_pickaxe
+    icon: {fileID: 21300000, guid: 617f62c8cd618dc429de23c7b6107d85, type: 3}
+  - iconKey: steel_pickaxe
+    icon: {fileID: 21300000, guid: 8e77d42ca5862e04498e6b479a420068, type: 3}
+  - iconKey: gold_pickaxe
+    icon: {fileID: 21300000, guid: cba2e996f1318b64bbcd3a96aff46572, type: 3}
+  - iconKey: mithril_pickaxe
+    icon: {fileID: 21300000, guid: 380e132834345c040b87ebed91f40967, type: 3}
+  - iconKey: adamantite_axe
+    icon: {fileID: 21300000, guid: 9952090604d16d24f9d4faa8cef873d1, type: 3}
+  - iconKey: night_blade
+    icon: {fileID: 21300000, guid: 1737b54773a06ba4288fd3a00cb0bc18, type: 3}
+  - iconKey: wood_bow
+    icon: {fileID: 21300000, guid: 7fa64731f2fb9ff4c9ecd17474f290e9, type: 3}
+  - iconKey: meat_soup
+    icon: {fileID: 21300000, guid: 6ee0dec6848f16e459fcf58cba17491c, type: 3}
+  - iconKey: rope
+    icon: {fileID: 21300000, guid: c0407b331069b3b47849f5e68bd8e835, type: 3}
+  - iconKey: black_shard
+    icon: {fileID: 21300000, guid: 38de906dafd375b4da329237c5234d16, type: 3}
+  - iconKey: steel_sword
+    icon: {fileID: 21300000, guid: 1a48474a7e61c694695ada23c2cf2575, type: 3}
+  - iconKey: gold_sword
+    icon: {fileID: 21300000, guid: 267cb3735a4b66a489bbef2852245915, type: 3}
+  - iconKey: mithril_sword
+    icon: {fileID: 21300000, guid: b1e32e0e4aebf734d8c71b1c1033e617, type: 3}
+  - iconKey: adamantite_sword
+    icon: {fileID: 21300000, guid: e4d3cfe99d896f74b9a7299fb11debae, type: 3}
+  - iconKey: obanium_sword
+    icon: {fileID: 21300000, guid: 6172a10d5fb911340b0a17b4fa9a579d, type: 3}
+  - iconKey: 
+    icon: {fileID: 0}
+  - iconKey: 
+    icon: {fileID: 0}
+  - iconKey: 
+    icon: {fileID: 0}
+  - iconKey: 
+    icon: {fileID: 0}
+  - iconKey: 
+    icon: {fileID: 0}
+  - iconKey: 
+    icon: {fileID: 0}
+  - iconKey: 
+    icon: {fileID: 0}
+  - iconKey: 
+    icon: {fileID: 0}
+  - iconKey: 
+    icon: {fileID: 0}
+  - iconKey: 
+    icon: {fileID: 0}
+  - iconKey: 
+    icon: {fileID: 0}
+  - iconKey: 
+    icon: {fileID: 0}
+  - iconKey: 
+    icon: {fileID: 0}
+--- !u!114 &8568030017089595085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9180069381648926864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a88541e6c7ba484a97d55b370a2cfb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  apiUrl: https://localhost:7133/api/Inventory
+  playerId: 1
+  loadOnStart: 1
+  saveDelay: 0.5
+  itemAPI: {fileID: 8794216613805678949}
+  craftingController: {fileID: 445251650204767168}
+--- !u!114 &7283041373787770458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9180069381648926864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af7861517bb47e642aa8734e39b1000a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventorySize: 32
+  hotbarSize: 7
+--- !u!114 &1853166814430325907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9180069381648926864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5623e251be980f5498d571231982d8e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentSlot: 0
+--- !u!114 &4807271214877550753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9180069381648926864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1ed109c53b108541a583e00c7c2ad51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefabRegistry: {fileID: 0}
+  dropDistance: 1.5
+  dropHeight: 0.5
+  itemSpacing: 0.5
+  enableDropHotkey: 1
+  dropAmount: 1
+  playerRoot: {fileID: 0}
+  dropOrigin: {fileID: 0}
+--- !u!114 &722762342650281122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9180069381648926864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9db291bb7ce96494ca2f60ff56b124f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  overrides: []
+  fallbackPrefab: {fileID: 0}
+--- !u!114 &445251650204767168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9180069381648926864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6d31a588f7d4554e9cfa1f9327c1ba5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridRecipesCsv: {fileID: 4900000, guid: 82f60e2f10a44c64db2ffb31f5a2ba35, type: 3}
+  itemCodeIdsCsv: {fileID: 4900000, guid: 9e303983ef67aa04d99c58c6aab65057, type: 3}
+--- !u!114 &8794216613805678949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9180069381648926864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32be995bdafe47e4f834623fe62d3c34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  apiUrl: https://localhost:7133/api/Item/getallitem
