@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 645089963f35684408d18b1b8bbdb2e2, type: 3}
-  m_Name: Obanium Ore
+  m_Name: Obamium Ore
   m_EditorClassIdentifier: 
   treeName: 
   maxHealth: 100

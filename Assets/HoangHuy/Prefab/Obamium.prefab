@@ -320,7 +320,7 @@ GameObject:
   - component: {fileID: 1226362112498088328}
   - component: {fileID: 8651160287408235088}
   m_Layer: 0
-  m_Name: Obanium
+  m_Name: Obamium
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
