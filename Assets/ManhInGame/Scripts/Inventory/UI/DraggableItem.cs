@@ -1,6 +1,6 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class DraggableItem : MonoBehaviour,
@@ -14,11 +14,9 @@ public class DraggableItem : MonoBehaviour,
     private ItemUI itemUI;
     private GameObject dragGhost;
     private RectTransform dragGhostRect;
-
     private InventoryWorldDropHandler worldDropHandler;
 
     public static DraggableItem ActiveDrag { get; private set; }
-
     public ItemSlot sourceSlot { get; private set; }
     private int dragAmount;
 
@@ -26,300 +24,244 @@ public class DraggableItem : MonoBehaviour,
     {
         canvas = GetComponentInParent<Canvas>();
         canvasGroup = GetComponent<CanvasGroup>();
-        itemUI = GetComponent<ItemUI>();
+        itemUI = GetComponentInParent<ItemUI>();
         worldDropHandler = GetComponentInParent<InventoryWorldDropHandler>();
     }
-
+    
+    // Start dragging immediately without Unity's default movement threshold
     public void OnInitializePotentialDrag(PointerEventData eventData)
     {
         eventData.useDragThreshold = false;
     }
 
+    // Begin a left-button drag only when the source Slot contains an Item
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (eventData.button != PointerEventData.InputButton.Left)
             return;
 
-        if (InventoryManager.Instance != null && !InventoryManager.Instance.CursorSlot.isEmpty())
+        InventoryManager inventory = InventoryManager.Instance;
+        if (inventory == null || !inventory.CursorSlot.isEmpty() || ActiveDrag != null)
             return;
 
-        sourceSlot = GetComponentInParent<ItemSlot>();
-
-        if (sourceSlot == null)
+        ItemSlot candidate = GetComponentInParent<ItemSlot>();
+        if (candidate == null || candidate.SlotIndex < 0 || candidate.SlotIndex >= inventory.Slots.Count)
             return;
 
-        InventorySlotData slotData = InventoryManager.Instance.Slots[sourceSlot.SlotIndex];
-
-        if (slotData.isEmpty())
+        InventorySlotData data = inventory.Slots[candidate.SlotIndex];
+        if (data == null || data.isEmpty() || data.Amount <= 0 || canvas == null)
             return;
 
-        dragAmount = slotData.Amount;
-        canvasGroup.alpha = 0f;
+        sourceSlot = candidate;
+        dragAmount = data.Amount;
+        worldDropHandler = GetComponentInParent<InventoryWorldDropHandler>();
 
         CreateDragGhost();
+        if(dragGhost == null)
+        {
+            sourceSlot = null;
+            dragAmount = 0;
+            return;
+        }
+
         ActiveDrag = this;
-
-        ItemUI ghostUI = dragGhost.GetComponent<ItemUI>();
-
-        if (ghostUI != null)
-            ghostUI.SetAmount(dragAmount);
-
+        canvasGroup.alpha = 0f;
+        canvasGroup.blocksRaycasts = false;
+        UpdateGhostAmount();
         UpdateGhostPosition(eventData);
-        canvasGroup.blocksRaycasts = false; 
     }
 
+    // Follow the pointer while an active drag is in progress
     public void OnDrag(PointerEventData eventData)
     {
-        UpdateGhostPosition(eventData);
+        if(ActiveDrag == this)
+        {
+            UpdateGhostPosition(eventData);
+        }
     }
 
-
+    // Try a world drop only if no Slot or Crafting handler already completed the drag
     public void OnEndDrag(PointerEventData eventData)
     {
-        // [DEBUG] Check whether dragging is actually active.
-        Debug.Log(
-            $"[DraggableItem] EndDrag | " +
-            $"Active={ActiveDrag == this} | " +
-            $"Source={(sourceSlot != null ? sourceSlot.SlotIndex : -1)} | " +
-            $"Amount={dragAmount} | " +
-            $"Handler={(worldDropHandler != null)}");
-
-        // [ADD] Try dropping into the world.
-        if (ActiveDrag == this &&
-            sourceSlot != null &&
-            dragAmount > 0 &&
-            worldDropHandler != null &&
-            eventData.button == PointerEventData.InputButton.Left)
+        // Try snapping a drop to a nearby slot inside a UI grid.
+        if (ActiveDrag == this && sourceSlot != null)
         {
-            bool success = worldDropHandler.TryDropOutsideUI(
-                sourceSlot.SlotIndex,
-                dragAmount,
-                eventData.position,
-                eventData.pressEventCamera
-            );
+            DragGapSnapHandler[] handlers =
+                FindObjectsByType<DragGapSnapHandler>(
+                    FindObjectsSortMode.None);
 
-            if (success)
+            foreach (DragGapSnapHandler handler in handlers)
             {
-                Debug.Log("[DraggableItem] World drop successful");
+                if (handler.TrySnapDrop(eventData))
+                    break;
             }
         }
 
-        // [KEEP] Existing cleanup.
+        if (ActiveDrag == this && sourceSlot != null && dragAmount > 0 &&
+            eventData.button == PointerEventData.InputButton.Left && worldDropHandler != null)
+        {
+            worldDropHandler.TryDropOutsideUI(
+                sourceSlot.SlotIndex,
+                dragAmount,
+                eventData.position,
+                eventData.pressEventCamera);
+        }
+
         CleanupDrag();
         sourceSlot = null;
         dragAmount = 0;
     }
 
-
-    private void UpdateGhostPosition(PointerEventData evnetData)
+    // Move the ghost using screen coordinates converted into the Canvas coordinate system
+    private void UpdateGhostPosition(PointerEventData eventData)
     {
         if (dragGhostRect == null || canvas == null)
             return;
 
         RectTransform canvasRect = canvas.transform as RectTransform;
+        Camera camera = canvas.renderMode == RenderMode.ScreenSpaceOverlay
+            ? null
+            : canvas.worldCamera != null ? canvas.worldCamera : eventData.pressEventCamera;
 
-        if(RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            canvasRect,
-            evnetData.position,
-            evnetData.pressEventCamera,
-            out Vector2 localPoint))
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvasRect, eventData.position, camera, out Vector2 localPoint))
         {
             dragGhostRect.localPosition = localPoint;
         }
     }
 
+    // Clone only ItemIcon as a non-raycasting visual drag ghost
     private void CreateDragGhost()
     {
         dragGhost = Instantiate(gameObject, canvas.transform);
-
         dragGhost.name = "DragGhost";
-
         dragGhostRect = dragGhost.GetComponent<RectTransform>();
-
         dragGhost.transform.SetAsLastSibling();
 
         DraggableItem ghostDraggable = dragGhost.GetComponent<DraggableItem>();
-
         if (ghostDraggable != null)
-            Destroy(ghostDraggable);
-
-        CanvasGroup ghostCanvasGroup = dragGhost.GetComponent<CanvasGroup>();
-
-        if(ghostCanvasGroup != null)
         {
-            ghostCanvasGroup.blocksRaycasts = false;
-            ghostCanvasGroup.alpha = 1f;
+            ghostDraggable.enabled = false;
+            Destroy(ghostDraggable);
         }
+
+        CanvasGroup ghostGroup = dragGhost.GetComponent<CanvasGroup>();
+        if(ghostGroup != null)
+        {
+            ghostGroup.alpha = 1f;
+            ghostGroup.interactable = false;
+            ghostGroup.blocksRaycasts = false;
+        }
+
+        // The ghost contains ItemIcon/AmountText but no ItemUI component on its parent
+        foreach (UnityEngine.UI.Graphic graphic in dragGhost.GetComponentsInChildren<UnityEngine.UI.Graphic>(true))
+            graphic.raycastTarget = false;
     }
 
-    public void CompleteDrop(int targetSlotIndex)
+    // Refresh the AmountText that lives inside the cloned ItemIcon instead of searching for ItemUI
+    public void UpdateGhostAmount()
     {
-        if (sourceSlot == null || dragAmount <= 0)
+        if (dragGhost == null)
             return;
 
-        int srcIndex = sourceSlot.SlotIndex;
+        TMP_Text amountLabel = dragGhost.GetComponentInChildren<TMP_Text>(true);
+        if (amountLabel != null)
+            amountLabel.text = dragAmount > 1 ? dragAmount.ToString() : string.Empty;
 
-        CleanupDrag();
-
-        InventoryManager.Instance.MoveItemAmount(srcIndex, targetSlotIndex, dragAmount);
-
-        sourceSlot = null;
+        if (dragAmount <= 0)
+            dragGhost.SetActive(false);
     }
 
+    // Complete the existing full-stack Slot transfer without changing Inventory transfer rules
+    public void CompleteDrop(int targetSlotIndex)
+    {
+        if (ActiveDrag != this || sourceSlot == null || dragAmount <= 0)
+            return;
 
+        int sourceIndex = sourceSlot.SlotIndex;
+        int amount = dragAmount;
+        CleanupDrag();
+        sourceSlot = null;
+        dragAmount = 0;
+
+        InventoryManager inventory = InventoryManager.Instance;
+        if (inventory != null)
+            inventory.MoveItemAmount(sourceIndex, targetSlotIndex, amount);
+    }
+
+    // Transfer exactly one Item into an empty Slot or a compatible stack
     public bool TryPlaceOneOnSlot(int targetSlotIndex)
     {
         InventoryManager inventory = InventoryManager.Instance;
-
-        if (inventory == null || sourceSlot == null)
-            return false;
-
-        if (ActiveDrag != this || dragAmount <= 0)
-            return false;
-
-        if (!inventory.CursorSlot.isEmpty())
+        if (inventory == null || sourceSlot == null || ActiveDrag != this ||
+            dragAmount <= 0 || !inventory.CursorSlot.isEmpty())
             return false;
 
         int sourceIndex = sourceSlot.SlotIndex;
-
-        if (sourceIndex < 0 ||
-            sourceIndex >= inventory.Slots.Count ||
-            targetSlotIndex < 0 ||
-            targetSlotIndex >= inventory.Slots.Count ||
+        if (sourceIndex < 0 || sourceIndex >= inventory.Slots.Count ||
+            targetSlotIndex < 0 || targetSlotIndex >= inventory.Slots.Count ||
             sourceIndex == targetSlotIndex)
             return false;
 
         InventorySlotData source = inventory.Slots[sourceIndex];
         InventorySlotData target = inventory.Slots[targetSlotIndex];
-
-        if (source.isEmpty() || source.Amount <= 0)
+        if (source == null || target == null || source.isEmpty() || source.Amount <= 0)
             return false;
 
-        // Chỉ cho đặt vào ô trống hoặc stack cùng loại.
-        // Không swap Item khác loại khi thả từng 1.
-        if (!target.isEmpty())
-        {
-            if (target.ItemId != source.ItemId)
-                return false;
-
-            if (target.Amount >= target.MaxStack)
-                return false;
-        }
-
-        // Lưu số lượng trước khi chuyển.
-        int remaining = source.Amount;
-
-        bool success = inventory.MoveItemAmount(
-            sourceIndex,
-            targetSlotIndex,
-            1
-        );
-
-        if (!success)
+        if (!target.isEmpty() &&
+            (target.ItemId != source.ItemId || target.Amount >= target.MaxStack))
             return false;
 
-        dragAmount = Mathf.Min(
-            Mathf.Max(0, remaining - 1),
-            inventory.Slots[sourceIndex].Amount
-        );
+        if (!inventory.MoveItemAmount(sourceIndex, targetSlotIndex, 1))
+            return false;
 
-        // Cập nhật số lượng còn lại trên DragGhost.
-        if (dragGhost != null)
-        {
-            ItemUI ghostUI = dragGhost.GetComponent<ItemUI>();
-
-            if (ghostUI != null)
-                ghostUI.SetAmount(dragAmount);
-
-            if (dragAmount <= 0)
-                dragGhost.SetActive(false);
-        }
-
+        dragAmount = Mathf.Min(Mathf.Max(0, dragAmount - 1), inventory.Slots[sourceIndex].Amount);
+        UpdateGhostAmount();
         return true;
     }
 
-
-    public bool TryPlaceOneOnCraftCell(
-        GridCraftingController controller,
-        int gridIndex)
+    // Transfer exactly one Item from Inventory or Hotbar to the selected Crafting Cell
+    public bool TryPlaceOneOnCraftCell(GridCraftingController controller, int gridIndex)
     {
         InventoryManager inventory = InventoryManager.Instance;
-
-        if (controller == null ||
-            inventory == null ||
-            sourceSlot == null ||
-            ActiveDrag != this ||
-            dragAmount <= 0)
-        {
-            return false;
-        }
-
-        if (!inventory.CursorSlot.isEmpty())
+        if (controller == null || inventory == null || sourceSlot == null ||
+            ActiveDrag != this || dragAmount <= 0 || !inventory.CursorSlot.isEmpty())
             return false;
 
         int sourceIndex = sourceSlot.SlotIndex;
-
-        if (sourceIndex < 0 ||
-            sourceIndex >= inventory.Slots.Count)
-        {
-            return false;
-        }
-
-        InventorySlotData source =
-            inventory.Slots[sourceIndex];
-
-        if (source.isEmpty())
+        if (sourceIndex < 0 || sourceIndex >= inventory.Slots.Count)
             return false;
 
-        // Chuyển đúng 1 Item từ Inventory vào Crafting.
-        int transferred = controller.TryMoveAmountFromInventory(
-            sourceIndex,
-            gridIndex,
-            1
-        );
+        InventorySlotData source = inventory.Slots[sourceIndex];
+        if (source == null || source.isEmpty())
+            return false;
 
+        int transferred = controller.TryMoveAmountFromInventory(sourceIndex, gridIndex, 1);
         if (transferred != 1)
             return false;
 
-        // Cập nhật số lượng đang kéo.
-        dragAmount = Mathf.Min(
-            Mathf.Max(0, dragAmount - 1),
-            inventory.Slots[sourceIndex].Amount
-        );
-
-        // Cập nhật số lượng trên DragGhost.
-        if (dragGhost != null)
-        {
-            ItemUI ghostUI = dragGhost.GetComponent<ItemUI>();
-
-            if (ghostUI != null)
-                ghostUI.SetAmount(dragAmount);
-
-            if (dragAmount <= 0)
-                dragGhost.SetActive(false);
-        }
-
+        dragAmount = Mathf.Min(Mathf.Max(0, dragAmount - 1), inventory.Slots[sourceIndex].Amount);
+        UpdateGhostAmount();
         return true;
     }
 
-
-
+    // Restore the original Icon and remove its ghost without affecting Inventory data
     private void CleanupDrag()
     {
-        canvasGroup.blocksRaycasts = true;
-        canvasGroup.alpha = 1f;
+        if (canvasGroup != null)
+        {
+            canvasGroup.blocksRaycasts = true;
+            canvasGroup.alpha = 1f;
+        }
 
         if (ActiveDrag == this)
-        {
             ActiveDrag = null;
-        }
 
         if (dragGhost != null)
-        {
             Destroy(dragGhost);
-        }
 
         dragGhost = null;
+        dragGhostRect = null;
     }
 
     private void OnDisable()
