@@ -9,14 +9,15 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2245671485424643061}
-  - component: {fileID: 3179007273725959198}
+  - component: {fileID: 8794216613805678949}
   - component: {fileID: 8568030017089595085}
+  - component: {fileID: 3179007273725959198}
   - component: {fileID: 7283041373787770458}
   - component: {fileID: 1853166814430325907}
   - component: {fileID: 4807271214877550753}
   - component: {fileID: 722762342650281122}
   - component: {fileID: 445251650204767168}
-  - component: {fileID: 8794216613805678949}
+  - component: {fileID: 8623537234429405898}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -39,6 +40,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8794216613805678949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9180069381648926864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32be995bdafe47e4f834623fe62d3c34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  apiUrl: https://localhost:7133/api/Item/getallitem
+--- !u!114 &8568030017089595085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9180069381648926864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a88541e6c7ba484a97d55b370a2cfb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  apiUrl: https://localhost:7133/api/Inventory
+  playerId: 1
+  loadOnStart: 1
+  saveDelay: 0.5
+  itemAPI: {fileID: 8794216613805678949}
+  craftingController: {fileID: 445251650204767168}
 --- !u!114 &3179007273725959198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,24 +214,6 @@ MonoBehaviour:
     icon: {fileID: 0}
   - iconKey: 
     icon: {fileID: 0}
---- !u!114 &8568030017089595085
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9180069381648926864}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a88541e6c7ba484a97d55b370a2cfb5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  apiUrl: https://localhost:7133/api/Inventory
-  playerId: 1
-  loadOnStart: 1
-  saveDelay: 0.5
-  itemAPI: {fileID: 8794216613805678949}
-  craftingController: {fileID: 445251650204767168}
 --- !u!114 &7283041373787770458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -239,7 +253,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1ed109c53b108541a583e00c7c2ad51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefabRegistry: {fileID: 0}
+  prefabRegistry: {fileID: 722762342650281122}
   dropDistance: 1.5
   dropHeight: 0.5
   itemSpacing: 0.5
@@ -275,7 +289,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridRecipesCsv: {fileID: 4900000, guid: 82f60e2f10a44c64db2ffb31f5a2ba35, type: 3}
   itemCodeIdsCsv: {fileID: 4900000, guid: 9e303983ef67aa04d99c58c6aab65057, type: 3}
---- !u!114 &8794216613805678949
+--- !u!114 &8623537234429405898
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -284,7 +298,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 9180069381648926864}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32be995bdafe47e4f834623fe62d3c34, type: 3}
+  m_Script: {fileID: 11500000, guid: 0b203e54c4e154a44ae4c27906006e37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  apiUrl: https://localhost:7133/api/Item/getallitem
