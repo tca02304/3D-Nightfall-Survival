@@ -1,6 +1,6 @@
+
 using UnityEngine;
 
-[RequireComponent(typeof(SphereCollider))]
 [RequireComponent(typeof(Rigidbody))]
 public class WorldItem : MonoBehaviour
 {
@@ -8,136 +8,185 @@ public class WorldItem : MonoBehaviour
     [SerializeField] private int itemId;
     [SerializeField, Min(1)] private int amount = 1;
 
-    [Header("Pickup Settings")]
-    [SerializeField, Min(0f)]
-    private float pickupDelay = 0.5f;
-
+    [Header("Pickup Detection")]
     [SerializeField, Min(0.1f)]
-    private float retryInterval = 0.35f;
+    private float pickupRadius = 1.2f;
 
-    private float pickupEnableTime;
+    [SerializeField, Min(0f)]
+    private float ownerPickupCooldown = 0.65f;
+
+    [SerializeField, Min(0.05f)]
+    private float retryInterval = 0.1f;
+
+    private SphereCollider pickupCollider;
+    private Rigidbody body;
+
+    private Transform blockedOwner;
+    private float ownerBlockUntil;
     private float nextPickupAttemptTime;
 
     private bool isBeingPickedUp;
 
-    private Transform blockedOwner;
-
     public int ItemId => itemId;
     public int Amount => amount;
 
+    // Initialize Rigidbody and automatically configure the pickup trigger.
     private void Awake()
     {
-        SphereCollider sphere = GetComponent<SphereCollider>();
-        Rigidbody rb = GetComponent<Rigidbody>();
+        body = GetComponent<Rigidbody>();
+        pickupCollider = ResolvePickupCollider();
 
-        sphere.isTrigger = true;
+        if (pickupCollider == null)
+        {
+            Debug.LogError(
+                $"[WorldItem] Pickup trigger unavailable: {name}",
+                this);
+        }
 
-        rb.isKinematic = false;
-        rb.useGravity = true;
+        body.isKinematic = false;
+        body.useGravity = true;
 
-        pickupEnableTime = Time.time + pickupDelay;
-        nextPickupAttemptTime = pickupEnableTime;
+        nextPickupAttemptTime = Time.time;
     }
 
+    // Find or create the dedicated pickup trigger on a child object.
+    private SphereCollider ResolvePickupCollider()
+    {
+        Transform child = transform.Find("PickupTrigger");
+
+        if (child == null)
+        {
+            GameObject triggerObject =
+                new GameObject("PickupTrigger");
+
+            triggerObject.transform.SetParent(transform, false);
+            child = triggerObject.transform;
+        }
+
+        SphereCollider sphere =
+            child.GetComponent<SphereCollider>();
+
+        if (sphere == null)
+        {
+            sphere = child.gameObject
+                .AddComponent<SphereCollider>();
+        }
+
+        sphere.isTrigger = true;
+        sphere.radius = pickupRadius;
+        sphere.enabled = true;
+
+        return sphere;
+    }
+
+    // Initialize the spawned world item with its ItemId and stack amount.
     public void Setup(int newItemId, int newAmount)
     {
-        if(newItemId <= 0 || newAmount <= 0)
+        if (newItemId <= 0 || newAmount <= 0)
         {
-            Debug.LogError("[WorldItem] Ivalid ItemId or Amount");
+            Debug.LogError(
+                "[WorldItem] Invalid ItemId or Amount.",
+                this);
+
             gameObject.SetActive(false);
             return;
         }
 
         itemId = newItemId;
         amount = newAmount;
-
-        ResetPickupTimer();
     }
 
+    // Temporarily block the thrower from immediately picking up the dropped item.
     public void SetDropOwner(Transform owner)
     {
-        blockedOwner = owner != null ? owner.root : null;
+        blockedOwner = owner;
 
-        ResetPickupTimer();
+        ownerBlockUntil = owner != null
+            ? Time.time + ownerPickupCooldown
+            : 0f;
     }
 
-    private void ResetPickupTimer()
-    {
-        pickupEnableTime = Time.time + pickupDelay;
-        nextPickupAttemptTime = pickupEnableTime;
-    }
-
+    // Check whether a collider belongs to a player.
     private bool IsPlayer(Collider other)
     {
         return other.CompareTag("Player") ||
-            other.transform.root.CompareTag("Player");
+               other.transform.root.CompareTag("Player");
     }
 
+    // Check whether the player is still within the temporary owner cooldown.
     private bool IsBlockedOwner(Collider other)
     {
-        return blockedOwner != null &&
-            other.transform.root == blockedOwner;
+        if (blockedOwner == null)
+            return false;
+
+        if (Time.time >= ownerBlockUntil)
+        {
+            blockedOwner = null;
+            return false;
+        }
+
+        Transform target = other.transform;
+
+        return target == blockedOwner ||
+               target.IsChildOf(blockedOwner);
     }
 
+    // Attempt pickup immediately when a player enters the pickup trigger.
     private void OnTriggerEnter(Collider other)
     {
         HandlePlayerContact(other);
     }
 
+    // Retry pickup while a player remains inside the pickup trigger.
     private void OnTriggerStay(Collider other)
     {
         HandlePlayerContact(other);
     }
 
-    private void OnTriggerExit(Collider other)
-    {
-        if (!IsPlayer(other))
-            return;
-
-        if (IsBlockedOwner(other))
-        {
-            blockedOwner = null;
-        }
-    }
-
+    // Validate the pickup conditions before transferring an item.
     private void HandlePlayerContact(Collider other)
     {
+        if (amount <= 0 || isBeingPickedUp)
+            return;
+
         if (!IsPlayer(other))
             return;
 
         if (IsBlockedOwner(other))
-            return;
-
-        if (Time.time < pickupEnableTime)
             return;
 
         if (Time.time < nextPickupAttemptTime)
             return;
 
-        if (isBeingPickedUp || amount <= 0)
-            return;
-
         TryPickup();
     }
 
+    // Transfer available items to inventory and preserve any remainder.
     private void TryPickup()
     {
-        InventoryManager inventory = InventoryManager.Instance;
-        ItemDatabase database = ItemDatabase.Instance;
+        InventoryManager inventory =
+            InventoryManager.Instance;
 
-        if(inventory == null || database == null)
+        ItemDatabase database =
+            ItemDatabase.Instance;
+
+        if (inventory == null || database == null)
         {
-            nextPickupAttemptTime = Time.time + retryInterval;
+            nextPickupAttemptTime =
+                Time.time + retryInterval;
             return;
         }
 
         ItemData item = database.GetItemById(itemId);
 
-        if(item == null)
+        if (item == null)
         {
-            Debug.LogWarning($"[WorldItem] Item Id {itemId} not found");
+            Debug.LogWarning(
+                $"[WorldItem] Unknown ItemId={itemId}.",
+                this);
 
-            nextPickupAttemptTime = Time.time + retryInterval;
+            nextPickupAttemptTime =
+                Time.time + retryInterval;
             return;
         }
 
@@ -145,32 +194,40 @@ public class WorldItem : MonoBehaviour
 
         try
         {
-            int previousAmount = amount;
+            int previous = amount;
 
-            int remaining = inventory.AddItem(item, previousAmount);
+            int remaining =
+                inventory.AddItem(item, previous);
 
-            if (remaining < 0 || remaining > previousAmount)
+            if (remaining < 0 || remaining > previous)
             {
-                Debug.LogError("[WorldItem] Invalid AddItem result");
+                Debug.LogError(
+                    "[WorldItem] Invalid AddItem result.",
+                    this);
+
+                nextPickupAttemptTime =
+                    Time.time + retryInterval;
                 return;
             }
 
-            int pickedAmount = previousAmount - remaining;
-
+            int picked = previous - remaining;
             amount = remaining;
 
-            if (pickedAmount > 0)
+            if (picked > 0)
             {
-                Debug.Log($"[Pickup] +{pickedAmount} {item.name}");
+                Debug.Log(
+                    $"[Pickup] +{picked} {item.name}",
+                    this);
             }
 
-            if(amount <= 0)
+            if (amount == 0)
             {
                 Destroy(gameObject);
                 return;
             }
 
-            nextPickupAttemptTime = Time.time + retryInterval;
+            nextPickupAttemptTime =
+                Time.time + retryInterval;
         }
         finally
         {

@@ -1,278 +1,189 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Collections.Generic;
 
 public class ItemDropper : MonoBehaviour
 {
-    [Header("World Item Registry")]
-    [SerializeField] private WorldItemPrefabRegistry prefabRegistry;
+    [Header("Throw Position")]
+    [SerializeField, Min(0.1f)] private float dropDistance = 0.8f;
+    [SerializeField] private float dropHeight = 0.35f;
 
-    [Header("Drop Position")]
-    [SerializeField, Min(0.1f)] private float dropDistance = 1.5f;
-
-    [SerializeField] private float dropHeight = 0.5f;
-
-    [Header("Multiple Item Drop")]
-    [SerializeField, Min(0.05f)]
-    private float itemSpacing = 0.5f;
+    [Header("Throw Physics")]
+    [SerializeField, Min(0f)] private float forwardImpulse = 4.5f;
+    [SerializeField, Min(0f)] private float upwardImpulse = 1.6f;
 
     [Header("Drop Input")]
     [SerializeField] private bool enableDropHotkey = true;
 
-    [SerializeField, Min(1)] private int dropAmount = 1;
-
-    [Header("Drop Owner")]
+    [Header("Runtime Player Binding - Do Not Assign Across Scenes")]
     [SerializeField] private Transform playerRoot;
-
-    [Header("Optional Spawn Origin")]
     [SerializeField] private Transform dropOrigin;
 
-    private void Update()
+    // Bind the locally controlled Player and optional throw origin after spawning.
+    public void BindPlayer(Transform newPlayerRoot, Transform newDropOrigin = null)
     {
-        if (!enableDropHotkey)
-            return;
-
-        Keyboard keyboard = Keyboard.current;
-
-        if (keyboard == null)
-            return;
-
-        if (keyboard.gKey.wasPressedThisFrame)
+        if (newPlayerRoot == null)
         {
-            DropSelectedStack();
+            Debug.LogWarning("[ItemDropper] Cannot bind a null Player.", this);
+            return;
         }
+
+        playerRoot = newPlayerRoot;
+        dropOrigin = newDropOrigin != null ? newDropOrigin : newPlayerRoot;
+        Debug.Log($"[ItemDropper] Bound local Player: {playerRoot.name}", this);
     }
 
+    // Clear references when the currently bound Player despawns.
+    public void ClearPlayerBinding(Transform owner)
+    {
+        if (owner == null || playerRoot != owner)
+            return;
+
+        playerRoot = null;
+        dropOrigin = null;
+    }
+
+    // Drop the selected Hotbar stack when the G key is pressed.
+    private void Update()
+    {
+        if (enableDropHotkey && Keyboard.current != null && Keyboard.current.gKey.wasPressedThisFrame)
+            DropSelectedStack();
+    }
+
+    // Spawn the thrown stack first and remove inventory items only if spawning succeeds.
     public bool DropFromSlot(int slotIndex, int amount = 1)
     {
         InventoryManager inventory = InventoryManager.Instance;
-
-        if (inventory == null)
+        if (inventory == null || playerRoot == null)
         {
-            Debug.LogWarning(
-                "[ItemDropper] InventoryManager not found");
+            Debug.LogWarning("[ItemDropper] Missing InventoryManager or local Player binding.", this);
             return false;
         }
 
-        if (prefabRegistry == null)
-        {
-            Debug.LogError(
-                "[ItemDropper] WorldItemPrefabRegistry missing");
-            return false;
-        }
-
-        if (slotIndex < 0 || slotIndex >= inventory.Slots.Count)
-            return false;
-
-        if (amount <= 0)
+        if (slotIndex < 0 || slotIndex >= inventory.Slots.Count || amount <= 0)
             return false;
 
         if (!inventory.CursorSlot.isEmpty())
-        {
-            Debug.LogWarning(
-                "[ItemDropper] CursorSlot is not empty");
             return false;
-        }
 
         InventorySlotData slot = inventory.Slots[slotIndex];
-
-        if (slot == null || slot.isEmpty())
+        if (slot == null || slot.isEmpty() || slot.Amount < amount)
             return false;
-
-        if (slot.Amount < amount)
-        {
-            Debug.LogWarning(
-                "[ItemDropper] Not enough items");
-            return false;
-        }
-
 
         int itemId = slot.ItemId;
+        WorldItem spawned = SpawnWorldItem(itemId, amount);
+        if (spawned == null)
+            return false;
 
-        // [CHANGED] Spawn one WorldItem per item instead of
-        // a single WorldItem containing the entire stack.
-        List<WorldItem> spawnedItems =
-            new List<WorldItem>(amount);
-
-        for (int i = 0; i < amount; i++)
+        InventorySlotData dropped = inventory.DropItem(slotIndex, amount);
+        if (dropped == null || dropped.ItemId != itemId || dropped.Amount != amount)
         {
-            WorldItem worldItem = SpawnWorldItem(
-                itemId,
-                1,
-                i
-            );
-
-            // If any spawn fails, cancel the entire drop.
-            // The Inventory has not been modified yet.
-            if (worldItem == null)
-            {
-                foreach (WorldItem spawned in spawnedItems)
-                {
-                    if (spawned != null)
-                    {
-                        spawned.gameObject.SetActive(false);
-                        Destroy(spawned.gameObject);
-                    }
-                }
-
-                Debug.LogError(
-                    "[ItemDropper] WorldItem spawn failed. " +
-                    "Inventory remains unchanged.");
-
-                return false;
-            }
-
-            spawnedItems.Add(worldItem);
-        }
-
-        // [KEEP] Inventory is reduced only after all spawns succeed.
-        InventorySlotData dropped =
-            inventory.DropItem(slotIndex, amount);
-
-        if (dropped == null ||
-            dropped.ItemId != itemId ||
-            dropped.Amount != amount)
-        {
-            // Cancel spawned objects on inventory failure.
-            foreach (WorldItem spawned in spawnedItems)
-            {
-                if (spawned != null)
-                {
-                    spawned.gameObject.SetActive(false);
-                    Destroy(spawned.gameObject);
-                }
-            }
-
-            Debug.LogError(
-                "[ItemDropper] Inventory DropItem failed " +
-                "or returned an unexpected amount.");
-
+            spawned.gameObject.SetActive(false);
+            Destroy(spawned.gameObject);
+            Debug.LogError($"[ItemDropper] Inventory drop failed for ItemId={itemId}.", this);
             return false;
         }
 
-        Debug.Log(
-            $"[ItemDropper] Spawned {spawnedItems.Count} WorldItems " +
-            $"for ItemId={itemId}");
-
-        return true;
-
-
-        Debug.Log(
-            $"[Drop] ItemId: {dropped.ItemId} | " +
-            $"Amount: {dropped.Amount}");
-
+        LaunchWorldItem(spawned);
+        Debug.Log($"[ItemDropper] Threw stack: ID={itemId}, Amount={amount}.", this);
         return true;
     }
 
+    // Drop every item from a specified Inventory or Hotbar slot.
+    public bool DropFullSlot(int slotIndex)
+    {
+        InventoryManager inventory = InventoryManager.Instance;
+        if (inventory == null || slotIndex < 0 || slotIndex >= inventory.Slots.Count)
+            return false;
+
+        InventorySlotData slot = inventory.Slots[slotIndex];
+        return slot != null && !slot.isEmpty() && DropFromSlot(slotIndex, slot.Amount);
+    }
+
+    // Drop a chosen amount from the selected Hotbar slot.
     public bool DropSelectedItem(int amount = 1)
     {
         HotbarManager hotbar = HotbarManager.Instance;
         InventoryManager inventory = InventoryManager.Instance;
-
-        if (hotbar == null || inventory == null)
-        {
-            Debug.LogWarning(
-                "[ItemDropper] Hotbar or Inventory missing");
-            return false;
-        }
-
-        int slotIndex = inventory.InventorySize + hotbar.CurrentSlot;
-
-        return DropFromSlot(slotIndex, amount);
+        return hotbar != null && inventory != null &&
+            DropFromSlot(inventory.InventorySize + hotbar.CurrentSlot, amount);
     }
 
+    // Drop the entire selected Hotbar stack.
     public bool DropSelectedStack()
     {
         HotbarManager hotbar = HotbarManager.Instance;
-
-        if (hotbar == null)
-            return false;
-
-        InventorySlotData slot = hotbar.GetSelectedSlotData();
-
-        if (slot == null || slot.isEmpty())
-            return false;
-
-        return DropSelectedItem(slot.Amount);
+        InventorySlotData slot = hotbar != null ? hotbar.GetSelectedSlotData() : null;
+        return slot != null && !slot.isEmpty() && DropSelectedItem(slot.Amount);
     }
 
-    private WorldItem SpawnWorldItem(int itemId, int amount, int spawnIndex = 0)
+    // Instantiate a single WorldItem representing the entire stack.
+    private WorldItem SpawnWorldItem(int itemId, int amount)
     {
-        Transform origin =
-            dropOrigin != null ? dropOrigin : transform;
+        Transform origin = dropOrigin != null ? dropOrigin : playerRoot;
+        if (origin == null)
+            return null;
 
+        Vector3 direction = GetThrowDirection();
+        Vector3 position = origin.position + direction * dropDistance + Vector3.up * dropHeight;
 
-        // [CHANGED] Calculate the original drop position.
-        Vector3 spawnPosition =
-            origin.position +
-            origin.forward * dropDistance +
-            Vector3.up * dropHeight;
+        WorldItem prefab = ItemDatabase.Instance != null
+            ? ItemDatabase.Instance.GetWorldPrefab(itemId) : null;
+        if (prefab == null)
+        {
+            Debug.LogWarning($"[ItemDropper] Missing WorldPrefab for ItemId={itemId}.", this);
+            return null;
+        }
 
-        // [ADD] Spread individual items in a small grid.
-        // Use horizontal directions only to avoid stacking vertically.
-        Vector3 right =
-            Vector3.ProjectOnPlane(origin.right, Vector3.up).normalized;
-
-        Vector3 forward =
-            Vector3.ProjectOnPlane(origin.forward, Vector3.up).normalized;
-
-        if (right.sqrMagnitude < 0.001f)
-            right = Vector3.right;
-
-        if (forward.sqrMagnitude < 0.001f)
-            forward = Vector3.forward;
-
-        // Grid with 3 items per row.
-        const int itemsPerRow = 3;
-
-        int column = spawnIndex % itemsPerRow;
-        int row = spawnIndex / itemsPerRow;
-
-        Vector3 offset =
-            right * ((column - 1) * itemSpacing) +
-            forward * (row * itemSpacing);
-
-        spawnPosition += offset;
-
-
-        WorldItem worldItem;
-
+        WorldItem item = null;
         try
         {
-            WorldItem prefab = prefabRegistry.GetPrefab(itemId);
+            item = Instantiate(prefab, position, Quaternion.identity);
+            item.Setup(itemId, amount);
+            item.SetDropOwner(playerRoot);
 
-            if(prefab == null)
+            if (!item.gameObject.activeSelf)
             {
-                Debug.LogWarning($"[ItemDropper] No WorldItem Prefab for ItemId={itemId}");
+                Destroy(item.gameObject);
                 return null;
             }
 
-            worldItem = Instantiate(prefab, spawnPosition, Quaternion.identity);
+            return item;
         }
-        catch(System.Exception ex)
+        catch (Exception ex)
         {
-            Debug.LogError(
-                "[ItemDropper] Spawn failed: " +
-                ex.Message);
-
+            if (item != null)
+            {
+                item.gameObject.SetActive(false);
+                Destroy(item.gameObject);
+            }
+            Debug.LogError($"[ItemDropper] Spawn failed: {ex.Message}", this);
             return null;
         }
+    }
 
-        if (worldItem == null)
-            return null;
+    // Read horizontal facing direction so a player looking down does not throw into the ground.
+    private Vector3 GetThrowDirection()
+    {
+        Transform origin = dropOrigin != null ? dropOrigin : playerRoot;
+        Vector3 forward = Vector3.ProjectOnPlane(origin.forward, Vector3.up);
+        if (forward.sqrMagnitude < 0.001f && playerRoot != null)
+            forward = Vector3.ProjectOnPlane(playerRoot.forward, Vector3.up);
 
-        worldItem.Setup(itemId, amount);
+        return forward.sqrMagnitude > 0.001f ? forward.normalized : Vector3.forward;
+    }
 
-        if (!worldItem.gameObject.activeSelf)
+    // Apply forward and upward impulse after inventory removal succeeds.
+    private void LaunchWorldItem(WorldItem worldItem)
+    {
+        Rigidbody rb = worldItem.GetComponent<Rigidbody>();
+        if (rb == null || rb.isKinematic)
         {
-            Destroy(worldItem.gameObject);
-            return null;
+            Debug.LogWarning($"[ItemDropper] Cannot throw {worldItem.name}: Rigidbody missing or kinematic.", worldItem);
+            return;
         }
 
-        Transform owner = playerRoot != null ? playerRoot : transform.root;
-
-        worldItem.SetDropOwner(owner);
-
-        return worldItem;
+        Vector3 impulse = GetThrowDirection() * forwardImpulse + Vector3.up * upwardImpulse;
+        rb.AddForce(impulse, ForceMode.Impulse);
     }
 }
