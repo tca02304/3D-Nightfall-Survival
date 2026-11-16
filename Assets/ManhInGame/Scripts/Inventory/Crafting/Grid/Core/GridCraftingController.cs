@@ -6,8 +6,10 @@ public sealed class GridCraftingController : MonoBehaviour
 {
     [SerializeField] private TextAsset gridRecipesCsv;
     [SerializeField] private TextAsset itemCodeIdsCsv;
+    [SerializeField] private ItemCatalog itemCatalog;
 
     private readonly GridIngredient[] grid = new GridIngredient[9];
+    private readonly GridIngredient[] matchedRequirements = new GridIngredient[9];
     private readonly List<GridRecipe> recipes = new List<GridRecipe>();
     private bool loaded;
 
@@ -25,7 +27,7 @@ public sealed class GridCraftingController : MonoBehaviour
         recipes.Clear();
         try
         {
-            recipes.AddRange(GridRecipeCatalog.Parse(gridRecipesCsv, itemCodeIdsCsv));
+            recipes.AddRange(GridRecipeCatalog.Parse(gridRecipesCsv, itemCodeIdsCsv, itemCatalog));
             loaded = true;
             Debug.Log($"[GridCrafting] Loaded {recipes.Count} data-only shaped recipes.", this);
         }
@@ -340,7 +342,7 @@ public sealed class GridCraftingController : MonoBehaviour
         // Kiểm tra toàn bộ nguyên liệu trước khi thay đổi.
         for (int i = 0; i < 9; i++)
         {
-            GridIngredient required = recipe.cells[i];
+            GridIngredient required = matchedRequirements[i];
 
             if (required.itemId <= 0)
                 continue;
@@ -370,7 +372,7 @@ public sealed class GridCraftingController : MonoBehaviour
         // Tiêu hao đúng một lượt công thức.
         for (int i = 0; i < 9; i++)
         {
-            GridIngredient required = recipe.cells[i];
+            GridIngredient required = matchedRequirements[i];
 
             if (required.itemId <= 0)
                 continue;
@@ -418,7 +420,7 @@ public sealed class GridCraftingController : MonoBehaviour
 
         for (int i = 0; i < 9; i++)
         {
-            GridIngredient required = recipe.cells[i];
+            GridIngredient required = matchedRequirements[i];
 
             if (required.itemId <= 0)
                 continue;
@@ -569,7 +571,7 @@ public sealed class GridCraftingController : MonoBehaviour
         // Bảo đảm nguyên liệu vẫn đủ trước khi commit.
         for (int i = 0; i < 9; i++)
         {
-            GridIngredient required = recipe.cells[i];
+            GridIngredient required = matchedRequirements[i];
 
             if (required.itemId <= 0)
                 continue;
@@ -608,7 +610,7 @@ public sealed class GridCraftingController : MonoBehaviour
         // Commit: tiêu hao nguyên liệu tương ứng.
         for (int i = 0; i < 9; i++)
         {
-            GridIngredient required = recipe.cells[i];
+            GridIngredient required = matchedRequirements[i];
 
             if (required.itemId <= 0)
                 continue;
@@ -914,24 +916,25 @@ public sealed class GridCraftingController : MonoBehaviour
     [Obsolete("No station required.")]
     public void SetStation(string station) { }
 
+    // Recalculate the current recipe and align its required amounts to the actual grid cells.
     private void Refresh()
     {
         MatchedRecipe = null;
+        Array.Clear(matchedRequirements, 0, matchedRequirements.Length);
+
         if (loaded)
         {
-            // CSV matcher expects amount == 1 per occupied cell.
-            // For stacking, normalize amounts ONLY for shape matching.
-            GridIngredient[] shape = new GridIngredient[9];
-            for (int i = 0; i < 9; i++)
-                if (grid[i].itemId > 0 && grid[i].amount > 0)
-                    shape[i] = new GridIngredient(grid[i].itemId, 1);
             foreach (GridRecipe recipe in recipes)
-                if (GridRecipeCatalog.Matches(shape, recipe.cells))
-                {
-                    MatchedRecipe = recipe;
-                    break;
-                }
+            {
+                if (!GridRecipeCatalog.TryGetAlignedIngredients(grid, recipe.cells, out GridIngredient[] aligned))
+                    continue;
+
+                MatchedRecipe = recipe;
+                Array.Copy(aligned, matchedRequirements, matchedRequirements.Length);
+                break;
+            }
         }
+
         OnGridChanged?.Invoke();
     }
 }

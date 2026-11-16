@@ -10,13 +10,13 @@ iron_ore,8
 gold_ore,9
 mithril_ore,10
 adamantite_ore,11
-obanium_ore,12
+obamium_ore,12
 chunkium_ore,13
 iron_bar,14
 gold_bar,15
 mithril_bar,16
 adamantite_bar,17
-obanium_bar,18
+obamium_bar,18
 chunkium_bar,19
 bone,20
 wolf_claw,22
@@ -46,8 +46,6 @@ steel_sword,46
 gold_sword,47
 mithril_sword,48
 adamantite_sword,49
-obanium_sword,50
+obamium_sword,50
 night_blade,51
 wood_bow,52
-rope,53
-black_shard,54
