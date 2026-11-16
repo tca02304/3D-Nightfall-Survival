@@ -34,7 +34,7 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 3,
+                SellPrice = 8,
                 IsActive = true,
                 IconKey = "wood_birch"
             },
@@ -47,7 +47,7 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 4,
+                SellPrice = 48,
                 IsActive = true,
                 IconKey = "wood_fir"
             },
@@ -60,7 +60,7 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 5,
+                SellPrice = 240,
                 IsActive = true,
                 IconKey = "wood_oak"
             },
@@ -73,7 +73,7 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 8,
+                SellPrice = 1920,
                 IsActive = true,
                 IconKey = "wood"
             },
@@ -127,7 +127,7 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 6,
+                SellPrice = 12,
                 IsActive = true,
                 IconKey = "gold_ore"
             },
@@ -140,7 +140,7 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 9,
+                SellPrice = 72,
                 IsActive = true,
                 IconKey = "mithril_ore"
             },
@@ -153,22 +153,22 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 12,
+                SellPrice = 360,
                 IsActive = true,
                 IconKey = "adamantite_ore"
             },
 
             new Items
             {
-                ItemCode = "obanium_ore",
-                Name = "Obanium Ore",
+                ItemCode = "obamium_ore",
+                Name = "Obamium Ore",
                 Description = "Extremely rare purple ore used for legendary equipment.",
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 15,
+                SellPrice = 2880,
                 IsActive = true,
-                IconKey = "obanium_ore"
+                IconKey = "obamium_ore"
             },
 
             new Items
@@ -179,7 +179,7 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 15,
+                SellPrice = 11520,
                 IsActive = true,
                 IconKey = "chunkium_ore"
             },
@@ -194,7 +194,7 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 5,
+                SellPrice = 6,
                 IsActive = true,
                 IconKey = "iron_bar"
             },
@@ -207,7 +207,7 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 9,
+                SellPrice = 24,
                 IsActive = true,
                 IconKey = "gold_bar"
             },
@@ -220,7 +220,7 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 12,
+                SellPrice = 144,
                 IsActive = true,
                 IconKey = "mithril_bar"
             },
@@ -233,22 +233,22 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 15,
+                SellPrice = 720,
                 IsActive = true,
                 IconKey = "adamantite_bar"
             },
 
             new Items
             {
-                ItemCode = "obanium_bar",
-                Name = "Obanium Bar",
-                Description = "Refined obanium used for legendary equipment.",
+                ItemCode = "obamium_bar",
+                Name = "Obamium Bar",
+                Description = "Refined obamium used for legendary equipment.",
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 15,
+                SellPrice = 5760,
                 IsActive = true,
-                IconKey = "obanium_bar"
+                IconKey = "obamium_bar"
             },
 
             new Items
@@ -259,7 +259,7 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 15,
+                SellPrice = 23040,
                 IsActive = true,
                 IconKey = "chunkium_bar"
             },
@@ -284,10 +284,10 @@ namespace GameBackend.Data
                 ItemCode = "wolf_claw",
                 Name = "Wolf Claw",
                 Description = "A sharp claw dropped by Wolves.",
-                Type = "Material",
-                MaxStack = 64,
+                Type = "Weapon",
+                MaxStack = 1,
                 BuyPrice = null,
-                SellPrice = 6,
+                SellPrice = null,
                 IsActive = true,
                 IconKey = "wolf_claw"
             },
@@ -300,7 +300,7 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 12,
+                SellPrice = 120,
                 IsActive = true,
                 IconKey = "wyvern_claw"
             },
@@ -312,10 +312,10 @@ namespace GameBackend.Data
                 ItemCode = "apple",
                 Name = "Apple",
                 Description = "A fresh red apple that restores health.",
-                Type = "Consumble",
+                Type = "Consumable",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 3,
+                SellPrice = null,
                 IsActive = true,
                 IconKey = "apple"
             },
@@ -325,10 +325,10 @@ namespace GameBackend.Data
                 ItemCode = "wheat",
                 Name = "Wheat",
                 Description = "A basic crop used for food and cooking.",
-                Type = "Consumble",
+                Type = "Consumable",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 2,
+                SellPrice = null,
                 IsActive = true,
                 IconKey = "wheat"
             },
@@ -338,10 +338,10 @@ namespace GameBackend.Data
                 ItemCode = "ligon_mushroom",
                 Name = "Ligon Mushroom",
                 Description = "A yellow mushroom that restores health and stamina.",
-                Type = "Consumble",
+                Type = "Consumable",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 3,
+                SellPrice = null,
                 IsActive = true,
                 IconKey = "ligon_mushroom"
             },
@@ -351,10 +351,10 @@ namespace GameBackend.Data
                 ItemCode = "sugon_mushroom",
                 Name = "Sugon Mushroom",
                 Description = "A red mushroom that restores health and stamina.",
-                Type = "Consumble",
+                Type = "Consumable",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 4,
+                SellPrice = null,
                 IsActive = true,
                 IconKey = "sugon_mushroom"
             },
@@ -364,10 +364,10 @@ namespace GameBackend.Data
                 ItemCode = "gulpon_mushroom",
                 Name = "Gulpon Mushroom",
                 Description = "A orange mushroom that restores health and stamina.",
-                Type = "Consumble",
+                Type = "Consumable",
                 MaxStack = 64,
-                BuyPrice = null,    
-                SellPrice = 5,
+                BuyPrice = null,
+                SellPrice = null,
                 IsActive = true,
                 IconKey = "gulpon_mushroom"
             },
@@ -377,10 +377,10 @@ namespace GameBackend.Data
                 ItemCode = "slurp_mushroom",
                 Name = "Slurp Mushroom",
                 Description = "A cyan mushroom that restores stamina.",
-                Type = "Consumble",
+                Type = "Consumable",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 6,
+                SellPrice = null,
                 IsActive = true,
                 IconKey = "slurp_mushroom"
             },
@@ -392,10 +392,10 @@ namespace GameBackend.Data
                 ItemCode = "raw_meat",
                 Name = "Raw Meat",
                 Description = "Uncooked meat that can be grilled into Cooked Meat.",
-                Type = "Consumble",
+                Type = "Consumable",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 3,
+                SellPrice = null,
                 IsActive = true,
                 IconKey = "raw_meat"
             },
@@ -405,10 +405,10 @@ namespace GameBackend.Data
                 ItemCode = "meat_soup",
                 Name = "Meat Soup",
                 Description = "A nutritious soup cooked from meat.",
-                Type = "Consumble",
+                Type = "Consumable",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 10,
+                SellPrice = null,
                 IsActive = true,
                 IconKey = "meat_soup"
             },
@@ -418,10 +418,10 @@ namespace GameBackend.Data
                 ItemCode = "cooked_meat",
                 Name = "Cooked Meat",
                 Description = "Grilled meat that restores a large amount of health.",
-                Type = "Consumble",
+                Type = "Consumable",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 12,
+                SellPrice = null,
                 IsActive = true,
                 IconKey = "cooked_meat"
             },
@@ -436,7 +436,7 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = 2,
+                SellPrice = 3,
                 IsActive = true,
                 IconKey = "bark"
             },
@@ -449,35 +449,9 @@ namespace GameBackend.Data
                 Type = "Material",
                 MaxStack = 64,
                 BuyPrice = null,
-                SellPrice = null,
+                SellPrice = 90,
                 IsActive = true,
                 IconKey = "blade"
-            },
-
-            new Items
-            {
-                ItemCode = "rope",
-                Name = "Rope",
-                Description = "Crafting material made from wheat and bark, used in bows and tools.",
-                Type = "Material",
-                MaxStack = 64,
-                BuyPrice = null,
-                SellPrice = null,
-                IsActive = true,
-                IconKey = "rope"
-            },
-
-            new Items
-            {
-                ItemCode = "black_shard",
-                Name = "Black Shard",
-                Description = "Rare dark shard used to craft the Night Blade.",
-                Type = "Material",
-                MaxStack = 64,
-                BuyPrice = null,
-                SellPrice = null,
-                IsActive = true,
-                IconKey = "black_shard"
             },
 
             // 8. TOOL
@@ -624,7 +598,7 @@ namespace GameBackend.Data
                 BuyPrice = null,
                 SellPrice = null,
                 IsActive = true,
-                IconKey = "steel_sword"
+                IconKey = "steel_melee"
             },
 
             new Items
@@ -637,7 +611,7 @@ namespace GameBackend.Data
                 BuyPrice = null,
                 SellPrice = null,
                 IsActive = true,
-                IconKey = "gold_sword"
+                IconKey = "gold_melee"
             },
 
             new Items
@@ -650,7 +624,7 @@ namespace GameBackend.Data
                 BuyPrice = null,
                 SellPrice = null,
                 IsActive = true,
-                IconKey = "mithril_sword"
+                IconKey = "mithril_melee"
             },
 
             new Items
@@ -663,21 +637,20 @@ namespace GameBackend.Data
                 BuyPrice = null,
                 SellPrice = null,
                 IsActive = true,
-                IconKey = "adamantite_sword" +
-                ""
+                IconKey = "adamantite_melee"
             },
 
             new Items
             {
-                ItemCode = "obanium_sword",
-                Name = "Obanium Sword",
-                Description = "Rare obanium melee weapon.",
+                ItemCode = "obamium_sword",
+                Name = "Obamium Sword",
+                Description = "Rare obamium melee weapon.",
                 Type = "Weapon",
                 MaxStack = 1,
                 BuyPrice = null,
                 SellPrice = null,
                 IsActive = true,
-                IconKey = "obanium_sword"
+                IconKey = "obamium_melee"
             },
 
             new Items
@@ -705,6 +678,33 @@ namespace GameBackend.Data
                 IsActive = true,
                 IconKey = "wood_bow"
             },
+
+            // 10. NEW CRAFTING MATERIALS: ROPE AND BLACK SHARD
+            new Items
+            {
+                ItemCode = "rope",
+                Name = "Rope",
+                Description = "Crafting material made from wheat and bark, used in bows and tools.",
+                Type = "Material",
+                MaxStack = 64,
+                BuyPrice = null,
+                SellPrice = 36,
+                IsActive = true,
+                IconKey = "rope"
+            },
+
+            new Items
+            {
+                ItemCode = "black_shard",
+                Name = "Black Shard",
+                Description = "Rare dark shard used to craft the Night Blade.",
+                Type = "Material",
+                MaxStack = 64,
+                BuyPrice = null,
+                SellPrice = 5000,
+                IsActive = true,
+                IconKey = "black_shard"
+            },
         };
 
         private static readonly Dictionary<string, (int healHP, int restoreStamina)>
@@ -731,7 +731,7 @@ namespace GameBackend.Data
                 .Select(group => group.Key)
                 .ToArray();
 
-            if(duplicateCodes.Length > 0)
+            if (duplicateCodes.Length > 0)
             {
                 throw new InvalidOperationException(
                     "Dublicate ItemCode in ItemDataSeeder: " +
@@ -751,7 +751,7 @@ namespace GameBackend.Data
             var existingByCode = new Dictionary<string, Items>(
                 StringComparer.OrdinalIgnoreCase);
 
-            foreach(Items existing in existingItems)
+            foreach (Items existing in existingItems)
             {
                 if (string.IsNullOrWhiteSpace(existing.ItemCode))
                     continue;
@@ -764,9 +764,9 @@ namespace GameBackend.Data
             int addedCount = 0;
             int updatedCount = 0;
 
-            foreach(Items seed in ItemData)
+            foreach (Items seed in ItemData)
             {
-                if(!existingByCode.TryGetValue(seed.ItemCode, out Items? stored))
+                if (!existingByCode.TryGetValue(seed.ItemCode, out Items? stored))
                 {
                     context.Items.Add(seed);
                     existingByCode.Add(seed.ItemCode, seed);
@@ -776,7 +776,7 @@ namespace GameBackend.Data
 
                 bool changed = false;
 
-                if(stored.Name != seed.Name)
+                if (stored.Name != seed.Name)
                 {
                     stored.Name = seed.Name;
                     changed = true;
@@ -843,7 +843,7 @@ namespace GameBackend.Data
             int addedStats = 0;
             int updatedStats = 0;
 
-            foreach(var entry in ConsumableData)
+            foreach (var entry in ConsumableData)
             {
                 if (!consumableIds.TryGetValue(entry.Key, out int itemId))
                     continue;
@@ -860,7 +860,7 @@ namespace GameBackend.Data
                     continue;
                 }
 
-                if(stat.HealHP != entry.Value.healHP ||
+                if (stat.HealHP != entry.Value.healHP ||
                     stat.RestoreStamina != entry.Value.restoreStamina)
                 {
                     stat.HealHP = entry.Value.healHP;
