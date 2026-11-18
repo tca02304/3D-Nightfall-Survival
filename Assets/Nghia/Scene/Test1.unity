@@ -1011,15 +1011,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3483657533935082445, guid: d4e91bda42733d14b8aa3694b1d571c4, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 209.54
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3483657533935082445, guid: d4e91bda42733d14b8aa3694b1d571c4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.43
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3483657533935082445, guid: d4e91bda42733d14b8aa3694b1d571c4, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 191.17
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3483657533935082445, guid: d4e91bda42733d14b8aa3694b1d571c4, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1053,9 +1053,17 @@ PrefabInstance:
       propertyPath: interactionPrompt
       value: 
       objectReference: {fileID: 1637831349}
+    - target: {fileID: 4876982490519927339, guid: d4e91bda42733d14b8aa3694b1d571c4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.59
+      objectReference: {fileID: 0}
+    - target: {fileID: 5600229286539660446, guid: d4e91bda42733d14b8aa3694b1d571c4, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5681755794256691951, guid: d4e91bda42733d14b8aa3694b1d571c4, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5837630847178100507, guid: d4e91bda42733d14b8aa3694b1d571c4, type: 3}
       propertyPath: npcNameText
@@ -1089,7 +1097,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: GuideNPC
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5600229286539660446, guid: d4e91bda42733d14b8aa3694b1d571c4, type: 3}
     m_RemovedGameObjects:
     - {fileID: 6733927634024405115, guid: d4e91bda42733d14b8aa3694b1d571c4, type: 3}
     m_AddedGameObjects: []

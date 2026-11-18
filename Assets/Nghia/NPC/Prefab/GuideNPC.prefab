@@ -33,6 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4876982490519927339}
+  - {fileID: 5631336201872791661}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8674937755378287005
@@ -238,3 +239,65 @@ MonoBehaviour:
   - You have proven that you can survive.
   - But your journey has only just begun.
   - There are more dangerous things waiting beyond these lands.
+--- !u!1001 &5636254186859739270
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3483657533935082445}
+    m_Modifications:
+    - target: {fileID: 1709254077376921, guid: b7cfcfa898d45bb48b11d3556bb60a0e, type: 3}
+      propertyPath: m_Name
+      value: Woodman
+      objectReference: {fileID: 0}
+    - target: {fileID: 4918264173551851, guid: b7cfcfa898d45bb48b11d3556bb60a0e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4918264173551851, guid: b7cfcfa898d45bb48b11d3556bb60a0e, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4918264173551851, guid: b7cfcfa898d45bb48b11d3556bb60a0e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4918264173551851, guid: b7cfcfa898d45bb48b11d3556bb60a0e, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4918264173551851, guid: b7cfcfa898d45bb48b11d3556bb60a0e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4918264173551851, guid: b7cfcfa898d45bb48b11d3556bb60a0e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4918264173551851, guid: b7cfcfa898d45bb48b11d3556bb60a0e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4918264173551851, guid: b7cfcfa898d45bb48b11d3556bb60a0e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4918264173551851, guid: b7cfcfa898d45bb48b11d3556bb60a0e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4918264173551851, guid: b7cfcfa898d45bb48b11d3556bb60a0e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b7cfcfa898d45bb48b11d3556bb60a0e, type: 3}
+--- !u!4 &5631336201872791661 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4918264173551851, guid: b7cfcfa898d45bb48b11d3556bb60a0e, type: 3}
+  m_PrefabInstance: {fileID: 5636254186859739270}
+  m_PrefabAsset: {fileID: 0}
