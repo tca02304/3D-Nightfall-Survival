@@ -2526,7 +2526,7 @@ MonoBehaviour:
   jumpBufferTime: 0.12
   groundStickForce: 2
   animator: {fileID: 6688448218577272892}
-  freezeAnimationOnDeath: 1
+  freezeAnimationOnDeath: 0
   attackLimiter: {fileID: 0}
   attackStaminaCost: 0
   attackDamage: 25
