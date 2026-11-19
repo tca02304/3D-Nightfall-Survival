@@ -1,592 +1,381 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class InventoryAPI : MonoBehaviour
+// Keep the legacy InventoryAPI component and public methods, while selecting local or server persistence.
+public sealed class InventoryAPI : MonoBehaviour
 {
-    [Header("Backend Settings")]
-    [SerializeField]
-    private string apiUrl =
-        "https://localhost:7133/api/Inventory";
+    public enum PersistenceMode { Local, BackendDevelopment }
 
-    [SerializeField] private int playerId = 1;
-
-    [Header("Load Settings")]
+    [Header("Persistence Mode")]
+    [SerializeField] private PersistenceMode mode = PersistenceMode.Local;
+    [SerializeField, Min(1)] private int playerId = 1;
     [SerializeField] private bool loadOnStart = true;
+    [SerializeField, Min(0.1f)] private float saveDelay = 0.5f;
 
-    [Header("Auto Save")]
-    [SerializeField] private float saveDelay = 0.5f;
+    [Header("Backend Development Only")]
+    [SerializeField] private string apiUrl = "https://localhost:7133/api/Inventory";
+    [SerializeField, Min(3)] private int timeoutSeconds = 10;
 
-    [Header("Dependencies")]
-    [SerializeField] private ItemAPI itemAPI;
-
+    [Header("Existing Crafting Manager")]
     [SerializeField] private GridCraftingController craftingController;
 
     private bool isLoaded;
     private bool isApplyingLoad;
     private bool isSubscribed;
-
+    private bool isSaving;
     private long changeVersion;
     private long savedVersion;
-
     private Coroutine saveRoutine;
 
+    public bool IsLoaded => isLoaded;
+    public PersistenceMode Mode => mode;
+    private string SavePath => Path.Combine(Application.persistentDataPath,
+        $"nightfall_player_{playerId}_inventory_v1.json");
+
+    // Wait for local item definitions, then initialize selected persistence safely.
     private IEnumerator Start()
     {
-        if (!loadOnStart)
+        while (InventoryManager.Instance == null || ItemDatabase.Instance == null)
+            yield return null;
+
+        if (!ItemDatabase.Instance.IsReady)
         {
-            Debug.LogWarning("[InventoryAPI] Load On Start disabled");
+            Debug.LogError("[InventoryAPI] ItemCatalog is invalid or not assigned.", this);
             yield break;
         }
 
-        while (InventoryManager.Instance == null ||
-               ItemDatabase.Instance == null)
-        {
-            yield return null;
-        }
+        if (craftingController == null)
+            craftingController = GetComponent<GridCraftingController>();
 
-        if (itemAPI == null)
-            itemAPI = GetComponent<ItemAPI>();
-
-        if (itemAPI == null)
+        if (craftingController == null)
         {
-            Debug.LogError("[InventoryAPI] ItemAPI not found");
+            Debug.LogError("[InventoryAPI] Assign GridCraftingController on Managers.", this);
             yield break;
         }
 
-        Debug.Log("[InventoryAPI] Waiting for ItemAPI...");
-
-        while (!itemAPI.IsLoaded)
+#if !UNITY_EDITOR && !DEVELOPMENT_BUILD
+        if (mode == PersistenceMode.BackendDevelopment)
         {
-            yield return null;
+            Debug.LogError("[InventoryAPI] BackendDevelopment is disabled in release builds. Use Local or implement authenticated production persistence.", this);
+            yield break;
         }
-
-        Debug.Log("[InventoryAPI] ItemAPI ready. Loading inventory...");
-
-        yield return StartCoroutine(GetInventory());
-
-        if (isLoaded)
+#endif
+        if (loadOnStart)
         {
+            yield return GetInventory();
+        }
+        else
+        {
+            isLoaded = true;
             Subscribe();
-            Debug.Log("[InventoryAPI] Auto Save enabled");
+            Debug.LogWarning("[InventoryAPI] Starting with empty runtime state; existing save not loaded.", this);
         }
     }
 
+    // Subscribe once to inventory and crafting changes for debounced persistence.
     private void Subscribe()
     {
+        if (isSubscribed) return;
         InventoryManager.Instance.OnInventoryChanged += HandleInventoryChanged;
-
-        // [ADD] Thay đổi Crafting cũng kích hoạt Auto Save
-        if (craftingController != null)
-        {
-            craftingController.OnGridChanged += HandleInventoryChanged;
-        }
-
+        craftingController.OnGridChanged += HandleInventoryChanged;
         isSubscribed = true;
     }
 
+    // Unsubscribe and attempt final local save if state changed.
     private void OnDestroy()
     {
-        if(isSubscribed && InventoryManager.Instance != null)
-        {
+        if (isSubscribed && InventoryManager.Instance != null)
             InventoryManager.Instance.OnInventoryChanged -= HandleInventoryChanged;
-        }
-
         if (isSubscribed && craftingController != null)
-        {
             craftingController.OnGridChanged -= HandleInventoryChanged;
-        }
-
         isSubscribed = false;
+        if (mode == PersistenceMode.Local && isLoaded && changeVersion > savedVersion)
+            SaveLocalSnapshot();
     }
 
+    // Mark the snapshot dirty when gameplay changes inventory or crafting.
     private void HandleInventoryChanged()
     {
-        if (!isLoaded || isApplyingLoad)
-            return;
-
+        if (!isLoaded || isApplyingLoad) return;
         changeVersion++;
-
-        if(saveRoutine == null)
-        {
+        if (saveRoutine == null)
             saveRoutine = StartCoroutine(AutoSaveRoutine());
-        }
     }
 
+    // Save latest stable state; retry failures without discarding dirty data.
     private IEnumerator AutoSaveRoutine()
     {
-        InventoryManager manager = InventoryManager.Instance;
-
-        while(savedVersion < changeVersion)
+        while (savedVersion < changeVersion)
         {
-            if (manager == null)
-                break;
-
-            long versionToSave = changeVersion;
-
+            long targetVersion = changeVersion;
             yield return new WaitForSecondsRealtime(Mathf.Max(0.1f, saveDelay));
-
-            if (changeVersion != versionToSave)
-            {
-                continue;
-            }
-
-            bool success = false;
-
-            yield return StartCoroutine(
-                SendInventorySnapshot(result => success = result));
-
-            if (!success)
-            {
-                Debug.LogError(
-        "[InventoryAPI] Auto Save failed. Retrying...");
-
-                yield return new WaitForSecondsRealtime(2f);
-                continue;
-            }
-
-            savedVersion = versionToSave;
-
-            Debug.Log($"[InventoryAPI] Save version {savedVersion}");
+            if (targetVersion != changeVersion) continue;
+            bool ok = false;
+            yield return SendInventorySnapshot(result => ok = result);
+            if (ok) savedVersion = targetVersion;
+            else yield return new WaitForSecondsRealtime(2f);
         }
-
         saveRoutine = null;
     }
 
-    [ContextMenu("Test/Load Inventory From Backend")]
-    public void TestLoadInventory()
-    {
-        StartCoroutine(GetInventory());
-    }
+    // Request loading the selected save source from Unity's component context menu.
+    [ContextMenu("Test/Load Inventory From Selected Storage")]
+    public void TestLoadInventory() { StartCoroutine(GetInventory()); }
 
+    // Read either a local JSON snapshot or the development backend snapshot.
     public IEnumerator GetInventory()
     {
-        if (saveRoutine != null)
+        if (isSaving || (isLoaded && savedVersion < changeVersion))
         {
-            Debug.LogWarning(
-                "[InventoryAPI] Cannot reload while save is pending");
+            Debug.LogWarning("[InventoryAPI] Reload blocked while unsaved changes exist.", this);
             yield break;
         }
 
-        if (itemAPI == null)
+        InventoryResponse response = null;
+        if (mode == PersistenceMode.Local)
         {
-            itemAPI = GetComponent<ItemAPI>();
-        }
-
-        if (itemAPI == null)
-        {
-            Debug.LogError("[InventoryAPI] ItemAPI reference is missing.");
-            yield break;
-        }
-
-        if (!itemAPI.IsLoaded)
-        {
-            Debug.LogWarning(
-                "[InventoryAPI] Cannot load Inventory: ItemAPI is not ready."
-            );
-            yield break;
-        }
-
-        string url = $"{apiUrl}/{playerId}";
-
-        using UnityWebRequest request =
-            UnityWebRequest.Get(url);
-
-        yield return request.SendWebRequest();
-
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.LogError(
-                "[InventoryAPI] Load failed: " +
-                request.error);
-            yield break;
-        }
-
-        InventoryResponse response;
-
-        try
-        {
-            response = JsonUtility.FromJson<InventoryResponse>(
-                request.downloadHandler.text);
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError(
-                "[InventoryAPI] JSON Error: " + ex.Message);
-            yield break;
-        }
-
-        if (response == null || !response.success)
-        {
-            Debug.LogError(
-                "[InventoryAPI] Invalid response");
-            yield break;
-        }
-
-        if (response.data == null)
-            response.data = Array.Empty<InventorySlotResponse>();
-
-        if (response.cursorSlot != null &&
-            response.cursorSlot.itemId == 0 &&
-            response.cursorSlot.amount == 0)
-        {
-            response.cursorSlot = null;
-        }
-
-        // [DEBUG] Xem JSON thuc te Backend tra ve
-        Debug.Log(
-            "[InventoryAPI] Backend response: " +
-            request.downloadHandler.text
-        );
-
-        Debug.Log(
-            $"[InventoryAPI] Snapshot counts: " +
-            $"Inventory={response.data?.Length ?? -1}, " +
-            $"Crafting={response.craftingSlots?.Length ?? -1}, " +
-            $"Cursor={(response.cursorSlot == null ? "Empty" : "Occupied")}"
-        );
-
-        if (InventoryManager.Instance == null)
-            yield break;
-
-        // [ADD] Backend mới bắt buộc trả craftingSlots
-        if (response.craftingSlots == null ||
-            craftingController == null)
-        {
-            Debug.LogError(
-                "[InventoryAPI] Missing Crafting snapshot or controller");
-            yield break;
-        }
-
-        InventoryManager manager = InventoryManager.Instance;
-
-        // [ADD] Kiểm tra dữ liệu trước khi Restore
-
-        bool inventoryValid = ValidateSlots(
-            response.data,
-            manager.Slots.Count,
-            manager
-        );
-
-        bool craftingValid =
-            response.craftingSlots != null &&
-            ValidateSlots(
-                response.craftingSlots,
-                9,
-                manager
-            );
-        // [DEBUG] Kiem tra Cursor tu Backend
-        if (response.cursorSlot == null)
-        {
-            Debug.Log("[InventoryAPI] Backend Cursor: NULL");
+            if (!File.Exists(SavePath))
+            {
+                isLoaded = true;
+                Subscribe();
+                Debug.Log("[InventoryAPI] No local save; starting with empty slots.", this);
+                yield break;
+            }
+            try { response = JsonUtility.FromJson<InventoryResponse>(File.ReadAllText(SavePath)); }
+            catch (Exception e)
+            {
+                Debug.LogError("[InventoryAPI] Local save corrupt or unreadable: " + e.Message, this);
+                yield break;
+            }
         }
         else
         {
-            var cursor = response.cursorSlot;
-            ItemData item = manager.GetItemData(cursor.itemId);
-
-            Debug.Log(
-                $"[InventoryAPI] Backend Cursor: " +
-                $"SlotIndex={cursor.slotIndex}, " +
-                $"ItemId={cursor.itemId}, " +
-                $"Amount={cursor.amount}, " +
-                $"ItemFound={item != null}, " +
-                $"MaxStack={(item != null ? item.maxStack : -1)}"
-            );
-        }
-
-        bool cursorValid = ValidateCursor(
-            response.cursorSlot,
-            manager
-        );
-
-        if (!inventoryValid || !craftingValid || !cursorValid)
-        {
-            Debug.LogError(
-                "[InventoryAPI] Invalid full snapshot: " +
-                $"Inventory={inventoryValid}, " +
-                $"Crafting={craftingValid}, " +
-                $"Cursor={cursorValid}"
-            );
-
-            yield break;
-        }
-
-
-        if (!manager.CursorSlot.isEmpty())
-        {
-            Debug.LogWarning(
-                "[InventoryAPI] Put cursor item away before reloading");
-            yield break;
-        }
-
-        isApplyingLoad = true;
-
-        bool loaded = false;
-
-        try
-        {
-            loaded = InventoryResponseAdapter.Apply(manager, response.data);
-
-            // [ADD] Restore 9 ô Crafting
-            if (loaded)
+            using (UnityWebRequest request = UnityWebRequest.Get($"{apiUrl.TrimEnd('/')}/{playerId}"))
             {
-                loaded = craftingController.TryLoadGridFromResponse(
-                    response.craftingSlots);
-            }
-
-            // [ADD] Restore Cursor
-            if (loaded)
-            {
-                RestoreCursor(response.cursorSlot, manager);
+                request.timeout = timeoutSeconds;
+                yield return request.SendWebRequest();
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError("[InventoryAPI] Backend load failed: " + request.error, this);
+                    yield break;
+                }
+                try { response = JsonUtility.FromJson<InventoryResponse>(request.downloadHandler.text); }
+                catch (Exception e)
+                {
+                    Debug.LogError("[InventoryAPI] Invalid backend JSON: " + e.Message, this);
+                    yield break;
+                }
             }
         }
-        finally
-        {
-            isApplyingLoad = false;
-        }
 
-        if (!loaded)
-        {
-            Debug.LogError(
-                $"[InventoryAPI] Failed to apply inventory. " +
-                $"PlayerId={playerId}, " +
-                $"ReceivedSlots={response.data.Length}, " +
-                $"ItemAPIReady={(itemAPI != null && itemAPI.IsLoaded)}"
-            );
+        if (response != null && response.cursorSlot != null &&
+            response.cursorSlot.itemId == 0 && response.cursorSlot.amount == 0)
+            response.cursorSlot = null;
 
+        if (!ValidateSnapshot(response))
+        {
+            Debug.LogError("[InventoryAPI] Rejected invalid snapshot; runtime state unchanged.", this);
             yield break;
         }
-
+        if (!ApplySnapshot(response))
+        {
+            Debug.LogError("[InventoryAPI] Snapshot restore failed.", this);
+            yield break;
+        }
         isLoaded = true;
-
-        Debug.Log(
-            $"[InventoryAPI] Loaded {response.data.Length} slots " +
-            $"for player {playerId}");
-
+        changeVersion = savedVersion = 0;
         Subscribe();
+        Debug.Log($"[InventoryAPI] Loaded snapshot ({mode}) for player {playerId}.", this);
     }
 
-    [ContextMenu("Test/Save Inventory To Backend")]
+    // Mark current state for save through the existing component context menu.
+    [ContextMenu("Test/Save Inventory To Selected Storage")]
     public void SaveNow()
     {
-        if (!isLoaded)
-        {
-            Debug.LogWarning(
-                "[InventoryAPI] Inventory has not loaded yet");
-            return;
-        }
-
-        // Đưa yêu cầu Save vào cùng hàng đợi Auto Save
+        if (!isLoaded) { Debug.LogWarning("[InventoryAPI] Not loaded yet.", this); return; }
         HandleInventoryChanged();
     }
 
+    // Persist inventory, crafting grid, and cursor using the selected adapter.
     public IEnumerator SendInventorySnapshot(Action<bool> onComplete)
     {
-        InventoryManager manager = InventoryManager.Instance;
-
-        // [MODIFY] Phải có cả Inventory và Crafting
-        if (manager == null || craftingController == null)
+        if (!isLoaded || isSaving)
         {
             onComplete?.Invoke(false);
             yield break;
         }
-
-        List<SaveInventorySlot> slots = new();
-
-        for (int i = 0; i < manager.Slots.Count; i++)
+        isSaving = true;
+        try
         {
-            InventorySlotData slot = manager.Slots[i];
-
-            if (slot.isEmpty())
-                continue;
-
-            slots.Add(new SaveInventorySlot
+            if (mode == PersistenceMode.Local)
             {
-                slotIndex = i,
-                itemId = slot.ItemId,
-                amount = slot.Amount
-            });
-        }
-
-
-        // [ADD] Lấy bản sao 9 ô Crafting
-        GridIngredient[] gridSnapshot =
-            craftingController.CreateSnapshot();
-
-        List<SaveInventorySlot> craftingSlots = new();
-
-        for (int i = 0; i < gridSnapshot.Length; i++)
-        {
-            GridIngredient cell = gridSnapshot[i];
-
-            if (cell.itemId <= 0 || cell.amount <= 0)
-                continue;
-
-            craftingSlots.Add(new SaveInventorySlot
+                onComplete?.Invoke(SaveLocalSnapshot());
+                yield break;
+            }
+            string json = BuildSaveRequestJson();
+            if (json == null) { onComplete?.Invoke(false); yield break; }
+            byte[] payload = Encoding.UTF8.GetBytes(json);
+            using (UnityWebRequest request = new UnityWebRequest(
+                $"{apiUrl.TrimEnd('/')}/{playerId}/save-test", UnityWebRequest.kHttpVerbPOST))
             {
-                slotIndex = i,
-                itemId = cell.itemId,
-                amount = cell.amount
-            });
+                request.uploadHandler = new UploadHandlerRaw(payload);
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.timeout = timeoutSeconds;
+                yield return request.SendWebRequest();
+                bool ok = request.result == UnityWebRequest.Result.Success;
+                if (!ok) Debug.LogError($"[InventoryAPI] Backend save failed ({request.responseCode}): {request.error}; {request.downloadHandler.text}", this);
+                onComplete?.Invoke(ok);
+            }
         }
-
-        // [ADD] Lưu cả Item đang cầm trên Cursor
-        InventorySlotData cursor = manager.CursorSlot;
-
-        SaveInventorySlot cursorRecord = cursor.isEmpty()
-            ? null
-            : new SaveInventorySlot
-            {
-                slotIndex = 0,
-                itemId = cursor.ItemId,
-                amount = cursor.Amount
-            };
-
-
-
-        // [MODIFY] Khong serialize Cursor neu dang trong.
-        string json;
-
-        if (cursorRecord == null)
-        {
-            // Cursor trong: khong gui truong cursorSlot.
-            var body = new SaveInventoryRequestWithoutCursor
-            {
-                slots = slots.ToArray(),
-                craftingSlots = craftingSlots.ToArray()
-            };
-
-            json = JsonUtility.ToJson(body);
-        }
-        else
-        {
-            // Cursor co Item: gui du thong tin.
-            var body = new SaveInventoryRequest
-            {
-                slots = slots.ToArray(),
-                craftingSlots = craftingSlots.ToArray(),
-                cursorSlot = cursorRecord
-            };
-
-            json = JsonUtility.ToJson(body);
-        }
-
-        // [DEBUG] Kiem tra JSON truoc khi gui.
-        Debug.Log("[InventoryAPI] Save JSON: " + json);
-
-        string url = $"{apiUrl}/{playerId}/save-test";
-
-        byte[] bytes = Encoding.UTF8.GetBytes(json);
-
-        using UnityWebRequest request = new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST);
-
-        request.uploadHandler = new UploadHandlerRaw(bytes);
-        request.downloadHandler = new DownloadHandlerBuffer();
-
-        request.uploadHandler.contentType = "application/json";
-        request.SetRequestHeader("Accept", "application/json");
-
-        yield return request.SendWebRequest();
-
-        if(request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.LogError(
-                "[InventoryAPI] Save failed: " +
-                request.responseCode + " | " +
-                request.downloadHandler.text);
-
-            onComplete?.Invoke(false);
-            yield break;
-        }
-
-        Debug.Log("[InventoryAPI] Save success");
-
-        onComplete?.Invoke(true);
+        finally { isSaving = false; }
     }
 
-
-    private static bool ValidateSnapshot(
-        InventoryResponse response,
-        InventoryManager manager)
+    // Build one normalized snapshot from inventory, crafting, and cursor data.
+    private InventoryResponse CaptureSnapshot()
     {
-        if (response == null ||
-            manager == null ||
-            response.data == null ||
-            response.craftingSlots == null)
+        InventoryManager inventory = InventoryManager.Instance;
+        if (inventory == null || craftingController == null) return null;
+        var slots = new List<InventorySlotResponse>();
+        for (int i = 0; i < inventory.Slots.Count; i++)
+        {
+            InventorySlotData slot = inventory.Slots[i];
+            if (slot != null && !slot.isEmpty())
+                slots.Add(new InventorySlotResponse { slotIndex = i, itemId = slot.ItemId, amount = slot.Amount });
+        }
+        var crafting = new List<InventorySlotResponse>();
+        GridIngredient[] cells = craftingController.CreateSnapshot();
+        for (int i = 0; i < cells.Length; i++)
+            if (cells[i].itemId > 0 && cells[i].amount > 0)
+                crafting.Add(new InventorySlotResponse { slotIndex = i, itemId = cells[i].itemId, amount = cells[i].amount });
+        var cursor = inventory.CursorSlot;
+        return new InventoryResponse
+        {
+            success = true,
+            message = "Local inventory snapshot v1",
+            data = slots.ToArray(),
+            craftingSlots = crafting.ToArray(),
+            cursorSlot = cursor.isEmpty() ? null : new InventorySlotResponse { slotIndex = 0, itemId = cursor.ItemId, amount = cursor.Amount }
+        };
+    }
+
+    // Serialize the server's existing SaveInventoryRequest DTO without null CursorSlot.
+    private string BuildSaveRequestJson()
+    {
+        InventoryResponse snapshot = CaptureSnapshot();
+        if (snapshot == null || !ValidateSnapshot(snapshot)) return null;
+        var slots = ConvertRecords(snapshot.data);
+        var crafting = ConvertRecords(snapshot.craftingSlots);
+        if (snapshot.cursorSlot == null)
+            return JsonUtility.ToJson(new SaveInventoryRequestWithoutCursor { slots = slots, craftingSlots = crafting });
+        return JsonUtility.ToJson(new SaveInventoryRequest
+        {
+            slots = slots,
+            craftingSlots = crafting,
+            cursorSlot = new SaveInventorySlot { slotIndex = 0, itemId = snapshot.cursorSlot.itemId, amount = snapshot.cursorSlot.amount }
+        });
+    }
+
+    // Convert a neutral slot array to the legacy backend request format.
+    private static SaveInventorySlot[] ConvertRecords(InventorySlotResponse[] records)
+    {
+        var result = new SaveInventorySlot[records.Length];
+        for (int i = 0; i < records.Length; i++)
+            result[i] = new SaveInventorySlot { slotIndex = records[i].slotIndex, itemId = records[i].itemId, amount = records[i].amount };
+        return result;
+    }
+
+    // Atomically replace the local save file and retain the previous file as backup.
+    private bool SaveLocalSnapshot()
+    {
+        InventoryResponse snapshot = CaptureSnapshot();
+        if (snapshot == null || !ValidateSnapshot(snapshot))
+        {
+            Debug.LogError("[InventoryAPI] Refused to save invalid local snapshot.", this);
             return false;
-
-        return ValidateSlots(
-                   response.data, manager.Slots.Count, manager) &&
-               ValidateSlots(
-                   response.craftingSlots, 9, manager) &&
-               ValidateCursor(response.cursorSlot, manager);
+        }
+        string tempPath = SavePath + ".tmp";
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(SavePath));
+            File.WriteAllText(tempPath, JsonUtility.ToJson(snapshot, true));
+            if (File.Exists(SavePath))
+                File.Replace(tempPath, SavePath, SavePath + ".bak");
+            else
+                File.Move(tempPath, SavePath);
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("[InventoryAPI] Local save failed: " + e.Message, this);
+            return false;
+        }
     }
 
-    private static bool ValidateSlots(
-        InventorySlotResponse[] records,
-        int slotCount,
-        InventoryManager manager)
+    // Validate all three areas against the local catalog before mutating runtime state.
+    private bool ValidateSnapshot(InventoryResponse snapshot)
     {
-        HashSet<int> used = new();
+        InventoryManager inv = InventoryManager.Instance;
+        if (snapshot == null || !snapshot.success || inv == null || craftingController == null ||
+            snapshot.data == null || snapshot.craftingSlots == null) return false;
+        return ValidateRecords(snapshot.data, inv.Slots.Count, inv) &&
+               ValidateRecords(snapshot.craftingSlots, 9, inv) &&
+               (snapshot.cursorSlot == null ||
+                (snapshot.cursorSlot.slotIndex == 0 && ValidateRecord(snapshot.cursorSlot, inv)));
+    }
 
-        foreach (InventorySlotResponse record in records)
-        {
-            if (record == null ||
-                record.slotIndex < 0 ||
-                record.slotIndex >= slotCount ||
-                !used.Add(record.slotIndex))
-                return false;
-
-            ItemData item = manager.GetItemData(record.itemId);
-
-            if (item == null ||
-                record.amount <= 0 ||
-                record.amount > item.maxStack)
-                return false;
-        }
-
+    // Reject duplicate indices, invalid item IDs, and stacks above the SO max.
+    private static bool ValidateRecords(InventorySlotResponse[] records, int slotCount, InventoryManager inv)
+    {
+        var used = new HashSet<int>();
+        foreach (InventorySlotResponse slot in records)
+            if (slot == null || slot.slotIndex < 0 || slot.slotIndex >= slotCount ||
+                !used.Add(slot.slotIndex) || !ValidateRecord(slot, inv)) return false;
         return true;
     }
 
-    private static bool ValidateCursor(
-        InventorySlotResponse record,
-        InventoryManager manager)
+    // Check one slot's ID and amount against ItemDatabase's local definitions.
+    private static bool ValidateRecord(InventorySlotResponse slot, InventoryManager inv)
     {
-        if (record == null)
-            return true;
-
-        ItemData item = manager.GetItemData(record.itemId);
-
-        return record.slotIndex == 0 &&
-               item != null &&
-               record.amount > 0 &&
-               record.amount <= item.maxStack;
+        ItemData item = inv.GetItemData(slot.itemId);
+        return item != null && item.isActive && slot.amount > 0 && slot.amount <= item.maxStack;
     }
 
-    private static void RestoreCursor(
-        InventorySlotResponse record,
-        InventoryManager manager)
+    // Restore the three validated areas; inventory and crafting are committed together.
+    private bool ApplySnapshot(InventoryResponse snapshot)
     {
-        InventorySlotData cursor = manager.CursorSlot;
-
-        cursor.Clear();
-
-        if (record != null)
+        InventoryManager inv = InventoryManager.Instance;
+        if (!inv.CursorSlot.isEmpty())
         {
-            ItemData item = manager.GetItemData(record.itemId);
-
-            cursor.ItemId = item.id;
-            cursor.ItemCode = item.itemCode;
-            cursor.ItemName = item.name;
-            cursor.MaxStack = item.maxStack;
-            cursor.Amount = record.amount;
+            Debug.LogWarning("[InventoryAPI] Clear cursor before loading another save.", this);
+            return false;
         }
-
-        manager.NotifyChanged();
+        var records = new List<InventorySlotRecord>(snapshot.data.Length);
+        foreach (InventorySlotResponse slot in snapshot.data)
+            records.Add(new InventorySlotRecord(slot.slotIndex, slot.itemId, slot.amount));
+        isApplyingLoad = true;
+        try
+        {
+            if (!craftingController.TryLoadGridFromResponse(snapshot.craftingSlots)) return false;
+            if (!inv.TryLoadSlots(records)) return false;
+            inv.CursorSlot.Clear();
+            if (snapshot.cursorSlot != null)
+            {
+                ItemData item = inv.GetItemData(snapshot.cursorSlot.itemId);
+                inv.CursorSlot.ItemId = item.id;
+                inv.CursorSlot.ItemCode = item.itemCode;
+                inv.CursorSlot.ItemName = item.name;
+                inv.CursorSlot.MaxStack = item.maxStack;
+                inv.CursorSlot.Amount = snapshot.cursorSlot.amount;
+            }
+            inv.NotifyChanged();
+            return true;
+        }
+        finally { isApplyingLoad = false; }
     }
-
 }

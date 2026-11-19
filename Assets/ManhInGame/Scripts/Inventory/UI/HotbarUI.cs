@@ -1,169 +1,174 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class HotbarUI : MonoBehaviour
+public sealed class HotbarUI : MonoBehaviour
 {
     [SerializeField] private Transform hotbarGrid;
 
     private readonly List<ItemSlot> hotbarSlots = new();
     private readonly List<GameObject> selectionHighlights = new();
 
-    private bool isSubscibed;
+    private InventoryManager subscribedInventory;
+    private HotbarManager subscribedHotbar;
+    private bool cacheReady;
 
-    private void Start()
+    // Bind scene-local Hotbar UI to persistent gameplay managers whenever the panel opens.
+    private void OnEnable()
     {
         CacheHotbarSlots();
+        TryBindAndRefresh();
+    }
 
-        SubscribeEvents();
+    // Retry the initial binding after other Managers finish their initialization.
+    private void Start()
+    {
+        TryBindAndRefresh();
+    }
 
-        RefreshHotbar();
-
-        if (HotbarManager.Instance != null)
+    // Recover subscriptions if a manager becomes available or is replaced after scene loading.
+    private void LateUpdate()
+    {
+        if (subscribedInventory != InventoryManager.Instance ||
+            subscribedHotbar != HotbarManager.Instance ||
+            subscribedInventory == null || subscribedHotbar == null)
         {
-            RefreshSelection(HotbarManager.Instance.CurrentSlot);
+            TryBindAndRefresh();
         }
     }
 
-    private void OnEnable()
-    {
-        
-    }
-
+    // Disconnect inactive panels to avoid stale UI event handlers.
     private void OnDisable()
     {
         UnsubscribeEvents();
     }
 
+    // Disconnect event handlers before Unity destroys this scene-specific UI.
+    private void OnDestroy()
+    {
+        UnsubscribeEvents();
+    }
+
+    // Collect all seven visual slots and assign their shared InventoryManager indices.
     private void CacheHotbarSlots()
     {
         hotbarSlots.Clear();
         selectionHighlights.Clear();
+        cacheReady = false;
 
         InventoryManager inventory = InventoryManager.Instance;
-
         if (inventory == null || hotbarGrid == null)
-        {
-            Debug.LogWarning("[HotbarUI] InventoryManager or HotbarGrid is missing.");
             return;
-        }
 
-        int inventorySize = inventory.InventorySize;
-        int hotbarSize = inventory.HotbarSize;
-
-        for (int i = 0; i < hotbarGrid.childCount; i++)
+        for (int i = 0; i < hotbarGrid.childCount && hotbarSlots.Count < inventory.HotbarSize; i++)
         {
             Transform child = hotbarGrid.GetChild(i);
-
-            ItemSlot itemSlot = child.GetComponent<ItemSlot>();
-
-            if (itemSlot == null)
+            ItemSlot slot = child.GetComponent<ItemSlot>();
+            if (slot == null)
                 continue;
 
-            if (hotbarSlots.Count >= hotbarSize)
-                break;
-
-            int dataIndex = inventorySize + hotbarSlots.Count;
-
-            itemSlot.SetIndex(dataIndex);
-
-            hotbarSlots.Add(itemSlot);
+            slot.SetIndex(inventory.InventorySize + hotbarSlots.Count);
+            hotbarSlots.Add(slot);
 
             Transform highlight = child.Find("SelectionHighlight");
+            GameObject highlightObject = highlight != null ? highlight.gameObject : null;
+            selectionHighlights.Add(highlightObject);
 
-            selectionHighlights.Add(
-                highlight != null ? highlight.gameObject : null
-            );
-
-            Debug.Log(
-                $"[HotbarUI] {child.name} assigned SlotIndex = {dataIndex}"
-            );
+            if (highlightObject != null)
+            {
+                foreach (Graphic graphic in highlightObject.GetComponentsInChildren<Graphic>(true))
+                    graphic.raycastTarget = false;
+            }
         }
 
-        Debug.Log($"[HotbarUI] Initialized {hotbarSlots.Count}/{hotbarSize} slots.");
+        cacheReady = hotbarSlots.Count == inventory.HotbarSize;
+        if (!cacheReady)
+            Debug.LogWarning($"[HotbarUI] Found {hotbarSlots.Count}/{inventory.HotbarSize} slots on {name}.", this);
     }
 
-    private void SubscribeEvents()
+    // Subscribe to the current manager instances and force the panel to repaint immediately.
+    private void TryBindAndRefresh()
     {
-        if (isSubscibed)
-            return;
-
         InventoryManager inventory = InventoryManager.Instance;
         HotbarManager hotbar = HotbarManager.Instance;
 
         if (inventory == null || hotbar == null)
-        {
-            Debug.LogWarning(
-                "[HotbarUI] InventoryManager or HotbarManager not ready."
-            );
             return;
+
+        if (!cacheReady)
+            CacheHotbarSlots();
+
+        if (subscribedInventory != inventory || subscribedHotbar != hotbar)
+        {
+            UnsubscribeEvents();
+            subscribedInventory = inventory;
+            subscribedHotbar = hotbar;
+            subscribedInventory.OnInventoryChanged += RefreshHotbar;
+            subscribedHotbar.OnItemSelected += RefreshSelection;
         }
 
-        inventory.OnInventoryChanged += RefreshHotbar;
-        hotbar.OnItemSelected += RefreshSelection;
-
-        isSubscibed = true;
+        RefreshHotbar();
+        RefreshSelection(hotbar.CurrentSlot);
     }
 
+    // Unsubscribe from the same manager instances that supplied the event handlers.
     private void UnsubscribeEvents()
     {
-        if (!isSubscibed)
-            return;
+        if (subscribedInventory != null)
+            subscribedInventory.OnInventoryChanged -= RefreshHotbar;
 
-        if (InventoryManager.Instance != null)
-        {
-            InventoryManager.Instance.OnInventoryChanged -= RefreshHotbar;
-        }
+        if (subscribedHotbar != null)
+            subscribedHotbar.OnItemSelected -= RefreshSelection;
 
-        if (HotbarManager.Instance != null)
-        {
-            HotbarManager.Instance.OnItemSelected -= RefreshSelection;
-        }
-
-        isSubscibed = false;
+        subscribedInventory = null;
+        subscribedHotbar = null;
     }
 
+    // Repaint the visual Hotbar from the authoritative 7 slots in InventoryManager.
     private void RefreshHotbar()
     {
         InventoryManager inventory = InventoryManager.Instance;
         ItemDatabase database = ItemDatabase.Instance;
-
         if (inventory == null || database == null)
             return;
 
         for (int i = 0; i < hotbarSlots.Count; i++)
         {
             ItemSlot slot = hotbarSlots[i];
-
-            int dataIndex = inventory.InventorySize + i;
-
-            if (dataIndex >= inventory.Slots.Count)
+            if (slot == null)
                 continue;
 
-            InventorySlotData data = inventory.Slots[dataIndex];
+            int index = inventory.InventorySize + i;
+            slot.SetIndex(index);
 
-            ItemUI itemUI = slot.GetComponentInChildren<ItemUI>(true);
+            ItemUI itemUI = slot.GetComponent<ItemUI>();
+            if (itemUI == null)
+                itemUI = slot.GetComponentInChildren<ItemUI>(true);
 
             if (itemUI == null)
             {
-                Debug.LogWarning(
-                    $"[HotbarUI] Missing ItemUI at slot {dataIndex}"
-                );
+                Debug.LogWarning($"[HotbarUI] ItemUI missing: {slot.name}", slot);
                 continue;
             }
 
-            if (data.isEmpty())
+            if (index >= inventory.Slots.Count)
+            {
+                itemUI.ClearItem();
+                continue;
+            }
+
+            InventorySlotData data = inventory.Slots[index];
+            if (data == null || data.isEmpty())
             {
                 itemUI.ClearItem();
                 continue;
             }
 
             ItemData item = database.GetItemById(data.ItemId);
-
             if (item == null)
             {
-                Debug.LogWarning(
-                    $"[HotbarUI] Item ID {data.ItemId} not found"
-                );
+                Debug.LogWarning($"[HotbarUI] Unknown ItemId={data.ItemId} in slot {index}", slot);
+                itemUI.ClearItem();
                 continue;
             }
 
@@ -171,16 +176,14 @@ public class HotbarUI : MonoBehaviour
         }
     }
 
+    // Show the selected Hotbar slot without blocking pointer events on item icons.
     private void RefreshSelection(int selectedIndex)
     {
-        for(int i = 0; i < selectionHighlights.Count; i++)
+        for (int i = 0; i < selectionHighlights.Count; i++)
         {
             GameObject highlight = selectionHighlights[i];
-
-            if (highlight == null)
-                continue;
-
-            highlight.SetActive(i == selectedIndex);
+            if (highlight != null)
+                highlight.SetActive(i == selectedIndex);
         }
     }
 }

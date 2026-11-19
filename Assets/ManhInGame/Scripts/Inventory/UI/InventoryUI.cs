@@ -134,71 +134,97 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+
     private void RefreshInventory()
     {
-        if (InventoryManager.Instance == null)
-            return; 
+        InventoryManager inventory = InventoryManager.Instance;
 
-        for(int i = 0; i < inventorySlots.Count; i++)
+        if (inventory == null)
+            return;
+
+        for (int i = 0; i < inventorySlots.Count; i++)
         {
             ItemSlot slot = inventorySlots[i];
-            ItemUI itemUI = slot.GetComponentInChildren<ItemUI>(true);
-            
-            if(itemUI == null)
+
+            if (slot == null)
+                continue;
+
+            // [FIX] ItemUI is on InvSlot.
+            ItemUI itemUI =
+                slot.GetComponent<ItemUI>();
+
+            if (itemUI == null)
             {
-                Debug.LogWarning("Không tìm thấy ItemUI trong slot: " + slot.name);
+                Debug.LogWarning(
+                    $"[InventoryUI] Missing ItemUI: {slot.name}",
+                    slot);
                 continue;
             }
 
-            GameObject itemIcon = itemUI.gameObject;
-
-            if (i >= InventoryManager.Instance.Slots.Count)
+            // [FIX] Never disable InvSlot itself.
+            if (i >= inventory.InventorySize ||
+                i >= inventory.Slots.Count)
             {
                 itemUI.ClearItem();
-                itemIcon.SetActive(false);
                 continue;
             }
 
-            InventorySlotData data = InventoryManager.Instance.Slots[i];
+            InventorySlotData data = inventory.Slots[i];
 
-            if (data.isEmpty())
+            if (data == null || data.isEmpty())
             {
+                // ClearItem hides the icon, not the slot.
                 itemUI.ClearItem();
-                itemIcon.SetActive(false);
                 continue;
             }
 
-            ItemData itemData = InventoryManager.Instance.GetItemData(data.ItemId);
+            ItemData itemData =
+                inventory.GetItemData(data.ItemId);
 
-            if(itemData == null)
+            if (itemData == null)
             {
-                Debug.LogWarning("Không tìm thấy ItemData với ID: " + data.ItemId);
+                Debug.LogWarning(
+                    $"[InventoryUI] ItemId={data.ItemId} not found",
+                    slot);
+
                 itemUI.ClearItem();
-                itemIcon.SetActive(false);
                 continue;
             }
 
-            itemIcon.SetActive(true);
-
+            // [FIX] Show sprite and amount.
             itemUI.SetItem(itemData, data.Amount);
         }
 
-        if(cursorObj != null && cursorUI != null)
+        // [KEEP] Existing shared CursorSlot UI logic.
+        if (cursorObj != null && cursorUI != null)
         {
-            InventorySlotData cursorData = InventoryManager.Instance.CursorSlot;
+            InventorySlotData cursorData =
+                inventory.CursorSlot;
 
-            if (cursorData.isEmpty())
+            if (cursorData == null || cursorData.isEmpty())
             {
-                cursorObj.SetActive(false);
                 cursorUI.ClearItem();
+                cursorObj.SetActive(false);
             }
             else
             {
-                cursorObj.SetActive(true);
-                ItemData itemData = InventoryManager.Instance.GetItemData(cursorData.ItemId);
+                ItemData itemData =
+                    inventory.GetItemData(cursorData.ItemId);
+
                 if (itemData != null)
-                    cursorUI.SetItem(itemData, cursorData.Amount);
+                {
+                    cursorObj.SetActive(true);
+                    cursorUI.SetItem(
+                        itemData,
+                        cursorData.Amount);
+                }
+                else
+                {
+                    cursorUI.ClearItem();
+                    cursorObj.SetActive(false);
+                }
             }
         }
     }
+
 }

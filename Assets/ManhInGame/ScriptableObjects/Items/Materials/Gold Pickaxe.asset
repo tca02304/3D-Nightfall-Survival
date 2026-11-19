@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 806c6b0ded71c084e8ff65bdcc55a266, type: 3}
+  m_Name: Gold Pickaxe
+  m_EditorClassIdentifier: 
+  itemId: 43
+  itemCode: gold_pickaxe
+  displayName: Gold Pickaxe
+  description: Golden pickaxe for mining.
+  icon: {fileID: 21300000, guid: cba2e996f1318b64bbcd3a96aff46572, type: 3}
+  maxStack: 1
+  itemType: Tool
+  buyPrice: 0
+  sellPrice: 0
+  canSell: 0
+  isActive: 1
+  weaponStat:
+    itemId: 0
+    damage: 0
+    attackSpeed: 0
+    attackRange: 0
+    durability: 0
+  toolStat:
+    itemId: 0
+    toolType: 
+    toolPower: 0
+  consumableStat:
+    itemId: 0
+    healHP: 0
+    restoreStamina: 0
+  worldPrefab: {fileID: 8833188051111830873, guid: 0200b2e0ae6e46749a7b4de90f2e5e0f, type: 3}

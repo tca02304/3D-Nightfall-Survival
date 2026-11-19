@@ -29,18 +29,38 @@ public struct GridIngredient
 
 public static class GridRecipeCatalog
 {
-    public static List<GridRecipe> Parse(TextAsset recipeCsv, TextAsset idsCsv)
+    // Parse shaped recipes using the ItemCatalog as the source of item IDs.
+    public static List<GridRecipe> Parse(TextAsset recipeCsv, TextAsset idsCsv, ItemCatalog catalog = null)
     {
-        if (recipeCsv == null || idsCsv == null)
-            throw new InvalidOperationException("Assign both GridRecipes.csv and ItemCodeIds.csv.");
+        if (recipeCsv == null)
+            throw new InvalidOperationException("Assign GridRecipes.csv.");
 
         var ids = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        foreach (var row in Rows(idsCsv.text))
+
+        if (catalog != null)
         {
-            if (row.Length < 2 || !int.TryParse(row[1], out int id) || id <= 0)
-                throw new FormatException("Invalid ItemCodeIds.csv row: " + string.Join(",", row));
-            if (!ids.TryAdd(row[0], id))
-                throw new FormatException("Duplicate ItemCode: " + row[0]);
+            catalog.Initialize();
+            if (!catalog.IsValid)
+                throw new InvalidOperationException("ItemCatalog is invalid. Fix its entries first.");
+
+            foreach (ItemDefinitionSO definition in catalog.Items)
+            {
+                if (definition == null) continue;
+                ids.Add(definition.ItemCode.Trim(), definition.ItemId);
+            }
+        }
+        else
+        {
+            if (idsCsv == null)
+                throw new InvalidOperationException("Assign ItemCatalog or ItemCodeIds.csv.");
+
+            foreach (var row in Rows(idsCsv.text))
+            {
+                if (row.Length < 2 || !int.TryParse(row[1], out int id) || id <= 0)
+                    throw new FormatException("Invalid ItemCodeIds.csv row: " + string.Join(",", row));
+                if (!ids.TryAdd(row[0], id))
+                    throw new FormatException("Duplicate ItemCode: " + row[0]);
+            }
         }
 
         var result = new List<GridRecipe>();
@@ -61,8 +81,12 @@ public static class GridRecipeCatalog
 
             var recipe = new GridRecipe
             {
-                id = row[0], displayName = row[1], station = row[2],
-                outputCode = row[3], outputId = outputId, outputAmount = outputAmount
+                id = row[0],
+                displayName = row[1],
+                station = row[2],
+                outputCode = row[3],
+                outputId = outputId,
+                outputAmount = outputAmount
             };
             int used = 0;
             for (int i = 0; i < 9; ++i)
@@ -70,8 +94,8 @@ public static class GridRecipeCatalog
                 string token = cells[i].Trim();
                 if (token == "." || token.Length == 0) continue;
                 int split = token.LastIndexOf(':');
-                if (split < 1 || !int.TryParse(token.Substring(split + 1), out int amount) || amount != 1)
-                    throw new FormatException("Grid cell must contain exactly 1 item: '" + token + "' in " + row[0]);
+                if (split < 1 || !int.TryParse(token.Substring(split + 1), out int amount) || amount < 1)
+                    throw new FormatException("Grid cell must have a positive item amount: '" + token + "' in " + row[0]);
                 string code = token.Substring(0, split);
                 if (!ids.TryGetValue(code, out int itemId))
                     throw new FormatException("Unknown ingredient: " + code + " in " + row[0]);
@@ -100,26 +124,47 @@ public static class GridRecipeCatalog
         }
     }
 
-    // Compare tight bounding boxes: a recipe can be shifted within a 3x3 grid.
-    // Mirroring/rotating is deliberately NOT allowed (Minecraft-style shaped recipe).
-    public static bool Matches(GridIngredient[] placed, GridIngredient[] template)
+    // Check a shaped recipe and return its required amounts aligned to placed grid cells.
+    public static bool TryGetAlignedIngredients(
+        GridIngredient[] placed, GridIngredient[] template, out GridIngredient[] aligned)
     {
+        aligned = new GridIngredient[9];
         if (placed == null || template == null || placed.Length != 9 || template.Length != 9)
             return false;
+
         Bounds(placed, out int pr0, out int pc0, out int pr1, out int pc1);
         Bounds(template, out int tr0, out int tc0, out int tr1, out int tc1);
         if (pr1 < 0 || tr1 < 0 || pr1 - pr0 != tr1 - tr0 || pc1 - pc0 != tc1 - tc0)
             return false;
+
         for (int r = 0; r <= pr1 - pr0; r++)
-        for (int c = 0; c <= pc1 - pc0; c++)
-        {
-            GridIngredient p = placed[(pr0 + r) * 3 + pc0 + c];
-            GridIngredient t = template[(tr0 + r) * 3 + tc0 + c];
-            if (p.itemId != t.itemId || p.amount != t.amount) return false;
-        }
+            for (int c = 0; c <= pc1 - pc0; c++)
+            {
+                int placedIndex = (pr0 + r) * 3 + pc0 + c;
+                GridIngredient actual = placed[placedIndex];
+                GridIngredient required = template[(tr0 + r) * 3 + tc0 + c];
+
+                if (required.itemId <= 0)
+                {
+                    if (actual.itemId > 0 && actual.amount > 0) return false;
+                    continue;
+                }
+
+                if (actual.itemId != required.itemId || actual.amount < required.amount)
+                    return false;
+
+                aligned[placedIndex] = required;
+            }
         return true;
     }
 
+    // Check shaped ingredients with quantities rather than exact stack equality.
+    public static bool Matches(GridIngredient[] placed, GridIngredient[] template)
+    {
+        return TryGetAlignedIngredients(placed, template, out _);
+    }
+
+    // Locate the smallest occupied rectangle in a crafting grid.
     private static void Bounds(GridIngredient[] grid, out int minRow, out int minCol,
         out int maxRow, out int maxCol)
     {

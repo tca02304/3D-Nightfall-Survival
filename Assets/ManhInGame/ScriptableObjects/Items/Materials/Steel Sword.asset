@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 806c6b0ded71c084e8ff65bdcc55a266, type: 3}
+  m_Name: Steel Sword
+  m_EditorClassIdentifier: 
+  itemId: 46
+  itemCode: steel_sword
+  displayName: Steel Sword
+  description: Steel melee weapon.
+  icon: {fileID: 21300000, guid: 1a48474a7e61c694695ada23c2cf2575, type: 3}
+  maxStack: 1
+  itemType: Weapon
+  buyPrice: 0
+  sellPrice: 0
+  canSell: 0
+  isActive: 1
+  weaponStat:
+    itemId: 0
+    damage: 18
+    attackSpeed: 1
+    attackRange: 2.2
+    durability: 180
+  toolStat:
+    itemId: 0
+    toolType: 
+    toolPower: 0
+  consumableStat:
+    itemId: 0
+    healHP: 0
+    restoreStamina: 0
+  worldPrefab: {fileID: 5984582325165033426, guid: 3702cf888a02c8c42b41e1718e343126, type: 3}

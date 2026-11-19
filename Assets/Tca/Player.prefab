@@ -3258,6 +3258,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7719487522310971419}
+  - component: {fileID: 3426999046186771369}
   m_Layer: 0
   m_Name: newPlayer
   m_TagString: Untagged
@@ -3284,8 +3285,23 @@ Transform:
   - {fileID: 8762306040591746217}
   - {fileID: 8776011889704107141}
   - {fileID: 1091659676065503519}
+  - {fileID: 5971839493070719445}
   m_Father: {fileID: 3843558666199095490}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3426999046186771369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3620400857194069406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4391176840b7ee44db49d83139d5bc83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dropPoint: {fileID: 5971839493070719445}
+  autoBindOnStart: 1
 --- !u!1 &3777770830116845769
 GameObject:
   m_ObjectHideFlags: 0
@@ -3493,6 +3509,37 @@ SkinnedMeshRenderer:
     m_Center: {x: 0, y: -2.128493, z: -0.057750583}
     m_Extent: {x: 1.5929447, y: 3.1116488, z: 0.88272846}
   m_DirtyAABB: 0
+--- !u!1 &4081219832787875235
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5971839493070719445}
+  m_Layer: 0
+  m_Name: PointerDrop
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5971839493070719445
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4081219832787875235}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7719487522310971419}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4208296908320974569
 GameObject:
   m_ObjectHideFlags: 0
@@ -6928,7 +6975,6 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 2100000, guid: 40d47241422585b4385625da568320bc, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

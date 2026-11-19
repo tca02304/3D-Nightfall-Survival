@@ -25,10 +25,10 @@ public sealed class GridCraftingTest : MonoBehaviour
             if (!GridRecipeCatalog.Matches(empty, recipe.cells)) passed++;
             else Debug.LogError("[GridCraftingTest] FAILED empty " + recipe.id);
             total++;
-            bool unitOnly = true;
+            bool positiveAmounts = true;
             foreach (GridIngredient ingredient in recipe.cells)
-                if (ingredient.itemId > 0 && ingredient.amount != 1) unitOnly = false;
-            if (unitOnly) passed++; else Debug.LogError("[GridCraftingTest] Non-unit ingredient " + recipe.id);
+                if (ingredient.itemId > 0 && ingredient.amount < 1) positiveAmounts = false;
+            if (positiveAmounts) passed++; else Debug.LogError("[GridCraftingTest] Invalid ingredient amount " + recipe.id);
             // Distinguishable recipe signatures within same station.
             var signature = recipe.station + "|" + TightSignature(recipe.cells);
             total++;

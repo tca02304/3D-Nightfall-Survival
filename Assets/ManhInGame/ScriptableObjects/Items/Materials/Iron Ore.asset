@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 806c6b0ded71c084e8ff65bdcc55a266, type: 3}
+  m_Name: Iron Ore
+  m_EditorClassIdentifier: 
+  itemId: 8
+  itemCode: iron_ore
+  displayName: Iron Ore
+  description: Raw iron one that can be smelted into Iron Bar.
+  icon: {fileID: 21300000, guid: dec4e079d3876f54e9b661d77d36e8f9, type: 3}
+  maxStack: 64
+  itemType: Material
+  buyPrice: 0
+  sellPrice: 3
+  canSell: 1
+  isActive: 1
+  weaponStat:
+    itemId: 0
+    damage: 0
+    attackSpeed: 0
+    attackRange: 0
+    durability: 0
+  toolStat:
+    itemId: 0
+    toolType: 
+    toolPower: 0
+  consumableStat:
+    itemId: 0
+    healHP: 0
+    restoreStamina: 0
+  worldPrefab: {fileID: 0}
