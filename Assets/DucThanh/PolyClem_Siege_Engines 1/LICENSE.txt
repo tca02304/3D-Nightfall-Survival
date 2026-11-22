@@ -1,0 +1,12 @@
+POLYCLEM SIEGE ENGINES — LICENSE
+Copyright PolyClem. Credit is optional.
+
+DIRECT DOWNLOADS / ITCH.IO
+You may use, modify and incorporate these assets in unlimited personal and commercial projects, including games, films and renders. You may distribute finished works containing the assets, including the files needed to run a game, provided the assets are not offered as reusable standalone downloads.
+You may privately share source files with collaborators and clients who need them for the same project and follow these terms. For unrelated projects, they should obtain their own copy.
+Do not sell, give away, sublicense or redistribute the assets, source files or modified assets as standalone models, asset packs, stock libraries or public asset repositories. Do not claim authorship of the original assets. Keep this notice with permitted source copies.
+You own your own work; ownership of the underlying assets remains with PolyClem. Assets are supplied as-is, subject to mandatory legal rights.
+
+ARTSTATION DOWNLOADS
+For downloads acquired through the ArtStation listing, the native ArtStation Extended Commercial License selected on that listing governs exclusively. The direct-download terms above do not apply to that acquisition and do not add restrictions to the platform license.
+https://www.artstation.com/marketplace-product-eula

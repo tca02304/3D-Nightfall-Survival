@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb2ec7f666777a0479765a0822e2d311, type: 3}
+  m_Name: "R\xECu S\u1EAFt"
+  m_EditorClassIdentifier: 
+  itemId: item_riusat
+  itemName: "R\xECu S\u1EAFt"
+  description: "V\u0169 kh\xED c\u1EADn chi\u1EBFn s\u1EAFc b\xE9n."
+  icon: {fileID: 0}
+  itemType: 1
+  heldPrefab: {fileID: 6591883115155847663, guid: ada349ac63d76054a94529dea636634d, type: 3}
+  dropPrefab: {fileID: 6591883115155847663, guid: ada349ac63d76054a94529dea636634d, type: 3}
+  handBoneName: Weapon (1)
+  handLocalPosition: {x: 0.058, y: -0.046, z: 0.608}
+  handLocalEulerAngles: {x: 2.2074633, y: 2.2995787, z: 351.5722}
+  handLocalScale: {x: 1.6140282, y: 0.3228056, z: 1.6140282}
+  attackDamage: 30
+  attackRange: 2.2
+  attackRadius: 1.2
+  maxStack: 1

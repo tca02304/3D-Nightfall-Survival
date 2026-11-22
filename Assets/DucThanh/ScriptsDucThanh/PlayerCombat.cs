@@ -85,6 +85,11 @@ namespace DucThanh
             {
                 animator = GetComponentInChildren<Animator>();
             }
+
+            if (animator != null && animator.layerCount > 1)
+            {
+                animator.SetLayerWeight(1, 1f);
+            }
         }
 
         private void Update()
@@ -167,7 +172,41 @@ namespace DucThanh
 
             if (animator != null)
             {
-                animator.SetTrigger("Attack");
+                if (animator.layerCount > 1)
+                {
+                    animator.SetLayerWeight(1, 1f);
+                }
+
+                bool hasAttackParam = false;
+                foreach (var param in animator.parameters)
+                {
+                    if (param.name == "Attack")
+                    {
+                        hasAttackParam = true;
+                        break;
+                    }
+                }
+
+                if (hasAttackParam)
+                {
+                    animator.ResetTrigger("Attack");
+                    animator.SetTrigger("Attack");
+                }
+                else
+                {
+                    // Fallback: phát trực tiếp state Attack nếu animator thiếu tham số
+                    if (animator.HasState(1, Animator.StringToHash("Attack")))
+                    {
+                        animator.Play("Attack", 1, 0f);
+                    }
+                }
+            }
+
+            // Kích hoạt vung kiếm góc nhìn thứ nhất nếu có FirstPersonWeapon
+            var fpWeapon = GetComponentInChildren<FirstPersonWeapon>();
+            if (fpWeapon != null)
+            {
+                fpWeapon.Attack();
             }
 
             StartCoroutine(PerformAttackHitCheck());
