@@ -171,6 +171,9 @@ MonoBehaviour:
     m_Bits: 4294967295
   useNavMeshIfAvailable: 1
   maxPlacementAttempts: 10
+  overrideConfigOnThisSpawner: 0
+  customEnemyEntries: []
+  tonightMonsterTrackers: []
   isNightSpawningActive: 0
   currentNight: 1
   scheduledStartHour: 21

@@ -9,6 +9,18 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: c5b1098b7e576a74fb15d13e2bd7a058, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c5b1098b7e576a74fb15d13e2bd7a058, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c5b1098b7e576a74fb15d13e2bd7a058, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c5b1098b7e576a74fb15d13e2bd7a058, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0
       objectReference: {fileID: 0}
@@ -110,6 +122,5 @@ MonoBehaviour:
   maxLifeTime: 8
   impactEffectPrefab: {fileID: 0}
   impactSound: {fileID: 0}
-  arcHeight: 5
+  tumbleSpeed: {x: 360, y: 180, z: 90}
   explosionRadius: 4
-  tumbleRotationSpeed: {x: 360, y: 180, z: 90}
