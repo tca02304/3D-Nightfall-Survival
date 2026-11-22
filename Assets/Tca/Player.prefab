@@ -2310,6 +2310,7 @@ GameObject:
   - component: {fileID: 6636937738161070330}
   - component: {fileID: 1108905349220743486}
   - component: {fileID: 2686174595557586413}
+  - component: {fileID: 5061150377992616954}
   m_Layer: 12
   m_Name: Player
   m_TagString: Player
@@ -2524,7 +2525,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3110114742508631718}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 13590390fe4be5940a6ea81d2b0acd23, type: 3}
   m_Name: 
@@ -2577,6 +2578,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dieAnimPlayDuration: 0.2
   destroyDelayAfterDeath: 2
+--- !u!114 &5061150377992616954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3110114742508631718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efd2fa30dbdb42b42964801708784ffc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fallThresholdY: -40
 --- !u!1 &3183278630756424905
 GameObject:
   m_ObjectHideFlags: 0

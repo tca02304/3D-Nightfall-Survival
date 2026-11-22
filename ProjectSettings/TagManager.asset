@@ -13,6 +13,7 @@ TagManager:
   - Build
   - Enemy
   - NoHpBar
+  - DontCount
   layers:
   - Default
   - TransparentFX
@@ -23,7 +24,7 @@ TagManager:
   - PlayerBody
   - WorldWeapon
   - Village
-  - 
+  - Obstacle
   - 
   - 
   - 

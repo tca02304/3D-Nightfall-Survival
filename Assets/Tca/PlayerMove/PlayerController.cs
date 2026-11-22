@@ -14,11 +14,14 @@ namespace DucThanh
         [SerializeField] private float groundAcceleration = 45f;
         [SerializeField] private float groundDeceleration = 55f;
         [SerializeField] private float airAcceleration = 12f;
+        [Tooltip("Bật nếu chỉ muốn cho phép di chuyển khi chuột đã bị khóa (CursorLockMode.Locked)")]
+        [SerializeField] private bool requireCursorLocked = false;
 
         [Header("Jump & Gravity")]
-        [SerializeField] private float jumpHeight = 7f;
+        [SerializeField] private float jumpHeight = 2.2f;
         [SerializeField] private float gravity = -25f;
         [SerializeField] private float fallGravityMultiplier = 2.2f;
+        [SerializeField] private float maxFallSpeed = 40f;
         [SerializeField] private float coyoteTime = 0.12f;
         [SerializeField] private float jumpBufferTime = 0.12f;
         [SerializeField] private float groundStickForce = 2f;
@@ -61,6 +64,13 @@ namespace DucThanh
             characterController = GetComponent<CharacterController>();
             playerStats = GetComponent<PlayerStats>();
             if (animator == null) animator = GetComponentInChildren<Animator>();
+
+            // Khóa Rigidbody nếu có gắn kèm để tránh xung đột kéo nhân vật xuyên map
+            if (TryGetComponent<Rigidbody>(out var rb))
+            {
+                rb.isKinematic = true;
+                rb.useGravity = false;
+            }
         }
 
         private void OnEnable()
@@ -85,7 +95,10 @@ namespace DucThanh
             moveInput = Vector2.zero;
             isSprinting = false;
 
-            if (IsDead || Time.timeScale == 0f || Cursor.lockState != CursorLockMode.Locked)
+            if (IsDead || Time.timeScale == 0f)
+                return;
+
+            if (requireCursorLocked && Cursor.lockState != CursorLockMode.Locked)
                 return;
 
             float horizontal = 0f;
@@ -105,11 +118,18 @@ namespace DucThanh
                 sprintHeld = kb.leftShiftKey.isPressed || kb.rightShiftKey.isPressed;
                 jumpPressed = kb.spaceKey.wasPressedThisFrame;
             }
-#elif ENABLE_LEGACY_INPUT_MANAGER
-            horizontal = Input.GetAxisRaw("Horizontal");
-            vertical = Input.GetAxisRaw("Vertical");
-            sprintHeld = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-            jumpPressed = Input.GetButtonDown("Jump");
+#endif
+
+#if ENABLE_LEGACY_INPUT_MANAGER
+            if (Mathf.Approximately(horizontal, 0f) && Mathf.Approximately(vertical, 0f))
+            {
+                horizontal = Input.GetAxisRaw("Horizontal");
+                vertical = Input.GetAxisRaw("Vertical");
+            }
+            if (!sprintHeld)
+                sprintHeld = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            if (!jumpPressed)
+                jumpPressed = Input.GetKeyDown(KeyCode.Space);
 #endif
 
             moveInput = Vector2.ClampMagnitude(new Vector2(horizontal, vertical), 1f);
@@ -120,9 +140,10 @@ namespace DucThanh
 
         private void HandleMovement()
         {
-            if (characterController == null) return;
+            if (characterController == null || !characterController.enabled) return;
 
-            float dt = Time.deltaTime;
+            // Giới hạn dt tối đa 0.05s để tránh giật frame đầu làm nhân vật lún xuyên đất
+            float dt = Mathf.Min(Time.deltaTime, 0.05f);
             bool grounded = characterController.isGrounded;
             if (grounded) lastGroundedTime = Time.time;
 
@@ -175,7 +196,7 @@ namespace DucThanh
             {
                 float prevVelocity = verticalVelocity;
                 float currentGravity = verticalVelocity < 0f ? gravity * fallGravityMultiplier : gravity;
-                verticalVelocity += currentGravity * dt;
+                verticalVelocity = Mathf.Max(verticalVelocity + currentGravity * dt, -maxFallSpeed);
                 motionY = (prevVelocity + verticalVelocity) * 0.5f;
             }
 
