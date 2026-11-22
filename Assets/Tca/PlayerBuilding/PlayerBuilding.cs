@@ -4,22 +4,27 @@ public class PlayerBuilding : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Camera playerCamera;
-    [Tooltip("Prefab mẫu để test nhanh bằng phím B")]
-    [SerializeField] private GameObject testBuildPrefab;
+    [Tooltip("Điểm trống (Empty Object) đặt ở bàn tay Player hoặc trước Camera để gắn vật phẩm đang cầm")]
+    [SerializeField] private Transform handHoldPoint;
+
+    [Header("Quick Equip (Phím 1, 2, 3... để cầm đồ)")]
+    [SerializeField] private BuildableItemData[] buildableItems;
 
     [Header("Build Settings")]
-    [SerializeField] private float maxBuildDistance = 8f;
+    [Tooltip("Khoảng cách xây tối đa tính từ chân Player")]
+    [SerializeField] private float maxBuildDistance = 5f;
     [SerializeField] private float rotationStep = 45f;
-    [Tooltip("Layer mặt đất hoặc sàn có thể đặt công trình lên")]
+    [Tooltip("Layer mặt đất (ví dụ: Group / Ground)")]
     [SerializeField] private LayerMask groundLayer;
-    [Tooltip("Layer vật cản (cây, đá, nhà khác, quái...) không được đặt đè lên")]
+    [Tooltip("Layer vật cản (Obstacle, Player...) - KHÔNG tích Layer mặt đất vào đây")]
     [SerializeField] private LayerMask obstacleLayer;
 
     [Header("Preview Materials")]
     [SerializeField] private Material validMaterial;   // Màu xanh trong suốt
     [SerializeField] private Material invalidMaterial; // Màu đỏ trong suốt
 
-    private GameObject currentRealPrefab;
+    private BuildableItemData currentItem;
+    private GameObject currentHandModel;
     private GameObject currentPreview;
     private Renderer[] previewRenderers;
     private Bounds previewLocalBounds;
@@ -27,7 +32,7 @@ public class PlayerBuilding : MonoBehaviour
     private float currentRotationY;
     private bool canPlace;
 
-    public bool IsBuilding => currentPreview != null;
+    public bool IsBuilding => currentItem != null && currentPreview != null;
 
     private void Start()
     {
@@ -37,12 +42,7 @@ public class PlayerBuilding : MonoBehaviour
 
     private void Update()
     {
-        // Phím B để bật/tắt chế độ test xây dựng nhanh
-        if (Input.GetKeyDown(KeyCode.B) && testBuildPrefab != null)
-        {
-            if (IsBuilding) CancelBuilding();
-            else StartBuilding(testBuildPrefab);
-        }
+        HandleQuickEquipInput();
 
         if (!IsBuilding) return;
 
@@ -55,66 +55,98 @@ public class PlayerBuilding : MonoBehaviour
             PlaceBuilding();
         }
 
-        // Chuột phải hoặc ESC để hủy xây dựng
+        // Chuột phải hoặc ESC để cất vật phẩm và hủy xây dựng
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
         {
-            CancelBuilding();
+            UnequipItem();
+        }
+    }
+
+    private void HandleQuickEquipInput()
+    {
+        if (buildableItems == null) return;
+
+        for (int i = 0; i < buildableItems.Length && i < 9; i++)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
+            {
+                if (currentItem == buildableItems[i])
+                    UnequipItem();
+                else
+                    EquipItem(buildableItems[i]);
+            }
         }
     }
 
     /// <summary>
-    /// Gọi hàm này khi Player cầm vật dụng xây dựng trên tay
+    /// Gọi hàm này khi Player cầm một vật phẩm xây dựng lên tay
     /// </summary>
-    public void StartBuilding(GameObject prefabToBuild)
+    public void EquipItem(BuildableItemData itemData)
     {
-        CancelBuilding();
+        UnequipItem();
 
-        if (prefabToBuild == null) return;
+        if (itemData == null || itemData.buildPrefab == null) return;
 
-        currentRealPrefab = prefabToBuild;
+        currentItem = itemData;
         currentRotationY = 0f;
 
-        // Tạo bản mô phỏng từ chính Prefab thật
-        currentPreview = Instantiate(prefabToBuild);
-        currentPreview.name = prefabToBuild.name + "_Preview";
+        // 1. Hiện model vật phẩm trên tay Player
+        if (itemData.handPrefab != null && handHoldPoint != null)
+        {
+            currentHandModel = Instantiate(itemData.handPrefab, handHoldPoint);
+            currentHandModel.transform.localPosition = Vector3.zero;
+            currentHandModel.transform.localRotation = Quaternion.identity;
 
-        // Tắt toàn bộ Collider và Script trên bản mô phỏng để không va chạm hay chạy logic
+            foreach (var col in currentHandModel.GetComponentsInChildren<Collider>())
+                col.enabled = false;
+
+            foreach (var rb in currentHandModel.GetComponentsInChildren<Rigidbody>())
+                rb.isKinematic = true;
+        }
+
+        // 2. Tạo bản mô phỏng (Ghost) từ Prefab thật
+        currentPreview = Instantiate(itemData.buildPrefab);
+        currentPreview.name = itemData.buildPrefab.name + "_Preview";
+
         foreach (var col in currentPreview.GetComponentsInChildren<Collider>())
             col.enabled = false;
 
         foreach (var script in currentPreview.GetComponentsInChildren<MonoBehaviour>())
             script.enabled = false;
 
-        // Lưu lại Renderer và kích thước để đổi màu & kiểm tra vướng vật cản
         previewRenderers = currentPreview.GetComponentsInChildren<Renderer>();
         CalculateLocalBounds();
     }
 
     /// <summary>
-    /// Gọi hàm này khi Player cất vật dụng xây dựng đi hoặc hủy đặt
+    /// Gọi hàm này để cất vật phẩm khỏi tay và tắt bản mô phỏng
     /// </summary>
-    public void CancelBuilding()
+    public void UnequipItem()
     {
+        if (currentHandModel != null)
+        {
+            Destroy(currentHandModel);
+            currentHandModel = null;
+        }
+
         if (currentPreview != null)
         {
             Destroy(currentPreview);
             currentPreview = null;
         }
 
-        currentRealPrefab = null;
+        currentItem = null;
         previewRenderers = null;
         canPlace = false;
     }
 
     private void HandleRotationInput()
     {
-        // Bấm R để xoay theo góc cố định (45 độ)
         if (Input.GetKeyDown(KeyCode.R))
         {
             currentRotationY += rotationStep;
         }
 
-        // Hoặc lăn chuột giữa để xoay
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         if (Mathf.Abs(scroll) > 0.01f)
         {
@@ -126,16 +158,40 @@ public class PlayerBuilding : MonoBehaviour
     {
         if (playerCamera == null) return;
 
-        // Bắn tia từ tâm màn hình ra phía trước
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Vector3 desiredPos;
 
-        if (Physics.Raycast(ray, out RaycastHit hit, maxBuildDistance, groundLayer))
+        // 1. Tìm điểm tâm màn hình đang nhìn trên mặt đất
+        if (Physics.Raycast(ray, out RaycastHit hit, 50f, groundLayer))
+        {
+            desiredPos = hit.point;
+        }
+        else
+        {
+            // Nếu nhìn thẳng hoặc ngước lên trời, lấy hướng phía trước Camera
+            Vector3 flatForward = playerCamera.transform.forward;
+            flatForward.y = 0f;
+            desiredPos = transform.position + flatForward.normalized * maxBuildDistance;
+        }
+
+        // 2. Giới hạn khoảng cách xây tối đa tính từ vị trí Player
+        Vector3 offset = desiredPos - transform.position;
+        offset.y = 0f;
+
+        if (offset.magnitude > maxBuildDistance)
+        {
+            offset = offset.normalized * maxBuildDistance;
+        }
+
+        Vector3 clampedPos = transform.position + offset;
+
+        // 3. Chiếu thẳng từ trên xuống để bám đúng độ cao mặt đất (Terrain)
+        if (Physics.Raycast(clampedPos + Vector3.up * 10f, Vector3.down, out RaycastHit groundHit, 30f, groundLayer))
         {
             currentPreview.SetActive(true);
-            currentPreview.transform.position = hit.point;
+            currentPreview.transform.position = groundHit.point;
             currentPreview.transform.rotation = Quaternion.Euler(0f, currentRotationY, 0f);
 
-            // Kiểm tra xem vị trí này có bị đè lên vật cản không
             Vector3 checkCenter = currentPreview.transform.TransformPoint(previewLocalBounds.center);
             Vector3 halfExtents = previewLocalBounds.extents * 0.9f;
 
@@ -146,7 +202,6 @@ public class PlayerBuilding : MonoBehaviour
         }
         else
         {
-            // Nếu nhìn lên trời hoặc quá tầm xây dựng thì ẩn bản mô phỏng
             currentPreview.SetActive(false);
             canPlace = false;
         }
@@ -154,16 +209,34 @@ public class PlayerBuilding : MonoBehaviour
 
     private void PlaceBuilding()
     {
-        if (currentRealPrefab == null || currentPreview == null) return;
+        if (currentItem == null || currentPreview == null) return;
 
-        Instantiate(
-            currentRealPrefab,
+        GameObject placedObj = Instantiate(
+            currentItem.buildPrefab,
             currentPreview.transform.position,
             currentPreview.transform.rotation
         );
 
-        // Nếu muốn đặt xong 1 cái thì thoát chế độ xây luôn thì bỏ comment dòng dưới:
-        // CancelBuilding();
+        // Tự động chuyển công trình vừa xây sang Layer "Obstacle" để chặn xây chồng lên nhau
+        int obstacleLayerIndex = LayerMask.NameToLayer("Obstacle");
+        if (obstacleLayerIndex != -1)
+        {
+            SetLayerRecursively(placedObj, obstacleLayerIndex);
+        }
+
+        if (currentItem.consumeOnPlace)
+        {
+            UnequipItem();
+        }
+    }
+
+    private void SetLayerRecursively(GameObject obj, int newLayer)
+    {
+        obj.layer = newLayer;
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, newLayer);
+        }
     }
 
     private void CalculateLocalBounds()
