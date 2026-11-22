@@ -38,7 +38,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1.8
+  m_Radius: 2.2
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &11400001
 MonoBehaviour:
@@ -54,12 +54,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemConfig: {fileID: 11400000, guid: 4268d248f6ef15a48832a0b8c536a7e4, type: 2}
   quantity: 1
-  pickupDistance: 1.8
-  rotateOnGround: 1
-  rotationSpeed: 60
-  bobbingEffect: 1
-  bobbingAmplitude: 0.08
-  bobbingFrequency: 2
+  pickupDistance: 2.2
 --- !u!4 &3914203493086447960
 Transform:
   m_ObjectHideFlags: 0
@@ -69,7 +64,7 @@ Transform:
   m_GameObject: {fileID: 3504878608856839626}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.37889826, w: 0.9254383}
-  m_LocalPosition: {x: 916.63, y: 167.83, z: 595.4}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
