@@ -1,260 +1,125 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Nightfall.Stats;
 
-namespace Nightfall.Powerups
+namespace Nightfall.Stats
 {
     [Serializable]
-    public class OwnedPowerup
+    public struct PowerupStackRecord
     {
-        public PowerupDefinitionSO definition;
+        public string code;
         public int stacks;
+        // Construct a stable save record.
+        public PowerupStackRecord(string code, int stacks) { this.code = code; this.stacks = stacks; }
     }
 
-    public sealed class PowerupRuntime : MonoBehaviour
+    public sealed class PowerupRuntime
     {
-        [Header("Available Powerups")]
-        [SerializeField]
-        private List<PowerupDefinitionSO> powerupCatalog = new();
+        private readonly PowerupCatalogSO catalog;
+        private readonly Dictionary<string, int> stacks = new Dictionary<string, int>();
+        public event Action Changed;
+        public PowerupCatalogSO Catalog => catalog;
 
-        [Header("Runtime Powerups")]
-        [SerializeField]
-        private List<OwnedPowerup> ownedPowerups = new();
+        // Initialize one independent player runtime from shared read-only definitions.
+        public PowerupRuntime(PowerupCatalogSO catalog) { this.catalog = catalog ?? throw new ArgumentNullException(nameof(catalog)); }
 
-        private readonly Dictionary<StatType, float>
-            baseStats = new();
+        // Return the number of stacks for the given persistent code.
+        public int GetStacks(string code) => !string.IsNullOrEmpty(code) && stacks.TryGetValue(code, out int n) ? n : 0;
 
-        private readonly List<StatModifier>
-            activeModifiers = new();
-
-        public event Action OnPowerupsChanged;
-
-        private void Awake()
+        // Reject a grant that would exceed the stack limit rather than silently discarding stacks.
+        public bool CanAdd(string code, int count = 1)
         {
-            InitializeBaseStats();
-            RebuildModifiers();
+            var d = catalog.Find(code);
+            return count > 0 && d != null && (long)GetStacks(code) + count <= d.MaxStacks;
         }
 
-        private void InitializeBaseStats()
+        // Apply a complete validated grant and publish one change notification.
+        public bool TryAdd(string code, int count = 1)
         {
-            // Gia tri tam de test Stats Core.
-            // Sau nay base stats do Player module cung cap.
-            baseStats[StatType.MaxHealth] = 100f;
-            baseStats[StatType.AttackDamage] = 25f;
-            baseStats[StatType.MoveSpeed] = 5f;
-            baseStats[StatType.AttackSpeed] = 1f;
-            baseStats[StatType.HealthRegen] = 0f;
-            baseStats[StatType.MaxStamina] = 100f;
-        }
-
-
-        [ContextMenu("Powerups/Validate Catalog")]
-        public void ValidateCatalog()
-        {
-            HashSet<string> registeredIds =
-                new HashSet<string>(StringComparer.Ordinal);
-
-            int validCount = 0;
-            int errorCount = 0;
-
-            for (int i = 0; i < powerupCatalog.Count; i++)
-            {
-                PowerupDefinitionSO definition = powerupCatalog[i];
-
-                if (definition == null)
-                {
-                    Debug.LogError(
-                        $"[PowerupCatalog] Element {i} is NULL.",
-                        this);
-
-                    errorCount++;
-                    continue;
-                }
-
-                string id = definition.powerupId;
-
-                if (string.IsNullOrWhiteSpace(id))
-                {
-                    Debug.LogError(
-                        $"[PowerupCatalog] {definition.name} has empty ID.",
-                        definition);
-
-                    errorCount++;
-                    continue;
-                }
-
-                if (!registeredIds.Add(id))
-                {
-                    Debug.LogError(
-                        $"[PowerupCatalog] Duplicate ID: {id}",
-                        definition);
-
-                    errorCount++;
-                    continue;
-                }
-
-                if (definition.maxStacks < 1)
-                {
-                    Debug.LogError(
-                        $"[PowerupCatalog] Invalid MaxStacks: {id}",
-                        definition);
-
-                    errorCount++;
-                    continue;
-                }
-
-                if (definition.effects == null ||
-                    definition.effects.Length == 0)
-                {
-                    Debug.LogWarning(
-                        $"[PowerupCatalog] {id} has no effects.",
-                        definition);
-                }
-
-                validCount++;
-            }
-
-            Debug.Log(
-                $"[PowerupCatalog] Validation completed. " +
-                $"Valid={validCount}, Errors={errorCount}, " +
-                $"Total={powerupCatalog.Count}",
-                this);
-        }
-
-
-        public bool AddPowerup(string powerupId, int amount = 1)
-        {
-            if (string.IsNullOrWhiteSpace(powerupId) ||
-                amount <= 0)
-                return false;
-
-            PowerupDefinitionSO definition =
-                powerupCatalog.Find(
-                    p => p != null &&
-                    p.powerupId == powerupId);
-
-            if (definition == null)
-            {
-                Debug.LogWarning(
-                    $"[PowerupRuntime] Unknown Powerup: {powerupId}");
-                return false;
-            }
-
-            OwnedPowerup owned = ownedPowerups.Find(
-                p => p != null && p.definition == definition);
-
-            if (owned == null)
-            {
-                owned = new OwnedPowerup
-                {
-                    definition = definition,
-                    stacks = 0
-                };
-
-                ownedPowerups.Add(owned);
-            }
-
-            int maxStacks = Mathf.Max(1, definition.maxStacks);
-            int available = maxStacks - owned.stacks;
-
-            if (available <= 0)
-                return false;
-
-            int added = Mathf.Min(amount, available);
-            owned.stacks += added;
-
-            RebuildModifiers();
-            OnPowerupsChanged?.Invoke();
-
-            Debug.Log(
-                $"[PowerupRuntime] {definition.displayName} " +
-                $"x{owned.stacks}");
-
+            if (!CanAdd(code, count)) return false;
+            stacks[code] = GetStacks(code) + count;
+            Changed?.Invoke();
             return true;
         }
 
-        public int GetStacks(string powerupId)
+        // Remove a validated number of stacks without changing definition assets.
+        public bool TryRemove(string code, int count = 1)
         {
-            OwnedPowerup owned = ownedPowerups.Find(
-                p => p != null &&
-                p.definition != null &&
-                p.definition.powerupId == powerupId);
-
-            return owned != null ? owned.stacks : 0;
+            if (count <= 0 || GetStacks(code) < count) return false;
+            int next = GetStacks(code) - count;
+            if (next == 0) stacks.Remove(code); else stacks[code] = next;
+            Changed?.Invoke(); return true;
         }
 
-        public float GetStat(StatType stat)
+        // Return passive modifiers for backward-compatible callers and tests.
+        public IEnumerable<StatModifier> GetStatModifiers() => GetStatModifiers(1f, 0f, false);
+
+        // Evaluate passive and conditional powerups from the current gameplay context.
+        public IEnumerable<StatModifier> GetStatModifiers(float health01, float movement01, bool falling)
         {
-            float baseValue = baseStats.TryGetValue(
-                stat, out float value) ? value : 0f;
-
-            return StatCalculator.Calculate(
-                baseValue,
-                stat,
-                activeModifiers);
-        }
-
-        public void SetBaseStat(StatType stat, float value)
-        {
-            if (float.IsNaN(value) || float.IsInfinity(value))
-                return;
-
-            baseStats[stat] = value;
-            OnPowerupsChanged?.Invoke();
-        }
-
-        private void RebuildModifiers()
-        {
-            activeModifiers.Clear();
-
-            foreach (OwnedPowerup owned in ownedPowerups)
+            foreach (var entry in stacks)
             {
-                if (owned == null ||
-                    owned.definition == null ||
-                    owned.stacks <= 0)
-                    continue;
-
-                PowerupDefinitionSO definition =
-                    owned.definition;
-
-                if (definition.effects == null)
-                    continue;
-
-                foreach (PowerupEffect effect
-                         in definition.effects)
-                {
-                    if (effect.trigger != PowerupTrigger.Passive)
-                        continue;
-
-                    float bonus =
-                        CalculateEffectValue(effect, owned.stacks);
-
-                    activeModifiers.Add(new StatModifier
+                var d = catalog.Find(entry.Key);
+                if (d == null) continue;
+                if (d.EffectKind == PowerupEffectKind.StatModifier)
+                    foreach (var m in d.ModifiersPerStack)
                     {
-                        statType = effect.statType,
-                        modifierType = effect.modifierType,
-                        value = bonus,
-                        sourceId = definition.powerupId
-                    });
+                        var scaled = m;
+                        scaled.value = m.mode == StatModifierMode.MultiplicativePercent
+                            ? (float)(Math.Pow(1d + m.value, entry.Value) - 1d) : m.value * entry.Value;
+                        yield return scaled;
+                    }
+                foreach (var rule in d.RuntimeEffects)
+                {
+                    float factor;
+                    switch (rule.condition)
+                    {
+                        case PowerupCondition.Passive: factor = 1f; break;
+                        case PowerupCondition.MissingHealth: factor = 1f - Mathf.Clamp01(health01); break;
+                        case PowerupCondition.LowHealth: factor = health01 <= rule.healthThreshold ? 1f : 0f; break;
+                        case PowerupCondition.Moving: factor = Mathf.Clamp01(movement01); break;
+                        case PowerupCondition.Falling: factor = falling ? 1f : 0f; break;
+                        default: continue;
+                    }
+                    if (factor > 0f) yield return new StatModifier(rule.stat, rule.mode, rule.Evaluate(entry.Value) * factor);
                 }
             }
         }
 
-        private static float CalculateEffectValue(
-            PowerupEffect effect,
-            int stacks)
+        // Return event-triggered effect magnitudes without mutating runtime stacks.
+        public IEnumerable<(string code, PowerupEffectRule rule, float value)> GetTriggeredEffects(PowerupCondition trigger)
         {
-            if (effect.stackFormula ==
-                PowerupStackFormula.Linear)
+            foreach (var entry in stacks)
             {
-                return effect.baseValue * stacks;
+                var d = catalog.Find(entry.Key);
+                if (d == null) continue;
+                foreach (var rule in d.RuntimeEffects)
+                    if (rule.condition == trigger) yield return (entry.Key, rule, rule.Evaluate(entry.Value));
             }
+        }
 
-            return StatCalculator.Cumulative(
-                stacks,
-                effect.scaleSpeed,
-                effect.maxValue);
+        // Export all stacks by code for offline save integration.
+        public List<PowerupStackRecord> Capture()
+        {
+            var result = new List<PowerupStackRecord>();
+            foreach (var e in stacks) result.Add(new PowerupStackRecord(e.Key, e.Value));
+            result.Sort((a,b) => string.CompareOrdinal(a.code,b.code));
+            return result;
+        }
+
+        // Validate the entire snapshot before replacing the live state.
+        public bool TryRestore(IReadOnlyList<PowerupStackRecord> records)
+        {
+            if (records == null) return false;
+            var next = new Dictionary<string,int>();
+            foreach (var record in records)
+            {
+                var d = catalog.Find(record.code);
+                if (d == null || record.stacks <= 0 || record.stacks > d.MaxStacks || next.ContainsKey(record.code)) return false;
+                next.Add(record.code, record.stacks);
+            }
+            stacks.Clear(); foreach (var e in next) stacks.Add(e.Key,e.Value);
+            Changed?.Invoke(); return true;
         }
     }
 }

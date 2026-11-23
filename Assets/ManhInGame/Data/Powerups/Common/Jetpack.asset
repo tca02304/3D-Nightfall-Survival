@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Jetpack
   m_EditorClassIdentifier: 
-  powerupId: jetpack
+  powerupCode: jetpack
   displayName: Jetpack
-  description: 
-  rarity: 0
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 5d173af0cf2c21a408bf11c24be6b24a, type: 3}
+  rarity: 1
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 17
-    modifierType: 1
-    trigger: 0
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 0.075
-    maxValue: 2.5
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Increase jump multiplier with diminishing returns."
+  runtimeEffects:
+  - stat: 14
+    mode: 1
+    condition: 0
+    growth: 1
+    valuePerStack: 1
+    limit: 2.5
+    growthRate: 0.075
     duration: 0
-    cooldown: 0
     healthThreshold: 0

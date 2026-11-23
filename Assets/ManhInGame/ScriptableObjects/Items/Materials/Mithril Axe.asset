@@ -30,9 +30,12 @@ MonoBehaviour:
     attackRange: 0
     durability: 0
   toolStat:
-    itemId: 0
-    toolType: 
-    toolPower: 0
+    itemId: 39
+    toolType: Axe
+    toolPower: 240
+    toolTier: 4
+    actionSpeed: 1.25
+    durability: 540
   consumableStat:
     itemId: 0
     healHP: 0

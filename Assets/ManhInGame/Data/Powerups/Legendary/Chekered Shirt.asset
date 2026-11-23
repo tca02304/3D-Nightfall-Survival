@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Chekered Shirt
   m_EditorClassIdentifier: 
-  powerupId: checkered_shirt
+  powerupCode: checkered_shirt
   displayName: Chekered Shirt
-  description: 
-  rarity: 2
   icon: {fileID: 0}
+  rarity: 3
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 22
-    modifierType: 1
-    trigger: 0
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 0.3
-    maxValue: 4
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Increase gathering damage toward +400 percent; cannot bypass tool tier gate."
+  runtimeEffects:
+  - stat: 25
+    mode: 1
+    condition: 0
+    growth: 1
+    valuePerStack: 1
+    limit: 4
+    growthRate: 0.3
     duration: 0
-    cooldown: 0
     healthThreshold: 0

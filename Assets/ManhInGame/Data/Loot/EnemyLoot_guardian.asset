@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0114eab001e2528db6abe005f3d7ce38, type: 3}
+  m_Name: EnemyLoot_guardian
+  m_EditorClassIdentifier: 
+  enemyCode: guardian
+  minGold: 50
+  maxGold: 100
+  drops:
+  - itemCode: black_shard
+    chancePercent: 2
+    minAmount: 1
+    maxAmount: 1
+  - itemCode: obamium_ore
+    chancePercent: 1
+    minAmount: 5
+    maxAmount: 10
+  bossPowerupTable: {fileID: 11400000, guid: 6f9a4f1ee04b5dd29ac7ef460b9c6eda, type: 2}

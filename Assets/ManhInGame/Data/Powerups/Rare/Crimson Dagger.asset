@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Crimson Dagger
   m_EditorClassIdentifier: 
-  powerupId: crimson_dagger
+  powerupCode: crimson_dagger
   displayName: Crimson Dagger
-  description: 
-  rarity: 1
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: eb628d1c5ea3bf64da3785836294bee9, type: 3}
+  rarity: 2
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 13
-    modifierType: 0
-    trigger: 0
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 0.1
-    maxValue: 0.5
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Lifesteal approaches 50 percent of actual damage dealt."
+  runtimeEffects:
+  - stat: 13
+    mode: 0
+    condition: 0
+    growth: 1
+    valuePerStack: 1
+    limit: 0.5
+    growthRate: 0.1
     duration: 0
-    cooldown: 0
     healthThreshold: 0

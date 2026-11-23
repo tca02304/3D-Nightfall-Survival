@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Wings Of Glory
   m_EditorClassIdentifier: 
-  powerupId: wings_of_glory
+  powerupCode: wings_of_glory
   displayName: Wings Of Glory
-  description: 
-  rarity: 2
   icon: {fileID: 0}
+  rarity: 4
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 9
-    modifierType: 1
-    trigger: 6
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 0.45
-    maxValue: 2.5
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Gain damage bonus while falling."
+  runtimeEffects:
+  - stat: 3
+    mode: 1
+    condition: 4
+    growth: 1
+    valuePerStack: 1
+    limit: 2.5
+    growthRate: 0.45
     duration: 0
-    cooldown: 0
     healthThreshold: 0

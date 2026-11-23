@@ -24,11 +24,12 @@ MonoBehaviour:
   canSell: 0
   isActive: 1
   weaponStat:
-    itemId: 0
+    itemId: 51
     damage: 69120
     attackSpeed: 1.32
     attackRange: 2.5
     durability: 1800
+    criticalChance: 0.12
   toolStat:
     itemId: 0
     toolType: 
@@ -38,3 +39,4 @@ MonoBehaviour:
     healHP: 0
     restoreStamina: 0
   worldPrefab: {fileID: 0}
+  heldVisualPrefab: {fileID: 5832762921203523999, guid: 65d795ac823747844946c20e76fc8712, type: 3}

@@ -34,7 +34,7 @@ MonoBehaviour:
     toolType: 
     toolPower: 0
   consumableStat:
-    itemId: 0
+    itemId: 31
     healHP: 35
     restoreStamina: 25
-  worldPrefab: {fileID: 0}
+  worldPrefab: {fileID: 5202112862346530559, guid: 9a6337a1aa8eda949a7454c13722e67f, type: 3}

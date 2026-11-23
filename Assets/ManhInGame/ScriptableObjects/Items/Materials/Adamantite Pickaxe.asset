@@ -30,9 +30,12 @@ MonoBehaviour:
     attackRange: 0
     durability: 0
   toolStat:
-    itemId: 0
-    toolType: 
-    toolPower: 0
+    itemId: 45
+    toolType: Pickaxe
+    toolPower: 1920
+    toolTier: 5
+    actionSpeed: 1.36
+    durability: 1200
   consumableStat:
     itemId: 0
     healHP: 0

@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Janniks Frog
   m_EditorClassIdentifier: 
-  powerupId: janniks_frog
+  powerupCode: janniks_frog
   displayName: Janniks Frog
-  description: 
-  rarity: 1
   icon: {fileID: 0}
+  rarity: 2
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 18
-    modifierType: 0
-    trigger: 0
-    stackFormula: 0
-    baseValue: 1
-    scaleSpeed: 0
-    maxValue: 0
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Gain one additional midair jump per stack."
+  runtimeEffects:
+  - stat: 18
+    mode: 0
+    condition: 0
+    growth: 0
+    valuePerStack: 1
+    limit: 0
+    growthRate: 0
     duration: 0
-    cooldown: 0
     healthThreshold: 0

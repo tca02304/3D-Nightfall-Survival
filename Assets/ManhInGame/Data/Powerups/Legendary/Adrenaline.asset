@@ -12,40 +12,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Adrenaline
   m_EditorClassIdentifier: 
-  powerupId: adrenaline
+  powerupCode: adrenaline
   displayName: Adrenaline
-  description: 
-  rarity: 2
   icon: {fileID: 0}
+  rarity: 4
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 10
-    modifierType: 1
-    trigger: 5
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 1
-    maxValue: 2
+  effectKind: 0
+  modifiersPerStack: []
+  description: "At or below 30 percent HP increase speed and reduce stamina use."
+  runtimeEffects:
+  - stat: 6
+    mode: 1
+    condition: 2
+    growth: 1
+    valuePerStack: 1
+    limit: 2
+    growthRate: 1
     duration: 0
-    cooldown: 0
-    healthThreshold: 0
-  - statType: 16
-    modifierType: 1
-    trigger: 5
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 1
-    maxValue: 2
+    healthThreshold: 0.3
+  - stat: 5
+    mode: 1
+    condition: 2
+    growth: 1
+    valuePerStack: 1
+    limit: 2
+    growthRate: 1
     duration: 0
-    cooldown: 0
-    healthThreshold: 0
-  - statType: 5
-    modifierType: 1
-    trigger: 5
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 1
-    maxValue: 2
+    healthThreshold: 0.3
+  - stat: 16
+    mode: 1
+    condition: 2
+    growth: 1
+    valuePerStack: -1
+    limit: 0.8
+    growthRate: 1
     duration: 0
-    cooldown: 0
-    healthThreshold: 0
+    healthThreshold: 0.3

@@ -116,6 +116,7 @@ public static class NightfallStatSync
                 SetFloat(p, "attackSpeed", spec.weaponStat.attackSpeed);
                 SetFloat(p, "attackRange", spec.weaponStat.attackRange);
                 SetInt(p, "durability", spec.weaponStat.durability);
+                SetFloat(p, "criticalChance", spec.weaponStat.criticalChance);
             }
             if (spec.toolStat != null)
             {
@@ -124,6 +125,11 @@ public static class NightfallStatSync
                 SetString(p, "toolType", spec.itemCode.EndsWith("_axe", StringComparison.OrdinalIgnoreCase) ? "Axe" : "Pickaxe");
                 SetInt(p, "toolPower", spec.itemCode.EndsWith("_axe", StringComparison.OrdinalIgnoreCase)
                     ? spec.toolStat.chopPower : spec.toolStat.miningPower);
+                string[] tiers = { "wood", "steel", "gold", "mithril", "adamantite" };
+                int tier = Array.IndexOf(tiers, spec.itemCode.Split('_')[0]) + 1;
+                SetInt(p, "toolTier", tier);
+                SetInt(p, "durability", spec.toolStat.durability);
+                SetFloat(p, "actionSpeed", spec.toolStat.actionSpeed);
             }
             if (string.Equals(spec.itemType, "Consumable", StringComparison.OrdinalIgnoreCase))
             {
@@ -136,7 +142,7 @@ public static class NightfallStatSync
             EditorUtility.SetDirty(asset);
         }
         AssetDatabase.SaveAssets();
-        Debug.Log("[StatSync] Applied supported stats to 52 assets. CriticalChance / Tool durability / Tool speed not stored: corresponding runtime model fields do not exist.");
+        Debug.Log("[StatSync] Applied stats including ToolTier, ToolPower, action speed, durability and weapon critical chance.");
     }
 
     // Update a matching serialized integer without changing ScriptableObject identity.

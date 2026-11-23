@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Piggy Bank
   m_EditorClassIdentifier: 
-  powerupId: piggy_bank
+  powerupCode: piggy_bank
   displayName: Piggy Bank
-  description: 
-  rarity: 1
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: a1d99f5a318e5024a96eac8426094ca4, type: 3}
+  rarity: 2
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 23
-    modifierType: 1
-    trigger: 0
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 0.15
-    maxValue: 1.25
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Increase loot quantity multiplier toward 2.25x. Drop chances unchanged."
+  runtimeEffects:
+  - stat: 10
+    mode: 1
+    condition: 0
+    growth: 1
+    valuePerStack: 1
+    limit: 1.25
+    growthRate: 0.15
     duration: 0
-    cooldown: 0
     healthThreshold: 0

@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Spooo Bean
   m_EditorClassIdentifier: 
-  powerupId: spooo_bean
+  powerupCode: spooo_bean
   displayName: Spooo Bean
-  description: 
-  rarity: 0
   icon: {fileID: 0}
+  rarity: 0
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 6
-    modifierType: 1
-    trigger: 0
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 0.2
-    maxValue: -0.5
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Reduce hunger drain; diminishing returns, maximum reduction 50 percent."
+  runtimeEffects:
+  - stat: 17
+    mode: 1
+    condition: 0
+    growth: 1
+    valuePerStack: -1
+    limit: 0.5
+    growthRate: 0.2
     duration: 0
-    cooldown: 0
     healthThreshold: 0

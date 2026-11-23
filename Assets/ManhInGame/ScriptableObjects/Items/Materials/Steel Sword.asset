@@ -24,11 +24,12 @@ MonoBehaviour:
   canSell: 0
   isActive: 1
   weaponStat:
-    itemId: 0
+    itemId: 46
     damage: 18
-    attackSpeed: 1
+    attackSpeed: 1.0
     attackRange: 2.2
     durability: 180
+    criticalChance: 0.05
   toolStat:
     itemId: 0
     toolType: 

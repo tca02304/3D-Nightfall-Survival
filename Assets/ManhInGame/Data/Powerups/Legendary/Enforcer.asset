@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Enforcer
   m_EditorClassIdentifier: 
-  powerupId: enforcer
+  powerupCode: enforcer
   displayName: Enforcer
-  description: 
-  rarity: 2
   icon: {fileID: 0}
+  rarity: 4
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 9
-    modifierType: 1
-    trigger: 7
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 0.4
-    maxValue: 2
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Gain damage bonus scaled by normalized movement speed."
+  runtimeEffects:
+  - stat: 3
+    mode: 1
+    condition: 3
+    growth: 1
+    valuePerStack: 1
+    limit: 2
+    growthRate: 0.4
     duration: 0
-    cooldown: 0
     healthThreshold: 0

@@ -27,6 +27,7 @@ public sealed class ItemDefinitionSO : ScriptableObject
 
     [Header("World Item")]
     [SerializeField] private WorldItem worldPrefab;
+    [SerializeField] private GameObject heldVisualPrefab;
 
     public int ItemId => itemId;
     public string ItemCode => itemCode;
@@ -43,6 +44,7 @@ public sealed class ItemDefinitionSO : ScriptableObject
     public ToolStatData ToolStat => toolStat;
     public ConsumableStatData ConsumableStat => consumableStat;
     public WorldItem WorldPrefab => worldPrefab;
+    public GameObject HeldVisualPrefab => heldVisualPrefab;
 
 #if UNITY_EDITOR
     // Normalize identifiers and prevent invalid stack sizes in the Inspector.

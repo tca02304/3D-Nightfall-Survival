@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Sneakers
   m_EditorClassIdentifier: 
-  powerupId: sneakers
+  powerupCode: sneakers
   displayName: Sneakers
-  description: 
-  rarity: 0
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 6ec15115d06634642a2d88c4c4181fc3, type: 3}
+  rarity: 1
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 16
-    modifierType: 1
-    trigger: 0
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 0.08
-    maxValue: 1.75
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Increase movement multiplier with diminishing returns."
+  runtimeEffects:
+  - stat: 5
+    mode: 1
+    condition: 0
+    growth: 1
+    valuePerStack: 1
+    limit: 1.75
+    growthRate: 0.08
     duration: 0
-    cooldown: 0
     healthThreshold: 0
