@@ -32,18 +32,16 @@ public static class GameEvents
     public static Action OnPlayerDied;
 
     // UI của bạn sẽ phát các sự kiện này khi người chơi bấm nút, Member 1 sẽ lắng nghe
-    public static Action OnResumeGame;
+    //public static Action OnResumeGame;
     public static Action OnRestartGame;
     public static Action OnReturnToMainMenu;
 
     // Kênh báo cho UI hiện/ẩn phím tương tác (Ví dụ: "Nhấn F để nhặt Gỗ")
     public static Action<bool, string> OnInteractionStateChanged;
 
-    // Kênh cập nhật tiến độ nhiệm vụ (Ví dụ: "Tiêu diệt Slime", "2/5")
-    public static Action<string, string> OnQuestProgressUpdated;
+    
 
-    // Kênh báo hoàn thành nhiệm vụ để hiện Popup chúc mừng
-    public static Action<string> OnQuestCompleted;
+    
     // Khai báo kênh sự kiện cho Hotbar: Truyền đi 1 số nguyên (int) là vị trí ô được click
     public static Action<int> OnHotbarSlotSelected;
     // Sự kiện truyền đi tiến độ tải (float từ 0.0f đến 1.0f)
@@ -64,4 +62,17 @@ public static class GameEvents
 
     // Thông báo khi Wave kết thúc (dọn sạch quái)
     public static Action OnWaveEnded;
+
+    // Yêu cầu bật màn hình Settings (dùng khi chuyển từ Home sang SPLASH)
+    public static System.Action OnRequestSettingsUI;
+
+    // Yêu cầu tạm dừng/tiếp tục game
+    public static System.Action OnPauseGame;
+    public static System.Action OnResumeGame;
+
+    // Thêm dòng này vào trong class GameEvents
+    public static System.Action OnRequestCraftingUI;
+    // Thêm vào file GameEvents.cs
+    public static System.Action OnRequestInventoryUI;
+    public static System.Action OnToggleInventoryUI;
 }

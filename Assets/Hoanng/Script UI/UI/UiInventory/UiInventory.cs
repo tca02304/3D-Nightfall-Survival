@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class UiInventory : UiBase
 {
@@ -23,9 +24,10 @@ public class UiInventory : UiBase
     public TextMeshProUGUI speedText;
     public TextMeshProUGUI attackText;
 
-    [Header("5. Thông báo Chế tạo")]
-    public TextMeshProUGUI warningText;
-    public GameObject gob;
+    
+
+    [Header("6. Nút chức năng")]
+    public Button btnOpenCrafting; // Khai báo nút Bàn chế tạo
     private void Awake()
     {
         // Tự động tìm các ô (Slot) nằm bên trong các lưới
@@ -50,27 +52,38 @@ public class UiInventory : UiBase
     private void OnEnable()
     {
         GameEvents.OnInventoryUpdated += RefreshInventoryUI;
-        GameEvents.OnCraftingFailed += ShowCraftingWarning;
+        
 
         // Đăng ký nghe thêm Trang bị và Chỉ số
         GameEvents.OnEquipmentUpdated += RefreshEquipmentUI;
         GameEvents.OnPlayerStatsUpdated += UpdateStatsUI;
+       
+        // Đăng ký sự kiện click cho nút bấm
+        if (btnOpenCrafting != null) btnOpenCrafting.onClick.AddListener(RequestCrafting);
     }
 
     private void OnDisable()
     {
         GameEvents.OnInventoryUpdated -= RefreshInventoryUI;
-        GameEvents.OnCraftingFailed -= ShowCraftingWarning;
 
+        
         // Hủy nghe
         GameEvents.OnEquipmentUpdated -= RefreshEquipmentUI;
         GameEvents.OnPlayerStatsUpdated -= UpdateStatsUI;
+        // Hủy lắng nghe nút bấm để tránh lỗi bộ nhớ
+        if (btnOpenCrafting != null) btnOpenCrafting.onClick.RemoveAllListeners();
 
-        if (warningText != null) warningText.text = "";
+        
     }
 
+    private void RequestCrafting()
+    {
+        // Phát sự kiện yêu cầu mở giao diện Crafting
+        GameEvents.OnRequestCraftingUI?.Invoke();
+    }
     // --- CÁC HÀM XỬ LÝ GIAO DIỆN ---
-
+    // Hàm chuyển về Inventory
+    
     // 1. Cập nhật Balo và Hotbar (Giữ nguyên)
     private void RefreshInventoryUI(List<InventorySlotData> inventoryData, List<InventorySlotData> hotbarData)
     {
@@ -122,12 +135,5 @@ public class UiInventory : UiBase
         if (attackText != null) attackText.text = attack.ToString();
     }
 
-    private void ShowCraftingWarning(string message)
-    {
-        if (warningText != null)
-        {
-            warningText.text = message;
-            warningText.color = Color.red;
-        }
-    }
+   
 }

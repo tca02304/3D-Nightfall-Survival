@@ -21,32 +21,23 @@ public class UiPauseGame : UiBase
         menuButton.onClick.RemoveAllListeners();
     }
 
-    // Khi UIManager gọi hàm Show() để bật bảng Pause, ta phải dừng thời gian
-    public override void Show()
-    {
-        base.Show();
-        Time.timeScale = 0f; // Dừng game
-    }
+    // --- Các hàm khi bấm nút ---
 
-    // Bấm nút Resume
     private void ResumeGame()
     {
-        Time.timeScale = 1f; // Tiếp tục game
-        Hide(); // Tắt bảng Pause
-
-        // Phát sóng cho GameManager biết game đã tiếp tục (để mở khóa chuột/camera)
+        // Phát sự kiện Resume ra ngoài
         GameEvents.OnResumeGame?.Invoke();
     }
 
     private void OpenSettings()
     {
-        // Gọi UIManager bật Settings (nằm đè lên Pause)
-        UIManager.Instance.ShowSetting();
+        // Yêu cầu mở UI Setting
+        GameEvents.OnRequestSettingsUI?.Invoke();
     }
 
     private void ReturnToMenu()
     {
-        Time.timeScale = 1f; // Luôn nhớ trả lại timeScale = 1 trước khi chuyển scene
+        // Yêu cầu chuyển cảnh về Menu
         GameEvents.OnReturnToMainMenu?.Invoke();
     }
 }
