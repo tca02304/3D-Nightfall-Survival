@@ -8,4 +8,5 @@ public class WeaponStatData
     public float attackSpeed;
     public float attackRange;
     public int durability;
+    public float criticalChance;
 }

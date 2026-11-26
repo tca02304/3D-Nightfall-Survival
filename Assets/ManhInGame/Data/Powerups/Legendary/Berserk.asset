@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Berserk
   m_EditorClassIdentifier: 
-  powerupId: berserk
+  powerupCode: berserk
   displayName: Berserk
-  description: 
-  rarity: 2
   icon: {fileID: 0}
+  rarity: 4
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 9
-    modifierType: 1
-    trigger: 5
-    stackFormula: 0
-    baseValue: 1
-    scaleSpeed: 0
-    maxValue: 0
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Bonus attack scales with missing health; up to +100 percent per stack before cap."
+  runtimeEffects:
+  - stat: 3
+    mode: 1
+    condition: 1
+    growth: 0
+    valuePerStack: 1
+    limit: 5
+    growthRate: 0
     duration: 0
-    cooldown: 0
     healthThreshold: 0

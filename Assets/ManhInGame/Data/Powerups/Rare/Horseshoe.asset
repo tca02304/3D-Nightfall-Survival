@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Horseshoe
   m_EditorClassIdentifier: 
-  powerupId: horseshoe
+  powerupCode: horseshoe
   displayName: Horseshoe
-  description: 
-  rarity: 1
   icon: {fileID: 0}
+  rarity: 2
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 11
-    modifierType: 0
-    trigger: 0
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 0.08
-    maxValue: 0.9
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Increase critical chance toward 90 percent bonus."
+  runtimeEffects:
+  - stat: 7
+    mode: 0
+    condition: 0
+    growth: 1
+    valuePerStack: 1
+    limit: 0.9
+    growthRate: 0.08
     duration: 0
-    cooldown: 0
     healthThreshold: 0

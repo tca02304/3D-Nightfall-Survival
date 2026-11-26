@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Juice
   m_EditorClassIdentifier: 
-  powerupId: juice
+  powerupCode: juice
   displayName: Juice
-  description: 
-  rarity: 1
   icon: {fileID: 0}
+  rarity: 3
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 10
-    modifierType: 1
-    trigger: 2
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 0.3
-    maxValue: 1
-    duration: 0
-    cooldown: 0
+  effectKind: 0
+  modifiersPerStack: []
+  description: "After a real critical hit, refresh an attack speed buff lasting five seconds."
+  runtimeEffects:
+  - stat: 6
+    mode: 1
+    condition: 5
+    growth: 1
+    valuePerStack: 1
+    limit: 1
+    growthRate: 0.3
+    duration: 5
     healthThreshold: 0

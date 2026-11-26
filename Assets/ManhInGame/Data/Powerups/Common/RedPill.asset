@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: RedPill
   m_EditorClassIdentifier: 
-  powerupId: red_pill
+  powerupCode: red_pill
   displayName: Red Pill
-  description: 
+  icon: {fileID: 21300000, guid: 2aa98bc5a859d8d4296a1790c6b48f79, type: 3}
   rarity: 0
-  icon: {fileID: 0}
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 0
-    modifierType: 0
-    trigger: 0
-    stackFormula: 0
-    baseValue: 10
-    scaleSpeed: 0
-    maxValue: 0
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Max health +10 per stack."
+  runtimeEffects:
+  - stat: 0
+    mode: 0
+    condition: 0
+    growth: 0
+    valuePerStack: 10
+    limit: 0
+    growthRate: 0
     duration: 0
-    cooldown: 0
     healthThreshold: 0

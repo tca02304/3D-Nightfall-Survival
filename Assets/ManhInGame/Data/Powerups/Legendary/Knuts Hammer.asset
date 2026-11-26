@@ -12,30 +12,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Knuts Hammer
   m_EditorClassIdentifier: 
-  powerupId: knuts_hammer
+  powerupCode: knuts_hammer
   displayName: Knuts Hammer
-  description: 
-  rarity: 2
   icon: {fileID: 0}
+  rarity: 5
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 24
-    modifierType: 0
-    trigger: 1
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 0.12
-    maxValue: 0.4
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Lightning damage proc, up to 40 percent chance and 100 percent extra base damage."
+  runtimeEffects:
+  - stat: 20
+    mode: 0
+    condition: 0
+    growth: 1
+    valuePerStack: 1
+    limit: 0.4
+    growthRate: 0.12
     duration: 0
-    cooldown: 0
     healthThreshold: 0
-  - statType: 25
-    modifierType: 0
-    trigger: 1
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 0.12
-    maxValue: 1
+  - stat: 21
+    mode: 0
+    condition: 0
+    growth: 1
+    valuePerStack: 1
+    limit: 1
+    growthRate: 0.12
     duration: 0
-    cooldown: 0
     healthThreshold: 0

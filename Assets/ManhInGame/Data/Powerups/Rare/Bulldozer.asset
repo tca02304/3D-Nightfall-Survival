@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Bulldozer
   m_EditorClassIdentifier: 
-  powerupId: bulldozer
+  powerupCode: bulldozer
   displayName: Bulldozer
-  description: 
-  rarity: 1
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: ab117eb261514fc48b1749f5ab029ec4, type: 3}
+  rarity: 2
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 14
-    modifierType: 0
-    trigger: 0
-    stackFormula: 1
-    baseValue: 0
-    scaleSpeed: 0.15
-    maxValue: 1
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Increase knockback proc chance."
+  runtimeEffects:
+  - stat: 19
+    mode: 0
+    condition: 0
+    growth: 1
+    valuePerStack: 1
+    limit: 1
+    growthRate: 0.15
     duration: 0
-    cooldown: 0
     healthThreshold: 0

@@ -1,70 +1,55 @@
-
 using System;
 using UnityEngine;
-using Nightfall.Stats;
+using UnityEngine.Serialization;
 
-namespace Nightfall.Powerups
+namespace Nightfall.Stats
 {
-    public enum PowerupRarity
+    [CreateAssetMenu(fileName = "Powerup_", menuName = "Nightfall/Stat/Powerup Definition")]
+    public sealed class PowerupDefinitionSO : ScriptableObject
     {
-        Common,
-        Rare,
-        Legendary
-    }
+        [FormerlySerializedAs("powerupId")]
+        [SerializeField] private string powerupCode;
+        [SerializeField] private string displayName;
+        [SerializeField] private Sprite icon;
+        [SerializeField] private PowerupRarity rarity;
+        [SerializeField, Min(0f)] private float dropWeight = 100f;
+        [SerializeField, Min(1)] private int maxStacks = 20;
+        [SerializeField] private PowerupEffectKind effectKind = PowerupEffectKind.StatModifier;
+        [SerializeField] private StatModifier[] modifiersPerStack = Array.Empty<StatModifier>();
+        [SerializeField, TextArea] private string description;
+        [SerializeField] private PowerupEffectRule[] runtimeEffects = Array.Empty<PowerupEffectRule>();
 
-    public enum PowerupTrigger
-    {
-        Passive,
-        OnHit,
-        OnCriticalHit,
-        OnDamageDealt,
-        OnKill,
-        OnHealthChanged,
-        WhileFalling,
-        WhileMoving
-    }
+        public string Code => powerupCode;
+        public string PowerupId => powerupCode;
+        public PowerupEffectRule[] RuntimeEffects => runtimeEffects ?? Array.Empty<PowerupEffectRule>();
+        public string DisplayName => displayName;
+        public Sprite Icon => icon;
+        public PowerupRarity Rarity => rarity;
+        public float DropWeight => dropWeight;
+        public int MaxStacks => maxStacks;
+        public PowerupEffectKind EffectKind => effectKind;
+        public StatModifier[] ModifiersPerStack => modifiersPerStack ?? Array.Empty<StatModifier>();
+        public string Description => description;
 
-    public enum PowerupStackFormula
-    {
-        Linear,
-        Cumulative
-    }
-
-    [Serializable]
-    public class PowerupEffect
-    {
-        public StatType statType;
-        public StatModifierType modifierType;
-        public PowerupTrigger trigger;
-        public PowerupStackFormula stackFormula;
-
-        public float baseValue;
-        public float scaleSpeed;
-        public float maxValue;
-
-        public float duration;
-        public float cooldown;
-        public float healthThreshold;
-    }
-
-    [CreateAssetMenu(
-        fileName = "NewPowerup",
-        menuName = "Nightfall/Stats/Powerup")]
-    public sealed class PowerupDefinitionSO :
-        ScriptableObject
-    {
-        public string powerupId;
-        public string displayName;
-
-        [TextArea]
-        public string description;
-
-        public PowerupRarity rarity;
-        public Sprite icon;
-
-        [Min(1)]
-        public int maxStacks = 999;
-
-        public PowerupEffect[] effects;
+        // Populate a new definition from a tooling or balance-data import pipeline.
+        public void Configure(string code, string title, PowerupRarity rarityValue, float weight,
+            int stacks, PowerupEffectKind kind, StatModifier[] modifiers, string details)
+        {
+            powerupCode = code;
+            displayName = title;
+            rarity = rarityValue;
+            dropWeight = Mathf.Max(0f, weight);
+            maxStacks = Mathf.Max(1, stacks);
+            effectKind = kind;
+            modifiersPerStack = modifiers ?? Array.Empty<StatModifier>();
+            description = details;
+            runtimeEffects = Array.Empty<PowerupEffectRule>();
+        }
+        // Configure the complete data-driven effects without replacing this asset or its icon reference.
+        public void ConfigureRuntimeEffects(PowerupEffectRule[] rules, Sprite newIcon = null)
+        {
+            runtimeEffects = rules ?? Array.Empty<PowerupEffectRule>();
+            if (newIcon != null) icon = newIcon;
+        }
     }
 }

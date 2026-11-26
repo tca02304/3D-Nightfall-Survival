@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Dracula
   m_EditorClassIdentifier: 
-  powerupId: dracula
+  powerupCode: dracula
   displayName: Dracula
-  description: 
-  rarity: 1
   icon: {fileID: 0}
+  rarity: 3
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 0
-    modifierType: 0
-    trigger: 4
-    stackFormula: 0
-    baseValue: 1
-    scaleSpeed: 0
-    maxValue: 0
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Gain +1 permanent maximum health per stack after each confirmed enemy kill."
+  runtimeEffects:
+  - stat: 0
+    mode: 0
+    condition: 6
+    growth: 0
+    valuePerStack: 1
+    limit: 0
+    growthRate: 0
     duration: 0
-    cooldown: 0
     healthThreshold: 0

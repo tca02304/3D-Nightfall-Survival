@@ -37,4 +37,4 @@ MonoBehaviour:
     itemId: 0
     healHP: 0
     restoreStamina: 0
-  worldPrefab: {fileID: 0}
+  worldPrefab: {fileID: 956301320588213438, guid: 2a99acf2c27aa404c889d440f05358a8, type: 3}

@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Peanut Butter
   m_EditorClassIdentifier: 
-  powerupId: peanut_butter
+  powerupCode: peanut_butter
   displayName: Peanut Butter
-  description: 
+  icon: {fileID: 21300000, guid: 0abfb51c983c5d847a5f5ad9a3ad9eb6, type: 3}
   rarity: 0
-  icon: {fileID: 0}
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 5
-    modifierType: 1
-    trigger: 0
-    stackFormula: 0
-    baseValue: -0.15
-    scaleSpeed: 0
-    maxValue: 0
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Reduce stamina usage; diminishing returns, minimum 10 percent."
+  runtimeEffects:
+  - stat: 16
+    mode: 1
+    condition: 0
+    growth: 1
+    valuePerStack: -1
+    limit: 0.9
+    growthRate: 0.18
     duration: 0
-    cooldown: 0
     healthThreshold: 0

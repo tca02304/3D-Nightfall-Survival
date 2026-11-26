@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5e0724ac78e8343b4ee58838b9b331, type: 3}
   m_Name: Dumbbell
   m_EditorClassIdentifier: 
-  powerupId: dumbbell
+  powerupCode: dumbbell
   displayName: Dumbbell
-  description: 
+  icon: {fileID: 21300000, guid: 005473e7632545448bedec6cebbeb3d1, type: 3}
   rarity: 0
-  icon: {fileID: 0}
+  dropWeight: 100
   maxStacks: 999
-  effects:
-  - statType: 9
-    modifierType: 1
-    trigger: 0
-    stackFormula: 0
-    baseValue: 0.1
-    scaleSpeed: 0
-    maxValue: 0
+  effectKind: 0
+  modifiersPerStack: []
+  description: "Attack +10 percent per stack."
+  runtimeEffects:
+  - stat: 3
+    mode: 1
+    condition: 0
+    growth: 0
+    valuePerStack: 0.1
+    limit: 0
+    growthRate: 0
     duration: 0
-    cooldown: 0
     healthThreshold: 0
