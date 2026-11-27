@@ -23,7 +23,9 @@ public class GronkSwordThrower : MonoBehaviour
     public bool useAnimationEvents = false;
 
     [Header("Bay")]
+    [Tooltip("Tầm bay tối thiểu. Khi GronkBossAI truyền khoảng cách tới Player, tầm bay sẽ = max(range, khoảng cách + rangeOvershoot)")]
     public float range = 20f;
+    public float rangeOvershoot = 5f;
     public float speed = 30f;
     [Tooltip("Tốc độ xoay (độ/giây) quanh trục ngang của boss")]
     public float spinSpeed = 900f;
@@ -42,12 +44,15 @@ public class GronkSwordThrower : MonoBehaviour
     [Header("Trúng mục tiêu trên đường bay (xuyên qua, mỗi mục tiêu 1 lần)")]
     public string targetTag = "Player";
     public float hitRadius = 1.5f;
+    [Tooltip("Sát thương mỗi thanh kiếm (qua GronkDamage). onHitTarget vẫn được gọi thêm")]
+    public float damage = 25f;
     public UnityEvent<GameObject> onHitTarget;
 
     [Header("Kiếm trên tay hiện lại")]
     public float reappearDuration = 0.25f;
 
     int nextIndex;
+    float flightRange;
     readonly List<GameObject> live = new List<GameObject>();
     Renderer[][] handRenderers;   // renderer mesh của từng kiếm (cả object con, trừ TrailRenderer)
     bool[] hidden;
@@ -101,11 +106,12 @@ public class GronkSwordThrower : MonoBehaviour
     }
 
     // ---------- gọi từ GronkBossAI ----------
-    /// Bắt đầu chuỗi ném. stateLength = thời lượng state Ranged (giây).
-    public void BeginThrowSequence(float stateLength)
+    /// Bắt đầu chuỗi ném. stateLength = thời lượng state Ranged (giây), targetDistance = khoảng cách tới Player (0 = dùng range).
+    public void BeginThrowSequence(float stateLength, float targetDistance = 0f)
     {
         StopPendingThrows();
         nextIndex = 0;
+        flightRange = Mathf.Max(range, targetDistance + rangeOvershoot);
         if (useAnimationEvents || throwTimes == null || throwTimes.Length == 0) return;
         for (int i = 0; i < swords.Length; i++)
         {
@@ -121,7 +127,17 @@ public class GronkSwordThrower : MonoBehaviour
         if (throwRemaining) while (nextIndex < swords.Length) ThrowNextSword();
         nextIndex = swords.Length;
         for (int i = 0; i < swords.Length; i++)
-            if (hidden[i]) StartCoroutine(Reappear(i));
+        {
+            if (!hidden[i]) continue;
+            if (isActiveAndEnabled) StartCoroutine(Reappear(i));
+            else RestoreHand(i); // object đang bị tắt: không chạy được coroutine
+        }
+    }
+
+    void RestoreHand(int i)
+    {
+        SetHandVisible(i, true);
+        if (swords[i]) swords[i].localScale = handScales[i];
     }
 
     readonly List<Coroutine> pending = new List<Coroutine>();
@@ -169,10 +185,10 @@ public class GronkSwordThrower : MonoBehaviour
 
         Vector3 fwd = transform.forward; fwd.y = 0f;
         if (fwd.sqrMagnitude < 0.0001f) fwd = Vector3.forward;
-        StartCoroutine(Fly(clone, fwd.normalized));
+        StartCoroutine(Fly(clone, fwd.normalized, flightRange > 0f ? flightRange : range));
     }
 
-    IEnumerator Fly(GameObject clone, Vector3 dir)
+    IEnumerator Fly(GameObject clone, Vector3 dir, float range)
     {
         Transform t = clone.transform;
         Vector3 spinAxis = Vector3.Cross(Vector3.up, dir); // trục ngang -> xoay lộn về phía trước
@@ -242,7 +258,9 @@ public class GronkSwordThrower : MonoBehaviour
         {
             GameObject go = h.collider.attachedRigidbody ? h.collider.attachedRigidbody.gameObject : h.collider.gameObject;
             if (!go.CompareTag(targetTag) && !h.collider.CompareTag(targetTag)) continue;
-            if (hitOnce.Add(go)) onHitTarget?.Invoke(go);
+            if (!hitOnce.Add(go)) continue;
+            GronkDamage.Apply(go, damage);
+            onHitTarget?.Invoke(go);
         }
     }
 
@@ -272,11 +290,7 @@ public class GronkSwordThrower : MonoBehaviour
         StopAllCoroutines();
         pending.Clear();
         if (handRenderers != null)
-            for (int i = 0; i < swords.Length; i++)
-            {
-                SetHandVisible(i, true);
-                if (swords[i]) swords[i].localScale = handScales[i];
-            }
+            for (int i = 0; i < swords.Length; i++) RestoreHand(i);
         foreach (var c in live) if (c) Destroy(c);
         live.Clear();
     }
