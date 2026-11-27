@@ -28,6 +28,9 @@ public class NavMeshEnemyAI : MonoBehaviour
     [Range(5f, 180f)] public float attackAngle = 50f;
     [Tooltip("Điểm tính tầm đánh (mỏ/móng). Để trống = tự tìm object con tên 'AttackPos', không có thì dùng vị trí quái + hitOriginHeight.")]
     public Transform attackPoint;
+    [Tooltip("Khoảng cách (tâm quái -> Player) mà NavMeshAgent dừng lại. Phải đủ gần để Attack Point chạm tới Player trong attackReach, " +
+             "nếu không quái sẽ đứng im (Idle) cạnh Player mà không đánh.")]
+    public float stoppingDistance = 1.0f;
 
     [Header("Patrol Circle Settings")]
     public float patrolRadius = 5.0f;    // Bán kính đường tròn tuần tra
@@ -173,7 +176,7 @@ public class NavMeshEnemyAI : MonoBehaviour
         {
             agent.updatePosition = true;
             agent.updateRotation = true;
-            agent.stoppingDistance = 1.2f;
+            agent.stoppingDistance = stoppingDistance;
             agent.acceleration = 16.0f;
             agent.angularSpeed = 360.0f;
             agent.speed = chaseSpeed;

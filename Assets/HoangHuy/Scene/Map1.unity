@@ -234,9 +234,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2643771054221018191, guid: 54fd0d5b9c1c82e4eb1a45b421e41629, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 789890313}
-    - targetCorrespondingSourceObject: {fileID: 2643771054221018191, guid: 54fd0d5b9c1c82e4eb1a45b421e41629, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 789890319}
     - targetCorrespondingSourceObject: {fileID: 6385738620615880711, guid: 54fd0d5b9c1c82e4eb1a45b421e41629, type: 3}
       insertIndex: -1
@@ -605,63 +602,6 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
---- !u!1 &736946597 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1408715526692010511, guid: b9e18243666fd4048bf1f612a57ea132, type: 3}
-  m_PrefabInstance: {fileID: 1373174812}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &736946598
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 736946597}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6fd7385733e18234083879fbaece204f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentState: 0
-  patrolDistance: 50
-  chaseDistance: 49
-  attackReach: 0.5
-  attackExitMargin: 0.4
-  attackAngle: 50
-  attackPoint: {fileID: 0}
-  patrolRadius: 5
-  patrolSpeed: 2.5
-  angularSpeed: 1.2
-  chaseSpeed: 5
-  speedDampTime: 0.1
-  maxSlopeAngle: 35
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  slopeSampleStep: 1
-  navSampleDistance: 3
-  navSampleDistanceFar: 15
-  repathInterval: 0.25
-  groundOffset: 0
-  attackCooldown: 1
-  fxPrefab: {fileID: 0}
-  fxPoint: {fileID: 0}
-  fxLifeTime: 2
-  spawnFxAtHitPoint: 1
-  hitOriginHeight: 1
-  hitPointPullBack: 0.1
-  useAnimationEvent: 1
-  playerTarget: {fileID: 0}
-  playerTag: Player
-  useTriggerForAttack: 0
-  triggerRadius: 2.5
-  bodyColliderOnly: 1
-  dieTriggerName: Die
-  deathStateNames:
-  - Death
-  - Die
-  - LilDave_Death
-  corpseLifetime: 0
 --- !u!1 &756350735
 GameObject:
   m_ObjectHideFlags: 0
@@ -760,58 +700,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2643771054221018191, guid: 54fd0d5b9c1c82e4eb1a45b421e41629, type: 3}
   m_PrefabInstance: {fileID: 226307187}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &789890313
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 789890312}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6fd7385733e18234083879fbaece204f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentState: 0
-  patrolDistance: 50
-  chaseDistance: 49
-  attackReach: 0.5
-  attackExitMargin: 0.4
-  attackAngle: 50
-  attackPoint: {fileID: 0}
-  patrolRadius: 5
-  patrolSpeed: 2.5
-  angularSpeed: 1.2
-  chaseSpeed: 5
-  speedDampTime: 0.1
-  maxSlopeAngle: 35
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  slopeSampleStep: 1
-  navSampleDistance: 3
-  navSampleDistanceFar: 15
-  repathInterval: 0.25
-  groundOffset: 0
-  attackCooldown: 1.5
-  fxPrefab: {fileID: 0}
-  fxPoint: {fileID: 0}
-  fxLifeTime: 2
-  spawnFxAtHitPoint: 1
-  hitOriginHeight: 1
-  hitPointPullBack: 0.1
-  useAnimationEvent: 1
-  playerTarget: {fileID: 0}
-  playerTag: Player
-  useTriggerForAttack: 0
-  triggerRadius: 2.5
-  bodyColliderOnly: 1
-  dieTriggerName: Die
-  deathStateNames:
-  - Death
-  - Die
-  - LilDave_Death
-  corpseLifetime: 0
 --- !u!54 &789890319
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1961,9 +1849,6 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1408715526692010511, guid: b9e18243666fd4048bf1f612a57ea132, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 736946598}
     - targetCorrespondingSourceObject: {fileID: 412098964638396079, guid: b9e18243666fd4048bf1f612a57ea132, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1645821035}
