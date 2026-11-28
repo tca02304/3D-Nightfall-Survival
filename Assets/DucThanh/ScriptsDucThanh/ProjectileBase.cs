@@ -18,6 +18,9 @@ namespace DucThanh
         [Tooltip("Thời gian tồn tại tối đa trước khi tự hủy (giây)")]
         [SerializeField] protected float maxLifeTime = 8f;
 
+        [Tooltip("Tốc độ bay riêng của đạn (> 0 sẽ ưu tiên dùng giá trị này; để 0 sẽ dùng Projectile Speed của Nỏ / Máy Bắn Đá)")]
+        [SerializeField, Min(0f)] protected float flightSpeedOverride = 0f;
+
         [Tooltip("Hiệu ứng va chạm hoặc nổ (tùy chọn)")]
         [SerializeField] protected GameObject impactEffectPrefab;
 
@@ -34,7 +37,7 @@ namespace DucThanh
         {
             target = targetTransform;
             damage = damageAmount;
-            speed = moveSpeed;
+            speed = flightSpeedOverride > 0f ? flightSpeedOverride : moveSpeed;
             if (!string.IsNullOrEmpty(tag)) targetTag = tag;
 
             if (target != null)
@@ -42,6 +45,49 @@ namespace DucThanh
 
             isInitialized = true;
             Destroy(gameObject, maxLifeTime);
+        }
+
+        protected Rigidbody EnsureKinematicRigidbody(bool continuousSpeculative = false)
+        {
+            Rigidbody rb = GetComponent<Rigidbody>();
+            if (rb == null)
+                rb = gameObject.AddComponent<Rigidbody>();
+
+            rb.isKinematic = true;
+            rb.useGravity = false;
+            if (continuousSpeculative)
+                rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+
+            return rb;
+        }
+
+        protected bool ShouldIgnoreCollision(GameObject obj)
+        {
+            if (obj == null || obj == gameObject) return true;
+            return obj.GetComponentInParent<SiegeWeaponBase>() != null
+                || obj.GetComponentInParent<ProjectileBase>() != null;
+        }
+
+        protected bool IsEnemyObject(GameObject obj)
+        {
+            if (obj == null) return false;
+            return obj.CompareTag(targetTag)
+                || obj.transform.root.CompareTag(targetTag)
+                || obj.GetComponentInParent<EnemyStats>() != null
+                || obj.GetComponentInParent<EnemyTest>() != null;
+        }
+
+        protected static Collider FindPrimaryTargetCollider(Transform targetTransform)
+        {
+            if (targetTransform == null) return null;
+
+            foreach (Collider c in targetTransform.GetComponentsInChildren<Collider>())
+            {
+                if (c != null && !c.isTrigger)
+                    return c;
+            }
+
+            return null;
         }
 
         protected virtual void ApplyDamage(GameObject hitObject)

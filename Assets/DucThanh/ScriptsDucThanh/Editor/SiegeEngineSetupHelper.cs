@@ -333,7 +333,7 @@ namespace DucThanh.Editor
             so.FindProperty("attackRange").floatValue = 35f;
             so.FindProperty("fireRate").floatValue = 3.5f;
             so.FindProperty("attackDamage").floatValue = 80f;
-            so.FindProperty("projectileSpeed").floatValue = 18f;
+            so.FindProperty("projectileSpeed").floatValue = 28f;
             so.FindProperty("projectileSpawnDelay").floatValue = 0.375f; // Khớp chuẩn frame vung gáo máy bắn đá
             so.FindProperty("fireAnimationTrigger").stringValue = "Fire";
 

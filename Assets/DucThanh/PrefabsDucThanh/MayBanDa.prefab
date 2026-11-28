@@ -131,23 +131,30 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 4294967295
+  targetScanInterval: 0.2
   fireRate: 3.5
   attackDamage: 80
-  projectileSpeed: 18
-  projectileSpawnDelay: 0.375
+  projectileSpeed: 25
   rotatingPart: {fileID: 0}
   rotationSpeed: 5
-  aimEulerOffset: {x: 0, y: 0, z: 0}
   flipAimDirection: 1
   firePoint: {fileID: 0}
-  projectileEulerOffset: {x: 0, y: 0, z: 0}
   projectilePrefab: {fileID: 744688771968356621, guid: 97f00a11db7d73042ab53813293269e4, type: 3}
+  spawnAtAnimationEnd: 1
+  fireStateName: Fire
+  fireReleaseNormalizedTime: 0.95
+  projectileSpawnDelay: 0.375
   animator: {fileID: 710007343470248395}
   fireAnimationTrigger: Fire
   audioSource: {fileID: 0}
   fireSound: {fileID: 0}
-  throwArm: {fileID: 0}
   minAttackRange: 5
+  loadedStoneVisual: {fileID: 0}
+  reloadStateName: Idle
+  reloadStoneShowNormalizedTime: 0.78
+  matchLoadedStoneScale: 1
+  catapultReleaseNormalizedTime: 0.4
+  reloadStoneExtraDelay: 0.1
 --- !u!95 &710007343470248395
 Animator:
   serializedVersion: 7
